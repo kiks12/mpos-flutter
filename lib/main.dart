@@ -43,7 +43,11 @@ class _MyAppState extends State<MyApp> {
   }
 
   dynamic screenToShow() {
-    if (noAdminAccount()) return const AdminRegistrationScreen();
+    if (noAdminAccount()) {
+      return AdminRegistrationScreen(
+        accountBox: objectBox.accountBox,
+      );
+    }
     if (noStoreDetails()) return const StoreDetailsRegistrationScreen();
     return const SplashScreen();
   }
