@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:mpos/models/account.dart';
 import 'package:mpos/models/objectBox.dart';
-import 'package:mpos/screens/home/homeScreen.dart';
+import 'package:mpos/models/storeDetails.dart';
+import 'package:mpos/objectbox.g.dart';
+import 'package:mpos/screens/adminRegistrationScreen.dart';
+// import 'package:mpos/screens/home/homeScreen.dart';
+// import 'package:mpos/screens/loginScreen.dart';
+import 'package:mpos/screens/splashScreen.dart';
+import 'package:mpos/screens/storeDetailsRegistrationScreen.dart';
+// import 'package:mpos/screens/splashScreen.dart';
 
 late ObjectBox objectBox;
 
@@ -21,13 +29,36 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   @override
+  void initState() {
+    super.initState();
+  }
+
+  bool noAdminAccount() {
+    Query<Account> adminQuery =
+        objectBox.accountBox.query(Account_.isAdmin.equals(true)).build();
+    List<Account> admin = adminQuery.find();
+    return admin.isEmpty;
+  }
+
+  bool noStoreDetails() {
+    List<StoreDetails> storeDetailsQuery = objectBox.storeDetailsBox.getAll();
+    return storeDetailsQuery.isEmpty;
+  }
+
+  dynamic screenToShow() {
+    if (noAdminAccount()) return const AdminRegistrationScreen();
+    if (noStoreDetails()) return const StoreDetailsRegistrationScreen();
+    return const SplashScreen();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Mobile POS',
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
       ),
-      home: const HomeScreen(),
+      home: screenToShow(),
     );
   }
 }
