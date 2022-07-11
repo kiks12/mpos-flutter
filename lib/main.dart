@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:mpos/models/objectBox.dart';
 import 'package:mpos/screens/home/homeScreen.dart';
-// import 'package:mpos/screens/loginScreen.dart';
-// import 'package:mpos/screens/splashScreen.dart';
 
-void main() {
+late ObjectBox objectBox;
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  objectBox = await ObjectBox.create();
+
   runApp(const MyApp());
 }
 
