@@ -4,11 +4,8 @@ import 'package:mpos/models/objectBox.dart';
 import 'package:mpos/models/storeDetails.dart';
 import 'package:mpos/objectbox.g.dart';
 import 'package:mpos/screens/adminRegistrationScreen.dart';
-// import 'package:mpos/screens/home/homeScreen.dart';
-// import 'package:mpos/screens/loginScreen.dart';
 import 'package:mpos/screens/splashScreen.dart';
 import 'package:mpos/screens/storeDetailsRegistrationScreen.dart';
-// import 'package:mpos/screens/splashScreen.dart';
 
 late ObjectBox objectBox;
 
