@@ -24,6 +24,7 @@ class _CheckboxWithLabelState extends State<CheckboxWithLabel> {
     return Padding(
       padding: widget.padding,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
           Text(widget.label),
           Checkbox(
