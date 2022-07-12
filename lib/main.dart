@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:mpos/models/account.dart';
 import 'package:mpos/models/objectBox.dart';
 import 'package:mpos/models/storeDetails.dart';
@@ -13,6 +14,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   objectBox = await ObjectBox.create();
+  await GetStorage.init();
 
   runApp(const MyApp());
 }

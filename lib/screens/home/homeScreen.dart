@@ -1,25 +1,45 @@
 import 'package:flutter/material.dart';
+
+import 'package:mpos/main.dart';
+import 'package:mpos/models/account.dart';
+import 'package:mpos/models/objectBox.dart';
 import 'package:mpos/screens/home/tabs/accountsScreen.dart';
 import 'package:mpos/screens/home/tabs/attendanceScreen.dart';
 import 'package:mpos/screens/home/tabs/cashierScreen.dart';
 import 'package:mpos/screens/home/tabs/dashboardScreen.dart';
 import 'package:mpos/screens/home/tabs/inventoryScreen.dart';
 import 'package:mpos/screens/home/tabs/settingsScreen.dart';
+import 'package:mpos/utils/utils.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({
+    Key? key,
+    required this.objectBox,
+  }) : super(key: key);
+
+  final ObjectBox objectBox;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  Account? currentAccount;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      currentAccount = Utils().getCurrentAccount(objectBox);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const DefaultTabController(
-      length: 6,
+    return DefaultTabController(
+      length: currentAccount!.isAdmin ? 6 : 2,
       child: Scaffold(
-        bottomNavigationBar: BottomAppBar(
+        bottomNavigationBar: const BottomAppBar(
           child: TabBar(
             tabs: [
               Tab(
@@ -62,14 +82,19 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         body: TabBarView(
-          children: [
-            CashierScreen(),
-            InventoryScreen(),
-            AccountsScreen(),
-            AttendanceScreen(),
-            DashboardScreen(),
-            SettingsScreen(),
-          ],
+          children: currentAccount!.isAdmin
+              ? [
+                  const CashierScreen(),
+                  const InventoryScreen(),
+                  const AccountsScreen(),
+                  const AttendanceScreen(),
+                  const DashboardScreen(),
+                  const SettingsScreen(),
+                ]
+              : [
+                  const CashierScreen(),
+                  const SettingsScreen(),
+                ],
         ),
       ),
     );

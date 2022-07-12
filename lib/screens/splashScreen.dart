@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:mpos/components/HeaderOne.dart';
 import 'package:mpos/models/objectBox.dart';
+import 'package:mpos/screens/home/homeScreen.dart';
 import 'package:mpos/screens/loginScreen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -23,21 +25,31 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    startTimer();
+
+    if (GetStorage().read('email') == null) {
+      startTimer(
+        LoginScreen(objectBox: widget.objectBox),
+      );
+      return;
+    }
+
+    startTimer(
+      HomeScreen(
+        objectBox: widget.objectBox,
+      ),
+    );
   }
 
-  void startTimer() {
+  void startTimer(dynamic nextScreen) {
     Duration duration = const Duration(seconds: 3);
-    Timer(duration, navigateToNextScreen);
+    Timer(duration, () => navigateToNextScreen(nextScreen));
   }
 
-  void navigateToNextScreen() {
+  void navigateToNextScreen(dynamic nextScreen) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => LoginScreen(
-          objectBox: widget.objectBox,
-        ),
+        builder: (context) => nextScreen,
       ),
     );
   }
