@@ -49,49 +49,51 @@ class _StoreDetailsRegistrationScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 200),
-          child: Form(
-            key: formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                const HeaderOne(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    text: 'Store Details'),
-                TextFormFieldWithLabel(
-                    label: 'Store Name',
-                    controller: storeNameTextController,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 200),
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  const HeaderOne(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      text: 'Store Details'),
+                  TextFormFieldWithLabel(
+                      label: 'Store Name',
+                      controller: storeNameTextController,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      isPassword: false),
+                  TextFormFieldWithLabel(
+                      label: 'Contact Person',
+                      controller: contactPersonTextController,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      isPassword: false),
+                  TextFormFieldWithLabel(
+                      label: 'Contact Number',
+                      controller: contactNumberTextController,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      isPassword: false),
+                  Padding(
                     padding: const EdgeInsets.symmetric(vertical: 15),
-                    isPassword: false),
-                TextFormFieldWithLabel(
-                    label: 'Contact Person',
-                    controller: contactPersonTextController,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    isPassword: false),
-                TextFormFieldWithLabel(
-                    label: 'Contact Number',
-                    controller: contactNumberTextController,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    isPassword: false),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        onPressed: registerStoreDetails,
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 15, horizontal: 25),
-                          child: Text('Continue'),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ElevatedButton(
+                          onPressed: registerStoreDetails,
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 25),
+                            child: Text('Continue'),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                )
-              ],
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),

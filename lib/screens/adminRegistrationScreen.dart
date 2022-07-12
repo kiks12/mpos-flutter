@@ -85,143 +85,145 @@ class _AdminRegistrationScreenState extends State<AdminRegistrationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Form(
-          key: formKey,
-          child: Column(
-            children: [
-              const HeaderOne(
-                padding: EdgeInsets.all(30),
-                text: 'Admin Account Registration',
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.45,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        const HeaderTwo(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                          text: 'Personal Information',
-                        ),
-                        TextFormFieldWithLabel(
-                          label: 'First Name',
-                          controller: firstNameTextController,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 20, horizontal: 20),
-                          isPassword: false,
-                        ),
-                        TextFormFieldWithLabel(
-                          label: 'Middle Name',
-                          controller: middleNameTextController,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 20, horizontal: 20),
-                          isPassword: false,
-                        ),
-                        TextFormFieldWithLabel(
-                          label: 'Last Name',
-                          controller: lastNameTextController,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 20, horizontal: 20),
-                          isPassword: false,
-                        ),
-                        TextFormFieldWithLabel(
-                          label: 'Contact Number',
-                          controller: contactNumberTextController,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 20, horizontal: 20),
-                          isPassword: false,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.45,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        const HeaderTwo(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                          text: 'Email and Password',
-                        ),
-                        TextFormFieldWithLabel(
-                          label: 'Email Address',
-                          controller: emailAddressTextController,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 20, horizontal: 20),
-                          isPassword: false,
-                        ),
-                        TextFormFieldWithLabel(
-                          label: 'Password',
-                          controller: passwordTextController,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 20, horizontal: 20),
-                          isPassword: true,
-                        ),
-                        TextFormFieldWithLabel(
-                          label: 'Confirm Password',
-                          controller: confirmPasswordTextController,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 20, horizontal: 20),
-                          isPassword: true,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 20.0),
-                              child: Text(
-                                _error,
-                                style: const TextStyle(color: Colors.red),
-                              ),
-                            ),
-                            CheckboxWithLabel(
-                              label: 'Admin Account',
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 20),
-                              value: isAdmin,
-                              onChange: (bool? val) {},
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 80, vertical: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+        child: SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: Column(
+              children: [
+                const HeaderOne(
+                  padding: EdgeInsets.all(30),
+                  text: 'Admin Account Registration',
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    TextButton(
-                      onPressed: exitApp,
-                      child: const Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-                        child: Text('Exit'),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.45,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          const HeaderTwo(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
+                            text: 'Personal Information',
+                          ),
+                          TextFormFieldWithLabel(
+                            label: 'First Name',
+                            controller: firstNameTextController,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 20, horizontal: 20),
+                            isPassword: false,
+                          ),
+                          TextFormFieldWithLabel(
+                            label: 'Middle Name',
+                            controller: middleNameTextController,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 20, horizontal: 20),
+                            isPassword: false,
+                          ),
+                          TextFormFieldWithLabel(
+                            label: 'Last Name',
+                            controller: lastNameTextController,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 20, horizontal: 20),
+                            isPassword: false,
+                          ),
+                          TextFormFieldWithLabel(
+                            label: 'Contact Number',
+                            controller: contactNumberTextController,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 20, horizontal: 20),
+                            isPassword: false,
+                          ),
+                        ],
                       ),
                     ),
-                    ElevatedButton(
-                      onPressed: registerAdminAccount,
-                      child: const Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-                        child: Text('Register'),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.45,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          const HeaderTwo(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
+                            text: 'Email and Password',
+                          ),
+                          TextFormFieldWithLabel(
+                            label: 'Email Address',
+                            controller: emailAddressTextController,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 20, horizontal: 20),
+                            isPassword: false,
+                          ),
+                          TextFormFieldWithLabel(
+                            label: 'Password',
+                            controller: passwordTextController,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 20, horizontal: 20),
+                            isPassword: true,
+                          ),
+                          TextFormFieldWithLabel(
+                            label: 'Confirm Password',
+                            controller: confirmPasswordTextController,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 20, horizontal: 20),
+                            isPassword: true,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20.0),
+                                child: Text(
+                                  _error,
+                                  style: const TextStyle(color: Colors.red),
+                                ),
+                              ),
+                              CheckboxWithLabel(
+                                label: 'Admin Account',
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 20),
+                                value: isAdmin,
+                                onChange: (bool? val) {},
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 80, vertical: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: exitApp,
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 25, vertical: 15),
+                          child: Text('Exit'),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: registerAdminAccount,
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 25, vertical: 15),
+                          child: Text('Register'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
