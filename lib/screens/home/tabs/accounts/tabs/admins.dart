@@ -61,9 +61,10 @@ class AdminAccountsTabState extends State<AdminAccountsTab> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const AccountsScreenControlPanel(
+        AccountsScreenControlPanel(
           text: 'Admin Accounts',
-          padding: EdgeInsets.all(0),
+          padding: const EdgeInsets.all(0),
+          accountBox: widget.accountsBox,
         ),
         Expanded(
           child: StreamBuilder<List<Account>>(

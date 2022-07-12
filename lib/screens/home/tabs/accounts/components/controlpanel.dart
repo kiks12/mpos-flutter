@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:mpos/components/HeaderTwo.dart';
+import 'package:mpos/models/account.dart';
+import 'package:mpos/objectbox.g.dart';
+import 'package:mpos/screens/home/tabs/accounts/addAccountScreen.dart';
 
 class AccountsScreenControlPanel extends StatefulWidget {
   const AccountsScreenControlPanel({
     Key? key,
     required this.text,
     required this.padding,
+    required this.accountBox,
   }) : super(key: key);
 
   final String text;
   final EdgeInsets padding;
+  final Box<Account> accountBox;
 
   @override
   State<AccountsScreenControlPanel> createState() =>
@@ -19,6 +24,31 @@ class AccountsScreenControlPanel extends StatefulWidget {
 class _AccountsScreenControlPnaelState
     extends State<AccountsScreenControlPanel> {
   final TextEditingController searchController = TextEditingController();
+
+  void navigateToAddAccountScreen() {
+    if (widget.text.contains('Admin')) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AddAccountScreen(
+            admins: true,
+            accountBox: widget.accountBox,
+          ),
+        ),
+      );
+      return;
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddAccountScreen(
+          admins: false,
+          accountBox: widget.accountBox,
+        ),
+      ),
+    );
+    return;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +85,7 @@ class _AccountsScreenControlPnaelState
             ],
           ),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: navigateToAddAccountScreen,
             child: const Padding(
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
               child: Text('Create User'),
