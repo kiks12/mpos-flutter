@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mpos/models/account.dart';
 import 'package:mpos/objectbox.g.dart';
+import 'package:mpos/screens/home/tabs/accounts/editAccountScreen.dart';
 
 class AccountListTile extends StatefulWidget {
   const AccountListTile({
@@ -32,6 +33,18 @@ class _AccountListTileState extends State<AccountListTile> {
   void deleteAccount() {
     widget.accountsBox.remove(curr!.id);
     Navigator.of(context).pop();
+  }
+
+  void navigateToEditScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditAccountScreen(
+          account: curr,
+          accountBox: widget.accountsBox,
+        ),
+      ),
+    );
   }
 
   Future<void> showDeleteConfirmationDialog() async {
@@ -112,7 +125,7 @@ class _AccountListTileState extends State<AccountListTile> {
                   style: ElevatedButton.styleFrom(
                     primary: Colors.blue,
                   ),
-                  onPressed: () {},
+                  onPressed: navigateToEditScreen,
                   child: const Padding(
                     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                     child: Text('Edit'),
