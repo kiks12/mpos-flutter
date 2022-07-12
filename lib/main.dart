@@ -25,6 +25,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  String _storeName = '';
+
   @override
   void initState() {
     super.initState();
@@ -49,8 +51,21 @@ class _MyAppState extends State<MyApp> {
         accountBox: objectBox.accountBox,
       );
     }
-    if (noStoreDetails()) return const StoreDetailsRegistrationScreen();
-    return const SplashScreen();
+
+    if (noStoreDetails()) {
+      return StoreDetailsRegistrationScreen(
+        storeDetailsBox: objectBox.storeDetailsBox,
+      );
+    }
+
+    setState(() {
+      _storeName = objectBox.storeDetailsBox.getAll()[0].name;
+    });
+
+    return SplashScreen(
+      storeName: _storeName,
+      objectBox: objectBox,
+    );
   }
 
   @override
