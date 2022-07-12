@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/account.dart';
 import 'package:mpos/models/objectBox.dart';
-import 'package:mpos/screens/home/tabs/accountsScreen.dart';
+import 'package:mpos/screens/home/tabs/accounts/accountsScreen.dart';
 import 'package:mpos/screens/home/tabs/attendanceScreen.dart';
 import 'package:mpos/screens/home/tabs/cashierScreen.dart';
 import 'package:mpos/screens/home/tabs/dashboardScreen.dart';
@@ -86,7 +86,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ? [
                   const CashierScreen(),
                   const InventoryScreen(),
-                  const AccountsScreen(),
+                  AccountsScreen(
+                    accountsBox: widget.objectBox.accountBox,
+                  ),
                   const AttendanceScreen(),
                   const DashboardScreen(),
                   const SettingsScreen(),
