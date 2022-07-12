@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:mpos/models/account.dart';
+import 'package:mpos/objectbox.g.dart';
 
 class AccountListTile extends StatefulWidget {
-  const AccountListTile({Key? key, required this.accounts, required this.index})
-      : super(key: key);
+  const AccountListTile({
+    Key? key,
+    required this.accounts,
+    required this.index,
+    required this.accountsBox,
+  }) : super(key: key);
 
   final List<Account> accounts;
+  final Box<Account> accountsBox;
   final int index;
 
   @override
@@ -21,6 +27,48 @@ class _AccountListTileState extends State<AccountListTile> {
     setState(() {
       curr = widget.accounts[widget.index];
     });
+  }
+
+  void deleteAccount() {
+    widget.accountsBox.remove(curr!.id);
+    Navigator.of(context).pop();
+  }
+
+  Future<void> showDeleteConfirmationDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Account'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                const Text('Are you sure you want to delete this account?'),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text(
+                      '${curr!.lastName}, ${curr!.firstName} - ${curr!.emailAddress}'),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              child: const Text('Confirm'),
+              onPressed: deleteAccount,
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -75,7 +123,7 @@ class _AccountListTileState extends State<AccountListTile> {
                 style: ElevatedButton.styleFrom(
                   primary: Colors.red,
                 ),
-                onPressed: () {},
+                onPressed: showDeleteConfirmationDialog,
                 child: const Padding(
                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   child: Text('Delete'),

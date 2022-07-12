@@ -53,6 +53,7 @@ class _EmployeesAccountsTabState extends State<EmployeesAccountsTab> {
       return AccountListTile(
         accounts: accounts,
         index: index,
+        accountsBox: widget.accountsBox,
       );
     };
   }
