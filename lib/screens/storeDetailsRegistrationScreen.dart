@@ -27,7 +27,7 @@ class _StoreDetailsRegistrationScreenState
   final formKey = GlobalKey<FormState>();
 
   void registerStoreDetails() {
-    formKey.currentState!.validate();
+    if (!formKey.currentState!.validate()) return;
 
     StoreDetails newStoreDetails = StoreDetails(
       name: storeNameTextController.text,

@@ -45,7 +45,7 @@ class _AdminRegistrationScreenState extends State<AdminRegistrationScreen> {
   }
 
   void registerAdminAccount() {
-    formKey.currentState!.validate();
+    if (!formKey.currentState!.validate()) return;
 
     if (!passwordMatches()) {
       setState(() {
