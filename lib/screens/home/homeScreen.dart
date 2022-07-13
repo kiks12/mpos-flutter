@@ -9,6 +9,7 @@ import 'package:mpos/screens/home/tabs/cashierScreen.dart';
 import 'package:mpos/screens/home/tabs/dashboardScreen.dart';
 import 'package:mpos/screens/home/tabs/inventoryScreen.dart';
 import 'package:mpos/screens/home/tabs/settingsScreen.dart';
+import 'package:mpos/screens/home/tabs/timeInTimeOutScreen.dart';
 import 'package:mpos/utils/utils.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -23,7 +24,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   Account? currentAccount;
 
   @override
@@ -34,85 +36,96 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  late final _tabController =
+      TabController(length: currentAccount!.isAdmin ? 6 : 3, vsync: this);
+
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: currentAccount!.isAdmin ? 6 : 2,
-      child: Scaffold(
-        bottomNavigationBar: BottomAppBar(
-          child: TabBar(
-            tabs: currentAccount!.isAdmin
-                ? [
-                    const Tab(
-                      child: Text(
-                        'Cashier',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                    const Tab(
-                      child: Text(
-                        'Inventory',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                    const Tab(
-                      child: Text(
-                        'Accounts',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                    const Tab(
-                      child: Text(
-                        'Attendance',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                    const Tab(
-                      child: Text(
-                        'Dashboard',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                    const Tab(
-                      child: Text(
-                        'Settings',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                  ]
-                : [
-                    const Tab(
-                      child: Text(
-                        'Cashier',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                    const Tab(
-                      child: Text(
-                        'Settings',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                  ],
-          ),
-        ),
-        body: TabBarView(
-          children: currentAccount!.isAdmin
+    return Scaffold(
+      bottomNavigationBar: BottomAppBar(
+        child: TabBar(
+          controller: _tabController,
+          tabs: currentAccount!.isAdmin
               ? [
-                  const CashierScreen(),
-                  const InventoryScreen(),
-                  AccountsScreen(
-                    accountsBox: widget.objectBox.accountBox,
+                  const Tab(
+                    child: Text(
+                      'Cashier',
+                      style: TextStyle(color: Colors.black),
+                    ),
                   ),
-                  const AttendanceScreen(),
-                  const DashboardScreen(),
-                  const SettingsScreen(),
+                  const Tab(
+                    child: Text(
+                      'Inventory',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  const Tab(
+                    child: Text(
+                      'Accounts',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  const Tab(
+                    child: Text(
+                      'Attendance',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  const Tab(
+                    child: Text(
+                      'Dashboard',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  const Tab(
+                    child: Text(
+                      'Settings',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
                 ]
               : [
-                  const CashierScreen(),
-                  const SettingsScreen(),
+                  const Tab(
+                    child: Text(
+                      'Cashier',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  const Tab(
+                    child: Text(
+                      'Time In/Time Out',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  const Tab(
+                    child: Text(
+                      'Settings',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
                 ],
         ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: currentAccount!.isAdmin
+            ? [
+                const CashierScreen(),
+                const InventoryScreen(),
+                AccountsScreen(
+                  accountsBox: widget.objectBox.accountBox,
+                ),
+                const AttendanceScreen(),
+                const DashboardScreen(),
+                const SettingsScreen(),
+              ]
+            : [
+                const CashierScreen(),
+                TimeInTimeOutScreen(
+                  tabController: _tabController,
+                ),
+                const SettingsScreen(),
+              ],
       ),
     );
   }

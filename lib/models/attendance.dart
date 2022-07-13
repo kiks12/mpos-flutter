@@ -9,7 +9,7 @@ class Attendance {
 
   DateTime date;
   DateTime timeIn;
-  DateTime timeOut;
+  DateTime? timeOut;
 
   Attendance({required this.date, required this.timeIn, required this.timeOut});
 
