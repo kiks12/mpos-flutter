@@ -4,6 +4,7 @@ import 'package:mpos/components/HeaderOne.dart';
 import 'package:mpos/components/HeaderTwo.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/account.dart';
+import 'package:mpos/screens/home/tabs/accounts/editAccountScreen.dart';
 import 'package:mpos/utils/utils.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -14,12 +15,34 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  Account? currentAccount;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      currentAccount = Utils().getCurrentAccount(objectBox);
+    });
+  }
+
   void logout() {
     GetStorage().remove('id');
     GetStorage().remove('email');
 
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => const MyApp()));
+  }
+
+  void navigateToEditAccountScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditAccountScreen(
+          account: currentAccount,
+          accountBox: objectBox.accountBox,
+        ),
+      ),
+    );
   }
 
   @override
@@ -31,7 +54,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const HeaderOne(padding: EdgeInsets.all(0), text: 'Settings'),
-            const SettingsHeader(),
+            SettingsHeader(
+              currentAccount: currentAccount,
+            ),
             Container(
               decoration: const BoxDecoration(
                 border: Border(
@@ -41,7 +66,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               width: MediaQuery.of(context).size.width * 0.5,
               child: TextButton(
-                onPressed: () {},
+                onPressed: navigateToEditAccountScreen,
                 child: const Padding(
                   padding: EdgeInsets.all(10),
                   child: Text('Edit Account'),
@@ -72,22 +97,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
 }
 
 class SettingsHeader extends StatefulWidget {
-  const SettingsHeader({Key? key}) : super(key: key);
+  const SettingsHeader({
+    Key? key,
+    required this.currentAccount,
+  }) : super(key: key);
+
+  final Account? currentAccount;
 
   @override
   State<SettingsHeader> createState() => _SettingsHeaderState();
 }
 
 class _SettingsHeaderState extends State<SettingsHeader> {
-  Account? currentAccount;
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      currentAccount = Utils().getCurrentAccount(objectBox);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -98,7 +119,7 @@ class _SettingsHeaderState extends State<SettingsHeader> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CircleAvatar(
-              child: Text(currentAccount!.firstName[0].toUpperCase()),
+              child: Text(widget.currentAccount!.firstName[0].toUpperCase()),
               radius: 40,
             ),
             Padding(
@@ -109,9 +130,9 @@ class _SettingsHeaderState extends State<SettingsHeader> {
                   HeaderTwo(
                     padding: const EdgeInsets.symmetric(vertical: 7),
                     text:
-                        '${currentAccount!.lastName}, ${currentAccount!.firstName} ${currentAccount!.middleName[0].toUpperCase()}.',
+                        '${widget.currentAccount!.lastName}, ${widget.currentAccount!.firstName} ${widget.currentAccount!.middleName[0].toUpperCase()}.',
                   ),
-                  Text(currentAccount!.emailAddress),
+                  Text(widget.currentAccount!.emailAddress),
                 ],
               ),
             ),
