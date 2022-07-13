@@ -39,46 +39,61 @@ class _HomeScreenState extends State<HomeScreen> {
     return DefaultTabController(
       length: currentAccount!.isAdmin ? 6 : 2,
       child: Scaffold(
-        bottomNavigationBar: const BottomAppBar(
+        bottomNavigationBar: BottomAppBar(
           child: TabBar(
-            tabs: [
-              Tab(
-                child: Text(
-                  'Cashier',
-                  style: TextStyle(color: Colors.black),
-                ),
-              ),
-              Tab(
-                child: Text(
-                  'Inventory',
-                  style: TextStyle(color: Colors.black),
-                ),
-              ),
-              Tab(
-                child: Text(
-                  'Accounts',
-                  style: TextStyle(color: Colors.black),
-                ),
-              ),
-              Tab(
-                child: Text(
-                  'Attendance',
-                  style: TextStyle(color: Colors.black),
-                ),
-              ),
-              Tab(
-                child: Text(
-                  'Dashboard',
-                  style: TextStyle(color: Colors.black),
-                ),
-              ),
-              Tab(
-                child: Text(
-                  'Settings',
-                  style: TextStyle(color: Colors.black),
-                ),
-              ),
-            ],
+            tabs: currentAccount!.isAdmin
+                ? [
+                    const Tab(
+                      child: Text(
+                        'Cashier',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    const Tab(
+                      child: Text(
+                        'Inventory',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    const Tab(
+                      child: Text(
+                        'Accounts',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    const Tab(
+                      child: Text(
+                        'Attendance',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    const Tab(
+                      child: Text(
+                        'Dashboard',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    const Tab(
+                      child: Text(
+                        'Settings',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                  ]
+                : [
+                    const Tab(
+                      child: Text(
+                        'Cashier',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    const Tab(
+                      child: Text(
+                        'Settings',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                  ],
           ),
         ),
         body: TabBarView(
