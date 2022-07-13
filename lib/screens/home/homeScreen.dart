@@ -4,7 +4,7 @@ import 'package:mpos/main.dart';
 import 'package:mpos/models/account.dart';
 import 'package:mpos/models/objectBox.dart';
 import 'package:mpos/screens/home/tabs/accounts/accountsScreen.dart';
-import 'package:mpos/screens/home/tabs/attendanceScreen.dart';
+import 'package:mpos/screens/home/tabs/attendance/attendanceScreen.dart';
 import 'package:mpos/screens/home/tabs/cashierScreen.dart';
 import 'package:mpos/screens/home/tabs/dashboardScreen.dart';
 import 'package:mpos/screens/home/tabs/inventoryScreen.dart';
