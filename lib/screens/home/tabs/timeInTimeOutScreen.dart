@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:mpos/components/HeaderOne.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/account.dart';
@@ -76,7 +77,11 @@ class _TimeInTimeOutScreenState extends State<TimeInTimeOutScreen> {
 
     attendanceBox.put(attendanceRecordToday[0]);
 
-    widget.tabController.index = 0;
+    GetStorage().remove('id');
+    GetStorage().remove('email');
+
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const MyApp()));
   }
 
   void findRecordToday() {
