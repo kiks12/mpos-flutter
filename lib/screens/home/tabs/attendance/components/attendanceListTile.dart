@@ -22,8 +22,11 @@ class _AttendanceListTileState extends State<AttendanceListTile> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        border: Border(
+      decoration: BoxDecoration(
+        color: widget.index % 2 == 0
+            ? Colors.transparent
+            : const Color.fromARGB(255, 239, 239, 239),
+        border: const Border(
           bottom: BorderSide(
             color: Color.fromARGB(255, 232, 232, 232),
             width: 0.7,

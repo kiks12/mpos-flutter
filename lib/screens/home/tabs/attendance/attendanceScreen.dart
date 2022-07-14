@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mpos/components/HeaderOne.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/attendance.dart';
@@ -17,10 +18,11 @@ class AttendanceScreen extends StatefulWidget {
 class _AttendanceScreenState extends State<AttendanceScreen> {
   late Stream<Query<Attendance>> attendanceStream;
 
-  final StreamController<List<Attendance>> _listController =
+  StreamController<List<Attendance>> _listController =
       StreamController<List<Attendance>>(sync: true);
 
   final TextEditingController searchController = TextEditingController();
+  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -37,7 +39,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   void initializeAttendanceStream() {
     final attendanceQueryBuilder = objectBox.attendanceBox.query()
       ..order(Attendance_.date, flags: Order.descending);
-    attendanceStream = attendanceQueryBuilder.watch();
+    attendanceStream = attendanceQueryBuilder.watch(triggerImmediately: true);
 
     _listController.addStream(attendanceStream.map((query) => query.find()));
   }
@@ -53,6 +55,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     };
   }
 
+  void refresh() {
+    setState(() {
+      _listController = StreamController(sync: true);
+      initializeAttendanceStream();
+      _selectedDate = null;
+    });
+  }
+
   void search() {
     String strToSearch = searchController.text;
     final attendanceQueryBuilder = objectBox.attendanceBox.query()
@@ -65,9 +75,85 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         Attendance_.date,
         flags: Order.descending,
       );
-    final attendanceQuery = attendanceQueryBuilder.build();
-    final attendanceResult = attendanceQuery.find();
-    _listController.sink.add(attendanceResult);
+    final attendanceQuery =
+        attendanceQueryBuilder.watch(triggerImmediately: true);
+
+    setState(() {
+      _listController = StreamController(sync: true);
+      _listController.addStream(attendanceQuery.map((query) => query.find()));
+      searchController.text = '';
+    });
+  }
+
+  _selectDate(BuildContext context) async {
+    final DateTime? selected = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2010),
+      lastDate: DateTime(2025),
+    );
+    if (selected != null && selected != _selectedDate) {
+      setState(() {
+        _selectedDate = selected;
+      });
+    }
+
+    _filter();
+  }
+
+  void _filter() {
+    final attendanceQueryBuilder = objectBox.attendanceBox.query(
+      Attendance_.date.equals(DateTime.parse(
+        DateFormat('yyyy-MM-dd').format(_selectedDate as DateTime),
+      ).millisecondsSinceEpoch),
+    )..order(
+        Attendance_.date,
+        flags: Order.descending,
+      );
+    final attendanceQuery =
+        attendanceQueryBuilder.watch(triggerImmediately: true);
+
+    setState(() {
+      _listController = StreamController(sync: true);
+      _listController.addStream(attendanceQuery.map((query) => query.find()));
+    });
+  }
+
+  void deleteAll() {
+    objectBox.attendanceBox.removeAll();
+    Navigator.of(context).pop();
+  }
+
+  Future<void> showDeleteAllConfirmationDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete All Records'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const <Widget>[
+                Text('Are you sure you want to delete all attendance Records?')
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              child: const Text('Confirm'),
+              onPressed: deleteAll,
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -79,6 +165,10 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             AttendanceScreenHeader(
               searchController: searchController,
               onPressed: search,
+              selectDate: _selectDate,
+              date: _selectedDate,
+              refresh: refresh,
+              deleteAll: showDeleteAllConfirmationDialog,
             ),
             const ListHeader(),
             Expanded(
@@ -104,10 +194,18 @@ class AttendanceScreenHeader extends StatefulWidget {
     Key? key,
     required this.searchController,
     required this.onPressed,
+    required this.selectDate,
+    required this.date,
+    required this.refresh,
+    required this.deleteAll,
   }) : super(key: key);
 
   final TextEditingController searchController;
   final void Function() onPressed;
+  final void Function() refresh;
+  final void Function() deleteAll;
+  final dynamic Function(BuildContext context) selectDate;
+  final DateTime? date;
 
   @override
   State<AttendanceScreenHeader> createState() => _AttendanceScreenHeaderState();
@@ -145,6 +243,69 @@ class _AttendanceScreenHeaderState extends State<AttendanceScreenHeader> {
                       padding:
                           EdgeInsets.symmetric(vertical: 15, horizontal: 25),
                       child: Text('Search'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.white,
+                      onPrimary: Colors.blueGrey,
+                    ),
+                    onPressed: () => widget.selectDate(context),
+                    child: const Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+                      child: Text('Select Date'),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Text(
+                      widget.date != null
+                          ? "Selected Date: ${DateFormat('yyyy-MM-dd').format(widget.date as DateTime)}"
+                          : 'Selected Date: No Date Selected',
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.white,
+                        onPrimary: Colors.blueGrey,
+                      ),
+                      onPressed: widget.refresh,
+                      child: const Padding(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+                        child: Text('Refresh'),
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.red,
+                      onPrimary: Colors.white,
+                    ),
+                    onPressed: widget.deleteAll,
+                    child: const Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+                      child: Text('Delete All'),
                     ),
                   ),
                 ],
