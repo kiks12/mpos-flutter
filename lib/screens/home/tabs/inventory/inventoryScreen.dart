@@ -65,29 +65,30 @@ class _InventoryScreenState extends State<InventoryScreen> {
   }
 
   void search() {
-    // String strToSearch = searchController.text;
-    // final attendanceQueryBuilder = objectBox.attendanceBox.query()
-    //   ..link(
-    //       Attendance_.user,
-    //       Account_.firstName.contains(strToSearch) |
-    //           Account_.lastName.contains(strToSearch) |
-    //           Account_.emailAddress.contains(strToSearch))
-    //   ..order(
-    //     Attendance_.date,
-    //     flags: Order.descending,
-    //   );
-    // final attendanceQuery =
-    //     attendanceQueryBuilder.watch(triggerImmediately: true);
+    String strToSearch = searchController.text;
+    final productQueryBuilder = objectBox.productBox.query(
+        Product_.barcode.contains(strToSearch) |
+            Product_.name.contains(strToSearch))
+      // ..link(
+      //     Attendance_.user,
+      //     Account_.firstName.contains(strToSearch) |
+      //         Account_.lastName.contains(strToSearch) |
+      //         Account_.emailAddress.contains(strToSearch))
+      ..order(
+        Product_.id,
+        flags: Order.descending,
+      );
+    final productQuery = productQueryBuilder.watch(triggerImmediately: true);
 
-    // setState(() {
-    //   _listController = StreamController(sync: true);
-    //   _listController.addStream(attendanceQuery.map((query) => query.find()));
-    //   searchController.text = '';
-    // });
+    setState(() {
+      _listController = StreamController(sync: true);
+      _listController.addStream(productQuery.map((query) => query.find()));
+      searchController.text = '';
+    });
   }
 
   void deleteAll() {
-    objectBox.attendanceBox.removeAll();
+    objectBox.productBox.removeAll();
     Navigator.of(context).pop();
   }
 
@@ -97,12 +98,13 @@ class _InventoryScreenState extends State<InventoryScreen> {
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Delete All Records'),
+          title: const Text('Delete All Products'),
           content: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const <Widget>[
-                Text('Are you sure you want to delete all attendance Records?')
+                Text(
+                    'Are you sure you want to delete all products in inventory?')
               ],
             ),
           ),
@@ -179,8 +181,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
   }
 
   void navigateToProductScreen() {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => ProductScreen()));
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => const ProductScreen()));
   }
 
   void navigateToAddProductScreen() {
