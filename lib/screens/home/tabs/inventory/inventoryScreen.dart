@@ -5,24 +5,27 @@ import 'package:intl/intl.dart';
 import 'package:mpos/components/HeaderOne.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/attendance.dart';
+import 'package:mpos/models/inventory.dart';
 import 'package:mpos/objectbox.g.dart';
 import 'package:mpos/screens/home/tabs/attendance/components/attendanceListTile.dart';
+import 'package:mpos/screens/home/tabs/inventory/addProductScreen.dart';
+import 'package:mpos/screens/home/tabs/inventory/components/inventoryListTile.dart';
+import 'package:mpos/screens/home/tabs/inventory/productScreen.dart';
 
-class AttendanceScreen extends StatefulWidget {
-  const AttendanceScreen({Key? key}) : super(key: key);
+class InventoryScreen extends StatefulWidget {
+  const InventoryScreen({Key? key}) : super(key: key);
 
   @override
-  State<AttendanceScreen> createState() => _AttendanceScreenState();
+  State<InventoryScreen> createState() => _InventoryScreenState();
 }
 
-class _AttendanceScreenState extends State<AttendanceScreen> {
-  late Stream<Query<Attendance>> attendanceStream;
+class _InventoryScreenState extends State<InventoryScreen> {
+  late Stream<Query<Product>> attendanceStream;
 
-  StreamController<List<Attendance>> _listController =
-      StreamController<List<Attendance>>(sync: true);
+  StreamController<List<Product>> _listController =
+      StreamController<List<Product>>(sync: true);
 
   final TextEditingController searchController = TextEditingController();
-  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -37,20 +40,19 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   }
 
   void initializeAttendanceStream() {
-    final attendanceQueryBuilder = objectBox.attendanceBox.query()
-      ..order(Attendance_.date, flags: Order.descending);
+    final attendanceQueryBuilder = objectBox.productBox.query()
+      ..order(Product_.id, flags: Order.descending);
     attendanceStream = attendanceQueryBuilder.watch(triggerImmediately: true);
 
     _listController.addStream(attendanceStream.map((query) => query.find()));
   }
 
-  AttendanceListTile Function(BuildContext, int) _itemBuilder(
-      List<Attendance> attendances) {
+  InventoryListTile Function(BuildContext, int) _itemBuilder(
+      List<Product> products) {
     return (BuildContext context, int index) {
-      return AttendanceListTile(
-        attendances: attendances,
+      return InventoryListTile(
+        products: products,
         index: index,
-        attendanceBox: objectBox.attendanceBox,
       );
     };
   }
@@ -59,64 +61,29 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     setState(() {
       _listController = StreamController(sync: true);
       initializeAttendanceStream();
-      _selectedDate = null;
     });
   }
 
   void search() {
-    String strToSearch = searchController.text;
-    final attendanceQueryBuilder = objectBox.attendanceBox.query()
-      ..link(
-          Attendance_.user,
-          Account_.firstName.contains(strToSearch) |
-              Account_.lastName.contains(strToSearch) |
-              Account_.emailAddress.contains(strToSearch))
-      ..order(
-        Attendance_.date,
-        flags: Order.descending,
-      );
-    final attendanceQuery =
-        attendanceQueryBuilder.watch(triggerImmediately: true);
+    // String strToSearch = searchController.text;
+    // final attendanceQueryBuilder = objectBox.attendanceBox.query()
+    //   ..link(
+    //       Attendance_.user,
+    //       Account_.firstName.contains(strToSearch) |
+    //           Account_.lastName.contains(strToSearch) |
+    //           Account_.emailAddress.contains(strToSearch))
+    //   ..order(
+    //     Attendance_.date,
+    //     flags: Order.descending,
+    //   );
+    // final attendanceQuery =
+    //     attendanceQueryBuilder.watch(triggerImmediately: true);
 
-    setState(() {
-      _listController = StreamController(sync: true);
-      _listController.addStream(attendanceQuery.map((query) => query.find()));
-      searchController.text = '';
-    });
-  }
-
-  _selectDate(BuildContext context) async {
-    final DateTime? selected = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime(2010),
-      lastDate: DateTime(2025),
-    );
-    if (selected != null && selected != _selectedDate) {
-      setState(() {
-        _selectedDate = selected;
-      });
-    }
-
-    _filter();
-  }
-
-  void _filter() {
-    final attendanceQueryBuilder = objectBox.attendanceBox.query(
-      Attendance_.date.equals(DateTime.parse(
-        DateFormat('yyyy-MM-dd').format(_selectedDate as DateTime),
-      ).millisecondsSinceEpoch),
-    )..order(
-        Attendance_.date,
-        flags: Order.descending,
-      );
-    final attendanceQuery =
-        attendanceQueryBuilder.watch(triggerImmediately: true);
-
-    setState(() {
-      _listController = StreamController(sync: true);
-      _listController.addStream(attendanceQuery.map((query) => query.find()));
-    });
+    // setState(() {
+    //   _listController = StreamController(sync: true);
+    //   _listController.addStream(attendanceQuery.map((query) => query.find()));
+    //   searchController.text = '';
+    // });
   }
 
   void deleteAll() {
@@ -156,23 +123,95 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     );
   }
 
+  Future<void> showProductOrFinishedGoodsOption() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: const Text('Choose what to add:'),
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.5,
+              width: MediaQuery.of(context).size.height * 0.5,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                              color: Color.fromARGB(255, 231, 231, 231),
+                              width: 0.7),
+                        ),
+                      ),
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.35,
+                        child: TextButton(
+                          onPressed: navigateToAddProductScreen,
+                          child: const Text(
+                            'Product\n\n(No Ingredients, ex. sardines, milk, coke)',
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.35,
+                      child: TextButton(
+                        onPressed: navigateToAddFinishedProductScreen,
+                        child: const Text(
+                          'Finished Goods\n\n(With Ingredients, ex. eggs)',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  void navigateToProductScreen() {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => ProductScreen()));
+  }
+
+  void navigateToAddProductScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AddProductScreen(),
+      ),
+    );
+  }
+
+  void navigateToAddFinishedProductScreen() {
+    // Navigator.push()
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            AttendanceScreenHeader(
+            InventoryScreenHeader(
               searchController: searchController,
               onPressed: search,
-              selectDate: _selectDate,
-              date: _selectedDate,
               refresh: refresh,
               deleteAll: showDeleteAllConfirmationDialog,
+              addProduct: showProductOrFinishedGoodsOption,
             ),
             const ListHeader(),
             Expanded(
-              child: StreamBuilder<List<Attendance>>(
+              child: StreamBuilder<List<Product>>(
                 stream: _listController.stream,
                 builder: ((context, snapshot) => ListView.builder(
                       itemBuilder: _itemBuilder(snapshot.data ?? []),
@@ -189,29 +228,27 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   }
 }
 
-class AttendanceScreenHeader extends StatefulWidget {
-  const AttendanceScreenHeader({
+class InventoryScreenHeader extends StatefulWidget {
+  const InventoryScreenHeader({
     Key? key,
     required this.searchController,
     required this.onPressed,
-    required this.selectDate,
-    required this.date,
     required this.refresh,
     required this.deleteAll,
+    required this.addProduct,
   }) : super(key: key);
 
   final TextEditingController searchController;
   final void Function() onPressed;
   final void Function() refresh;
   final void Function() deleteAll;
-  final dynamic Function(BuildContext context) selectDate;
-  final DateTime? date;
+  final void Function() addProduct;
 
   @override
-  State<AttendanceScreenHeader> createState() => _AttendanceScreenHeaderState();
+  State<InventoryScreenHeader> createState() => _InventoryScreenHeaderState();
 }
 
-class _AttendanceScreenHeaderState extends State<AttendanceScreenHeader> {
+class _InventoryScreenHeaderState extends State<InventoryScreenHeader> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -221,7 +258,7 @@ class _AttendanceScreenHeaderState extends State<AttendanceScreenHeader> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              const HeaderOne(padding: EdgeInsets.all(0), text: 'Attendance'),
+              const HeaderOne(padding: EdgeInsets.all(0), text: 'Inventory'),
               Row(
                 children: [
                   Padding(
@@ -239,6 +276,10 @@ class _AttendanceScreenHeaderState extends State<AttendanceScreenHeader> {
                   ),
                   ElevatedButton(
                     onPressed: widget.onPressed,
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.white,
+                      onPrimary: Colors.blueGrey,
+                    ),
                     child: const Padding(
                       padding:
                           EdgeInsets.symmetric(vertical: 15, horizontal: 25),
@@ -257,30 +298,7 @@ class _AttendanceScreenHeaderState extends State<AttendanceScreenHeader> {
             children: [
               Row(
                 children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.white,
-                      onPrimary: Colors.blueGrey,
-                    ),
-                    onPressed: () => widget.selectDate(context),
-                    child: const Padding(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-                      child: Text('Select Date'),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Text(
-                      widget.date != null
-                          ? "Selected Date: ${DateFormat('yyyy-MM-dd').format(widget.date as DateTime)}"
-                          : 'Selected Date: No Date Selected',
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
+                  const Text('Total Value: '),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: ElevatedButton(
@@ -310,6 +328,13 @@ class _AttendanceScreenHeaderState extends State<AttendanceScreenHeader> {
                   ),
                 ],
               ),
+              ElevatedButton(
+                onPressed: widget.addProduct,
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+                  child: Text('Add Product'),
+                ),
+              ),
             ],
           ),
         ),
@@ -330,6 +355,17 @@ class ListHeader extends StatelessWidget {
           Expanded(
             child: Center(
               child: Text(
+                'ID',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Text(
                 'Name',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
@@ -341,7 +377,7 @@ class ListHeader extends StatelessWidget {
           Expanded(
             child: Center(
               child: Text(
-                'Email',
+                'Barcode',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 16,
@@ -352,7 +388,7 @@ class ListHeader extends StatelessWidget {
           Expanded(
             child: Center(
               child: Text(
-                'Date',
+                'Unit Price',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 16,
@@ -363,7 +399,7 @@ class ListHeader extends StatelessWidget {
           Expanded(
             child: Center(
               child: Text(
-                'Time In',
+                'Quantity',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 16,
@@ -374,7 +410,7 @@ class ListHeader extends StatelessWidget {
           Expanded(
             child: Center(
               child: Text(
-                'Time Out',
+                'Total Price',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 16,
