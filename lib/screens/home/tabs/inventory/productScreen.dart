@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mpos/main.dart';
+
 import 'package:mpos/models/inventory.dart';
 import 'package:mpos/screens/home/tabs/inventory/editProductScreen.dart';
 
@@ -36,7 +37,9 @@ class _ProductScreenState extends State<ProductScreen> {
   }
 
   void deleteProduct() {
-    print('Delete product');
+    objectBox.productBox.remove(widget.product.id);
+    Navigator.of(context).pop();
+    Navigator.of(context).pop();
   }
 
   Future<void> showDeleteConfirmationDialog() async {
