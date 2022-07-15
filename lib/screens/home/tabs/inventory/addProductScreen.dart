@@ -62,6 +62,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     objectBox.productBox.put(newProduct);
 
     Navigator.pop(context);
+    Navigator.pop(context);
   }
 
   void _removeExpirationDate(int index) {

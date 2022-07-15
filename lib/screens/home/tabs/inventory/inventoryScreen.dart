@@ -89,6 +89,18 @@ class _InventoryScreenState extends State<InventoryScreen> {
     });
   }
 
+  void showProductWithLessThan(int quantity) {
+    final productQueryBuilder =
+        objectBox.productBox.query(Product_.quantity.lessOrEqual(quantity));
+    final productQuery = productQueryBuilder.watch(triggerImmediately: true);
+
+    setState(() {
+      _listController = StreamController(sync: true);
+      _listController.addStream(productQuery.map((query) => query.find()));
+      searchController.text = '';
+    });
+  }
+
   void deleteAll() {
     objectBox.productBox.removeAll();
     objectBox.expirationDateBox.removeAll();
@@ -203,6 +215,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
         child: Column(
           children: [
             InventoryScreenHeader(
+              showProductWithLessThan: showProductWithLessThan,
               inventoryValue: NumberFormat.currency(symbol: 'PHP')
                   .format(_totalInventoryValue),
               searchController: searchController,
@@ -239,6 +252,7 @@ class InventoryScreenHeader extends StatefulWidget {
     required this.deleteAll,
     required this.addProduct,
     required this.inventoryValue,
+    required this.showProductWithLessThan,
   }) : super(key: key);
 
   final TextEditingController searchController;
@@ -246,6 +260,7 @@ class InventoryScreenHeader extends StatefulWidget {
   final void Function() refresh;
   final void Function() deleteAll;
   final void Function() addProduct;
+  final void Function(int) showProductWithLessThan;
   final String inventoryValue;
 
   @override
@@ -263,7 +278,7 @@ class _InventoryScreenHeaderState extends State<InventoryScreenHeader> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               HeaderOne(
-                  padding: EdgeInsets.all(0),
+                  padding: const EdgeInsets.all(0),
                   text: 'Inventory  |  ${widget.inventoryValue}'),
               Row(
                 children: [
@@ -309,7 +324,7 @@ class _InventoryScreenHeaderState extends State<InventoryScreenHeader> {
                       primary: Colors.white,
                       onPrimary: Colors.blueGrey,
                     ),
-                    onPressed: widget.refresh,
+                    onPressed: () => widget.showProductWithLessThan(10),
                     child: const Padding(
                       padding:
                           EdgeInsets.symmetric(vertical: 15, horizontal: 25),
@@ -323,7 +338,7 @@ class _InventoryScreenHeaderState extends State<InventoryScreenHeader> {
                         primary: Colors.white,
                         onPrimary: Colors.blueGrey,
                       ),
-                      onPressed: widget.refresh,
+                      onPressed: () => widget.showProductWithLessThan(5),
                       child: const Padding(
                         padding:
                             EdgeInsets.symmetric(vertical: 15, horizontal: 25),
