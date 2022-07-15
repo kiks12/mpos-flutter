@@ -4,6 +4,7 @@ import 'package:mpos/main.dart';
 
 import 'package:mpos/models/inventory.dart';
 import 'package:mpos/screens/home/tabs/inventory/editProductScreen.dart';
+import 'package:mpos/screens/home/tabs/inventory/manageExpirationDatesScreen.dart';
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen({
@@ -30,6 +31,17 @@ class _ProductScreenState extends State<ProductScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => EditProductScreen(
+          product: widget.product,
+        ),
+      ),
+    );
+  }
+
+  void navigateToExpirationDates() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ManageExpirationDatesScreen(
           product: widget.product,
         ),
       ),
@@ -133,7 +145,7 @@ class _ProductScreenState extends State<ProductScreen> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: navigateToExpirationDates,
                         child: const Padding(
                           padding: EdgeInsets.symmetric(
                               vertical: 15, horizontal: 25),
