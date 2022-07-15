@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:mpos/main.dart';
 import 'package:mpos/models/account.dart';
-import 'package:mpos/models/objectBox.dart';
+
 import 'package:mpos/screens/home/tabs/accounts/accountsScreen.dart';
 import 'package:mpos/screens/home/tabs/attendance/attendanceScreen.dart';
 import 'package:mpos/screens/home/tabs/cashierScreen.dart';
@@ -15,10 +15,7 @@ import 'package:mpos/utils/utils.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
     Key? key,
-    required this.objectBox,
   }) : super(key: key);
-
-  final ObjectBox objectBox;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -113,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen>
                 const CashierScreen(),
                 const InventoryScreen(),
                 AccountsScreen(
-                  accountsBox: widget.objectBox.accountBox,
+                  accountsBox: objectBox.accountBox,
                 ),
                 const AttendanceScreen(),
                 const DashboardScreen(),

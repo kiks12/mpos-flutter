@@ -4,13 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mpos/components/HeaderOne.dart';
 import 'package:mpos/main.dart';
-import 'package:mpos/models/attendance.dart';
 import 'package:mpos/models/inventory.dart';
 import 'package:mpos/objectbox.g.dart';
-import 'package:mpos/screens/home/tabs/attendance/components/attendanceListTile.dart';
 import 'package:mpos/screens/home/tabs/inventory/addProductScreen.dart';
 import 'package:mpos/screens/home/tabs/inventory/components/inventoryListTile.dart';
-import 'package:mpos/screens/home/tabs/inventory/productScreen.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({Key? key}) : super(key: key);
@@ -26,17 +23,26 @@ class _InventoryScreenState extends State<InventoryScreen> {
       StreamController<List<Product>>(sync: true);
 
   final TextEditingController searchController = TextEditingController();
+  int _totalInventoryValue = 0;
 
   @override
   void initState() {
     super.initState();
     initializeAttendanceStream();
+    calculateInventoryValue();
   }
 
   @override
   void dispose() {
     _listController.close();
     super.dispose();
+  }
+
+  void calculateInventoryValue() {
+    Query<Product> productsQuery = objectBox.productBox.query().build();
+    setState(() {
+      _totalInventoryValue = productsQuery.property(Product_.totalPrice).sum();
+    });
   }
 
   void initializeAttendanceStream() {
@@ -61,6 +67,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     setState(() {
       _listController = StreamController(sync: true);
       initializeAttendanceStream();
+      calculateInventoryValue();
     });
   }
 
@@ -69,11 +76,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
     final productQueryBuilder = objectBox.productBox.query(
         Product_.barcode.contains(strToSearch) |
             Product_.name.contains(strToSearch))
-      // ..link(
-      //     Attendance_.user,
-      //     Account_.firstName.contains(strToSearch) |
-      //         Account_.lastName.contains(strToSearch) |
-      //         Account_.emailAddress.contains(strToSearch))
       ..order(
         Product_.id,
         flags: Order.descending,
@@ -89,6 +91,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
   void deleteAll() {
     objectBox.productBox.removeAll();
+    objectBox.expirationDateBox.removeAll();
     Navigator.of(context).pop();
   }
 
@@ -180,11 +183,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  void navigateToProductScreen() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const ProductScreen()));
-  }
-
   void navigateToAddProductScreen() {
     Navigator.push(
       context,
@@ -205,6 +203,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
         child: Column(
           children: [
             InventoryScreenHeader(
+              inventoryValue: NumberFormat.currency(symbol: 'PHP')
+                  .format(_totalInventoryValue),
               searchController: searchController,
               onPressed: search,
               refresh: refresh,
@@ -238,6 +238,7 @@ class InventoryScreenHeader extends StatefulWidget {
     required this.refresh,
     required this.deleteAll,
     required this.addProduct,
+    required this.inventoryValue,
   }) : super(key: key);
 
   final TextEditingController searchController;
@@ -245,6 +246,7 @@ class InventoryScreenHeader extends StatefulWidget {
   final void Function() refresh;
   final void Function() deleteAll;
   final void Function() addProduct;
+  final String inventoryValue;
 
   @override
   State<InventoryScreenHeader> createState() => _InventoryScreenHeaderState();
@@ -260,7 +262,9 @@ class _InventoryScreenHeaderState extends State<InventoryScreenHeader> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              const HeaderOne(padding: EdgeInsets.all(0), text: 'Inventory'),
+              HeaderOne(
+                  padding: EdgeInsets.all(0),
+                  text: 'Inventory  |  ${widget.inventoryValue}'),
               Row(
                 children: [
                   Padding(
@@ -300,7 +304,18 @@ class _InventoryScreenHeaderState extends State<InventoryScreenHeader> {
             children: [
               Row(
                 children: [
-                  const Text('Total Value: '),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.white,
+                      onPrimary: Colors.blueGrey,
+                    ),
+                    onPressed: widget.refresh,
+                    child: const Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+                      child: Text('Less than 10'),
+                    ),
+                  ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: ElevatedButton(
@@ -312,30 +327,50 @@ class _InventoryScreenHeaderState extends State<InventoryScreenHeader> {
                       child: const Padding(
                         padding:
                             EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-                        child: Text('Refresh'),
+                        child: Text('Less than 5'),
                       ),
-                    ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.red,
-                      onPrimary: Colors.white,
-                    ),
-                    onPressed: widget.deleteAll,
-                    child: const Padding(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-                      child: Text('Delete All'),
                     ),
                   ),
                 ],
               ),
-              ElevatedButton(
-                onPressed: widget.addProduct,
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-                  child: Text('Add Product'),
-                ),
+              Row(
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.white,
+                      onPrimary: Colors.blueGrey,
+                    ),
+                    onPressed: widget.refresh,
+                    child: const Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+                      child: Text('Refresh'),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.red,
+                        onPrimary: Colors.white,
+                      ),
+                      onPressed: widget.deleteAll,
+                      child: const Padding(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+                        child: Text('Delete All'),
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: widget.addProduct,
+                    child: const Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+                      child: Text('Add Product'),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

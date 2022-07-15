@@ -34,9 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
     }
 
     startTimer(
-      HomeScreen(
-        objectBox: widget.objectBox,
-      ),
+      const HomeScreen(),
     );
   }
 
