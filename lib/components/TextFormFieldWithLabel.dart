@@ -10,6 +10,7 @@ class TextFormFieldWithLabel extends StatefulWidget {
     required this.isPassword,
     this.onChanged,
     this.isNumber = false,
+    this.readOnly = false,
   }) : super(key: key);
 
   final String label;
@@ -18,6 +19,7 @@ class TextFormFieldWithLabel extends StatefulWidget {
   final bool isPassword;
   final void Function(String)? onChanged;
   final bool isNumber;
+  final bool readOnly;
 
   @override
   State<TextFormFieldWithLabel> createState() => _TextFormFieldWithLabelState();
@@ -32,6 +34,7 @@ class _TextFormFieldWithLabelState extends State<TextFormFieldWithLabel> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           TextFormField(
+            readOnly: widget.readOnly,
             keyboardType:
                 widget.isNumber ? TextInputType.number : TextInputType.text,
             inputFormatters: widget.isNumber
