@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:mpos/components/HeaderOne.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/expirationDates.dart';
 import 'package:mpos/models/inventory.dart';
@@ -27,16 +28,17 @@ class _ManageExpirationDatesScreenState
   final TextEditingController _soldQuantity = TextEditingController();
   final TextEditingController _expiredQuantity = TextEditingController();
 
+  TextEditingController _quantityController = TextEditingController();
+  DateTime? _selectedDate;
+
   @override
   void initState() {
     super.initState();
     initializeDates();
-
-    print(_ongoingDates);
-    print(_expiredDates);
   }
 
   void initializeDates() {
+    print(objectBox.expirationDateBox.getAll());
     setState(() {
       for (var exp in widget.product.expirationDates) {
         if (exp.date.isBefore(DateTime.now())) {
@@ -48,6 +50,104 @@ class _ManageExpirationDatesScreenState
         return;
       }
     });
+  }
+
+  _selectDate(BuildContext context) async {
+    final DateTime? selected = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2010),
+      lastDate: DateTime(2025),
+    );
+    setState(() {
+      _selectedDate = selected;
+    });
+  }
+
+  _addExpirationDate() {
+    ExpirationDate newExp = ExpirationDate(
+      date: _selectedDate as DateTime,
+      quantity: int.parse(_quantityController.text),
+      expired: 0,
+      sold: 0,
+    );
+
+    Product product = objectBox.productBox.get(widget.product.id) as Product;
+
+    product.expirationDates.add(newExp);
+
+    Navigator.pop(context);
+    Navigator.pop(context);
+    Navigator.pop(context);
+  }
+
+  Future<void> showAddDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: const Text('Add Expiration Date:'),
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.5,
+              width: MediaQuery.of(context).size.height * 0.5,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () => _selectDate(context),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 25),
+                            child: Text('Choose Date'),
+                          ),
+                        ),
+                        Text(_selectedDate != null
+                            ? DateFormat('yyyy-MM-dd')
+                                .format(_selectedDate as DateTime)
+                            : ''),
+                        TextField(
+                          controller: _quantityController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            label: Text('Quantity'),
+                          ),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cancel'),
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: _addExpirationDate,
+                          child: const Text('Add'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            )
+          ],
+        );
+      },
+    );
   }
 
   void setQuantities(int id) {
@@ -229,13 +329,17 @@ class _ManageExpirationDatesScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Expiration Dates  | '),
+        title: const Text('Manage Expiration Dates'),
       ),
       body: SingleChildScrollView(
         child: SizedBox(
           height: MediaQuery.of(context).size.height,
           child: Column(
             children: [
+              ManageExpirationDateControlPanel(
+                productName: widget.product.name,
+                showAddDialog: showAddDialog,
+              ),
               const ExpirationDateListHeader(),
               Expanded(
                 child: ListView.builder(
@@ -247,6 +351,51 @@ class _ManageExpirationDatesScreenState
           ),
         ),
       ),
+    );
+  }
+}
+
+class ManageExpirationDateControlPanel extends StatefulWidget {
+  const ManageExpirationDateControlPanel({
+    Key? key,
+    required this.productName,
+    required this.showAddDialog,
+  }) : super(key: key);
+
+  final String productName;
+  final void Function() showAddDialog;
+
+  @override
+  State<ManageExpirationDateControlPanel> createState() =>
+      _ManageExpirationDateControlPanelState();
+}
+
+class _ManageExpirationDateControlPanelState
+    extends State<ManageExpirationDateControlPanel> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            HeaderOne(
+              padding: const EdgeInsets.all(15),
+              text: widget.productName,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(15),
+              child: ElevatedButton(
+                onPressed: widget.showAddDialog,
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+                  child: Text('Add Expiration Date'),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
