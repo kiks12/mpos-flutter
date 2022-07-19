@@ -38,16 +38,15 @@ class _ManageExpirationDatesScreenState
   }
 
   void initializeDates() {
-    print(objectBox.expirationDateBox.getAll());
     setState(() {
       for (var exp in widget.product.expirationDates) {
         if (exp.date.isBefore(DateTime.now())) {
           _expiredDates.add(exp);
-          return;
+          continue;
         }
 
         _ongoingDates.add(exp);
-        return;
+        continue;
       }
     });
   }
@@ -74,11 +73,49 @@ class _ManageExpirationDatesScreenState
 
     Product product = objectBox.productBox.get(widget.product.id) as Product;
 
+    objectBox.expirationDateBox.put(newExp);
+
+    product.quantity += int.parse(_quantityController.text);
+    product.totalPrice = product.unitPrice * product.quantity;
     product.expirationDates.add(newExp);
+    objectBox.productBox.put(product);
 
     Navigator.pop(context);
     Navigator.pop(context);
     Navigator.pop(context);
+  }
+
+  Future<void> showDeleteAllConfirmationDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete All Products'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const <Widget>[
+                Text(
+                    'Are you sure you want to delete all products in inventory?')
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              child: const Text('Confirm'),
+              onPressed: () {},
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> showAddDialog() async {
@@ -214,6 +251,18 @@ class _ManageExpirationDatesScreenState
                 onPressed: () => showSetDialog(index),
                 child: const Padding(
                   padding: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+                  child: Text(
+                    'Delete',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: TextButton(
+                onPressed: () => showSetDialog(index),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
                   child: Text('Set'),
                 ),
               ),
@@ -261,13 +310,6 @@ class _ManageExpirationDatesScreenState
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 20),
                           child: TextField(
-                            // onChanged: (String str) {
-                            //   if (str.isEmpty) return;
-                            //   _expiredQuantity.text =
-                            //       (int.parse(_totalQuantity.text) -
-                            //               int.parse(_soldQuantity.text))
-                            //           .toString();
-                            // },
                             controller: _soldQuantity,
                             decoration: const InputDecoration(
                               border: OutlineInputBorder(),
@@ -281,12 +323,6 @@ class _ManageExpirationDatesScreenState
                         ),
                         TextField(
                           controller: _expiredQuantity,
-                          // onChanged: (String str) {
-                          //   if (str.isEmpty) return;
-                          //   _soldQuantity.text = (int.parse(_totalQuantity.text) -
-                          //           int.parse(_expiredQuantity.text))
-                          //       .toString();
-                          // },
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             label: Text('Expired Quantity'),
@@ -446,6 +482,7 @@ class _ExpirationDateListHeaderState extends State<ExpirationDateListHeader> {
             ),
           ),
           Expanded(
+            flex: 2,
             child: Text(
               'Action',
               textAlign: TextAlign.center,
