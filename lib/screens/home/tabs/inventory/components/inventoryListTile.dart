@@ -7,10 +7,14 @@ class InventoryListTile extends StatefulWidget {
     Key? key,
     required this.index,
     required this.products,
+    this.onCashier = false,
+    this.onCashierCallback,
   }) : super(key: key);
 
   final int index;
   final List<Product> products;
+  final bool onCashier;
+  final void Function()? onCashierCallback;
 
   @override
   State<InventoryListTile> createState() => _InventoryListTileState();
@@ -31,7 +35,9 @@ class _InventoryListTileState extends State<InventoryListTile> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: navigateToProductScreen,
+      onTap: widget.onCashier && widget.onCashierCallback != null
+          ? widget.onCashierCallback
+          : navigateToProductScreen,
       child: Container(
         decoration: BoxDecoration(
           color: widget.index % 2 == 0
