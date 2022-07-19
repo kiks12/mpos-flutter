@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mpos/components/CheckboxWithLabel.dart';
-import 'package:mpos/components/HeaderOne.dart';
 import 'package:mpos/components/HeaderTwo.dart';
 import 'package:mpos/components/TextFormFieldWithLabel.dart';
 import 'package:mpos/main.dart';
-import 'package:mpos/models/account.dart';
 import 'package:mpos/models/expirationDates.dart';
 import 'package:mpos/models/inventory.dart';
-import 'package:mpos/objectbox.g.dart';
-import 'package:mpos/screens/adminRegistrationScreen.dart';
-import 'package:mpos/screens/home/homeScreen.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({
@@ -32,12 +26,19 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final TextEditingController quantityTextController =
       TextEditingController(text: '0');
 
+  final TextEditingController tagController = TextEditingController();
+  List<String> tags = [];
+
   int _totalPrice = 0;
-  List<DateTime> _expirationDates = [];
+  DateTime? _expirationDates = DateTime.now();
   DateTime? _selectedDate;
 
   double _expirationDateListViewHeight() {
-    return MediaQuery.of(context).size.height * 0.1 * _expirationDates.length;
+    return MediaQuery.of(context).size.height * 0.09 * 1;
+  }
+
+  double _tagsListViewHeight() {
+    return MediaQuery.of(context).size.height * 0.09 * tags.length;
   }
 
   void addProduct() {
@@ -46,13 +47,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
     Product newProduct = Product(
       name: nameTextController.text,
       barcode: barcodeTextController.text,
+      tags: tags,
       unitPrice: int.parse(unitPriceTextController.text),
       quantity: int.parse(quantityTextController.text),
       totalPrice: _totalPrice,
     );
 
     ExpirationDate newExpirationDate = ExpirationDate(
-      date: _expirationDates[0],
+      date: _expirationDates as DateTime,
       quantity: int.parse(quantityTextController.text),
       expired: 0,
       sold: 0,
@@ -65,15 +67,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
     Navigator.pop(context);
   }
 
-  void _removeExpirationDate(int index) {
+  void _editExpirationDate() async {
     setState(() {
-      _expirationDates.removeAt(index);
-    });
-  }
-
-  void _editExpirationDate(int index) async {
-    setState(() {
-      _selectedDate = _expirationDates[index];
+      _selectedDate = _expirationDates;
     });
     final DateTime? selected = await showDatePicker(
       context: context,
@@ -84,7 +80,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     if (selected != null && selected != _selectedDate) {
       setState(() {
         _selectedDate = selected;
-        _expirationDates[index] = _selectedDate as DateTime;
+        _expirationDates = _selectedDate as DateTime;
       });
     }
   }
@@ -96,35 +92,71 @@ class _AddProductScreenState extends State<AddProductScreen> {
     });
   }
 
-  GestureDetector _expirationDateBuilder(BuildContext context, int index) {
-    return GestureDetector(
-      onTap: () => _editExpirationDate(index),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 20),
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: const Color.fromARGB(255, 213, 213, 213),
-              width: 0.7,
-            ),
-            borderRadius: BorderRadius.circular(40),
+  void _addTag() {
+    // if (formKey.currentState!.validate()) {
+    setState(() {
+      tags.add(tagController.text);
+      tagController.clear();
+    });
+    // }
+  }
+
+  void _removeTag(int index) {
+    setState(() {
+      tags.removeAt(index);
+    });
+  }
+
+  Padding _expirationDateBuilder(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 20),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: const Color.fromARGB(255, 213, 213, 213),
+            width: 0.7,
           ),
-          child: ListTile(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  DateFormat('yyyy-MM-dd').format(_expirationDates[index]),
-                ),
-                TextButton(
-                  onPressed: () => _removeExpirationDate(index),
-                  child: const Text(
-                    'remove',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ),
-              ],
-            ),
+          borderRadius: BorderRadius.circular(40),
+        ),
+        child: ListTile(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                DateFormat('yyyy-MM-dd').format(_expirationDates as DateTime),
+              ),
+              TextButton(
+                onPressed: () => _editExpirationDate(),
+                child: const Text('change'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Padding _tagsBuilder(BuildContext context, int index) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 20),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: const Color.fromARGB(255, 213, 213, 213),
+            width: 0.7,
+          ),
+          borderRadius: BorderRadius.circular(40),
+        ),
+        child: ListTile(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(tags[index]),
+              TextButton(
+                onPressed: () => _removeTag(index),
+                child: const Text('remove'),
+              ),
+            ],
           ),
         ),
       ),
@@ -141,7 +173,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     if (selected != null && selected != _selectedDate) {
       setState(() {
         _selectedDate = selected;
-        _expirationDates.add(_selectedDate as DateTime);
+        _expirationDates = _selectedDate as DateTime;
       });
     }
   }
@@ -186,46 +218,49 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     ],
                   ),
                 ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.45,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      const HeaderTwo(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        text: 'Pricing and Stock',
-                      ),
-                      TextFormFieldWithLabel(
-                        onChanged: (String str) =>
-                            str.isNotEmpty ? _calculateTotalPrice() : () {},
-                        label: 'Unit Price',
-                        controller: unitPriceTextController,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 20, horizontal: 20),
-                        isPassword: false,
-                        isNumber: true,
-                      ),
-                      TextFormFieldWithLabel(
-                        onChanged: (String str) =>
-                            str.isNotEmpty ? _calculateTotalPrice() : () {},
-                        label: 'Quantity',
-                        controller: quantityTextController,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 20, horizontal: 20),
-                        isPassword: false,
-                        isNumber: true,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.fromLTRB(20, 7, 20, 50),
-                        child: HeaderTwo(
-                          padding: const EdgeInsets.all(0),
-                          text:
-                              'Total Price: ${NumberFormat.currency(symbol: '₱').format(_totalPrice)}',
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 30),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.45,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        const HeaderTwo(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 10),
+                          text: 'Pricing and Stock',
                         ),
-                      ),
-                    ],
+                        TextFormFieldWithLabel(
+                          onChanged: (String str) =>
+                              str.isNotEmpty ? _calculateTotalPrice() : () {},
+                          label: 'Unit Price',
+                          controller: unitPriceTextController,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 20, horizontal: 20),
+                          isPassword: false,
+                          isNumber: true,
+                        ),
+                        TextFormFieldWithLabel(
+                          onChanged: (String str) =>
+                              str.isNotEmpty ? _calculateTotalPrice() : () {},
+                          label: 'Quantity',
+                          controller: quantityTextController,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 20, horizontal: 20),
+                          isPassword: false,
+                          isNumber: true,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.fromLTRB(20, 7, 20, 50),
+                          child: HeaderTwo(
+                            padding: const EdgeInsets.all(0),
+                            text:
+                                'Total Price: ${NumberFormat.currency(symbol: '₱').format(_totalPrice)}',
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 SizedBox(
@@ -237,29 +272,77 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       const HeaderTwo(
                         padding:
                             EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        text: 'Expiration Date',
+                        text: 'Tags',
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormFieldWithLabel(
+                              label: 'Tags',
+                              controller: tagController,
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 20, horizontal: 20),
+                              isPassword: false,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: _addTag,
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 15, horizontal: 25),
+                              child: Text('Add'),
+                            ),
+                          ),
+                        ],
                       ),
                       SizedBox(
-                        height: _expirationDateListViewHeight(),
+                        height: _tagsListViewHeight(),
                         child: Column(
                           children: [
                             Expanded(
                               child: ListView.builder(
-                                itemCount: _expirationDates.length,
-                                itemBuilder: _expirationDateBuilder,
+                                itemCount: tags.length,
+                                itemBuilder: _tagsBuilder,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: TextButton(
-                          onPressed: () => _selectDate(context),
-                          child: const Text('Add Expiration Date'),
-                        ),
-                      ),
                     ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 30),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.45,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        const HeaderTwo(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 10),
+                          text: 'Expiration Date',
+                        ),
+                        SizedBox(
+                          height: _expirationDateListViewHeight(),
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: _expirationDateBuilder(context),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: TextButton(
+                            onPressed: () => _selectDate(context),
+                            child: const Text('Add Expiration Date'),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Padding(

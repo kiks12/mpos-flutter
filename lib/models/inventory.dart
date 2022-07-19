@@ -8,6 +8,7 @@ class Product {
   int id = 0;
   String name;
   String barcode;
+  List<String> tags;
   int unitPrice;
   int quantity;
   int totalPrice;
@@ -24,6 +25,7 @@ class Product {
   Product({
     required this.name,
     required this.barcode,
+    required this.tags,
     required this.unitPrice,
     required this.quantity,
     required this.totalPrice,
