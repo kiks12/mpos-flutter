@@ -10,6 +10,7 @@ import 'package:mpos/screens/home/tabs/dashboardScreen.dart';
 import 'package:mpos/screens/home/tabs/inventory/inventoryScreen.dart';
 import 'package:mpos/screens/home/tabs/settingsScreen.dart';
 import 'package:mpos/screens/home/tabs/timeInTimeOutScreen.dart';
+import 'package:mpos/screens/home/tabs/transactionsScreen.dart';
 import 'package:mpos/utils/utils.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -34,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   late final _tabController =
-      TabController(length: currentAccount!.isAdmin ? 6 : 3, vsync: this);
+      TabController(length: currentAccount!.isAdmin ? 7 : 3, vsync: this);
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +66,12 @@ class _HomeScreenState extends State<HomeScreen>
                   const Tab(
                     child: Text(
                       'Attendance',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  const Tab(
+                    child: Text(
+                      'Transactions',
                       style: TextStyle(color: Colors.black),
                     ),
                   ),
@@ -113,6 +120,7 @@ class _HomeScreenState extends State<HomeScreen>
                   accountsBox: objectBox.accountBox,
                 ),
                 const AttendanceScreen(),
+                const TransactionsScreen(),
                 const DashboardScreen(),
                 const SettingsScreen(),
               ]
