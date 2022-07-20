@@ -3,13 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mpos/components/HeaderOne.dart';
-import 'package:mpos/components/HeaderTwo.dart';
 import 'package:mpos/components/TextFormFieldWithLabel.dart';
 import 'package:mpos/main.dart';
+import 'package:mpos/models/account.dart';
 import 'package:mpos/models/inventory.dart';
+import 'package:mpos/models/transaction.dart';
 import 'package:mpos/objectbox.g.dart';
 import 'package:mpos/screens/home/tabs/inventory/components/inventoryListTile.dart';
 import 'package:mpos/screens/home/tabs/inventory/inventoryScreen.dart';
+import 'package:mpos/utils/utils.dart';
 
 class CashierScreen extends StatefulWidget {
   const CashierScreen({Key? key}) : super(key: key);
@@ -31,10 +33,15 @@ class _CashierScreenState extends State<CashierScreen> {
   List<Product> _cartList = [];
   int _total = 0;
 
+  Account? currentAccount;
+
   @override
   void initState() {
     super.initState();
     initializeInventoryStream();
+    setState(() {
+      currentAccount = Utils().getCurrentAccount(objectBox);
+    });
   }
 
   void initializeInventoryStream() {
@@ -46,16 +53,37 @@ class _CashierScreenState extends State<CashierScreen> {
         .addStream(inventoryStream.map((query) => query.find()));
   }
 
-  void voidCart() {
+  void searchProduct() {
+    final String strToSearch = searchController.text;
+    final searchQuery = objectBox.productBox.query(
+        Product_.barcode.contains(strToSearch) |
+            Product_.name.contains(strToSearch));
     setState(() {
-      _cartList = [];
-      _total = 0;
-    });
+      _inventoryController = StreamController();
+      final search = searchQuery.watch(triggerImmediately: true);
 
+      _inventoryController.addStream(search.map((query) => query.find()));
+    });
+  }
+
+  void voidCart() {
+    clearCart();
     Navigator.pop(context);
   }
 
+  void clearCart() {
+    setState(() {
+      _cartList = [];
+      _total = 0;
+
+      _inventoryController = StreamController(sync: true);
+      initializeInventoryStream();
+    });
+  }
+
   Future<void> showVoidCartConfirmationDialog() async {
+    if (_cartList.isEmpty) return;
+
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -97,6 +125,12 @@ class _CashierScreenState extends State<CashierScreen> {
       totalPrice:
           products[index].unitPrice * int.parse(quantityController.text),
     );
+
+    if (products[index].quantity == 0) return;
+
+    setState(() {
+      products[index].quantity -= int.parse(quantityController.text);
+    });
 
     newProduct.id = products[index].id;
 
@@ -152,6 +186,8 @@ class _CashierScreenState extends State<CashierScreen> {
                 cartList: _cartList,
                 total: _total,
                 voidCart: showVoidCartConfirmationDialog,
+                currentAccount: currentAccount,
+                clearCart: clearCart,
               ),
             ),
           ),
@@ -164,6 +200,7 @@ class _CashierScreenState extends State<CashierScreen> {
                   barcodeController: barcodeController,
                   searchController: searchController,
                   quantityController: quantityController,
+                  searchProduct: searchProduct,
                 ),
                 const ListHeader(),
                 Expanded(
@@ -193,11 +230,13 @@ class ProductsControlPanel extends StatefulWidget {
     required this.barcodeController,
     required this.searchController,
     required this.quantityController,
+    required this.searchProduct,
   }) : super(key: key);
 
   final TextEditingController barcodeController;
   final TextEditingController searchController;
   final TextEditingController quantityController;
+  final void Function() searchProduct;
 
   @override
   State<ProductsControlPanel> createState() => ProductsControlPanelState();
@@ -246,7 +285,7 @@ class ProductsControlPanelState extends State<ProductsControlPanel> {
             ),
           ),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: widget.searchProduct,
             child: const Padding(
               padding: EdgeInsets.symmetric(vertical: 20, horizontal: 25),
               child: Text('Search'),
@@ -264,17 +303,27 @@ class Cart extends StatefulWidget {
     required this.cartList,
     required this.total,
     required this.voidCart,
+    required this.currentAccount,
+    required this.clearCart,
   }) : super(key: key);
 
   final List<Product> cartList;
   final int total;
   final void Function() voidCart;
+  final Account? currentAccount;
+  final void Function() clearCart;
 
   @override
   State<Cart> createState() => _CartState();
 }
 
 class _CartState extends State<Cart> {
+  int _transactionID = 0;
+  String _paymentMethod = 'Cash';
+  TextEditingController cashController = TextEditingController();
+  int _change = 0;
+  bool _isLoading = false;
+
   Widget _itemBuilder(BuildContext context, int index) {
     return Container(
         child: ListTile(
@@ -312,13 +361,213 @@ class _CartState extends State<Cart> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    initializeTransactionID();
+    print(objectBox.transactionBox.getAll());
+  }
+
+  void initializeTransactionID() {
+    final all = objectBox.transactionBox.query()
+      ..order(Transaction_.id, flags: Order.descending);
+    final allBuilder = all.build();
+    allBuilder.limit = 1;
+    setState(() {
+      if (allBuilder.find().isEmpty) {
+        _transactionID = 1;
+        return;
+      }
+      _transactionID = allBuilder.find()[0].transactionID + 1;
+    });
+  }
+
+  void calculateChange(String str) {
+    setState(() {
+      _change = int.parse(cashController.text) - widget.total;
+    });
+  }
+
+  void cancelPayment() {
+    cashController.text = widget.total.toString();
+    calculateChange('str');
+    Navigator.pop(context);
+  }
+
+  Future<void> pay() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    widget.cartList.asMap().forEach((index, product) async {
+      Transaction newTransaction = Transaction(
+        transactionID: _transactionID,
+        quantity: product.quantity,
+        paymentMethod: _paymentMethod,
+        totalAmount: product.totalPrice,
+        date: DateTime.now(),
+        time: DateTime.now(),
+      );
+      newTransaction.product.target = product;
+      newTransaction.user.target = widget.currentAccount as Account;
+
+      objectBox.transactionBox.put(newTransaction);
+
+      Product updateProduct = objectBox.productBox.get(product.id) as Product;
+      updateProduct.quantity = updateProduct.quantity - product.quantity;
+      updateProduct.totalPrice = updateProduct.quantity * product.unitPrice;
+      objectBox.productBox.put(updateProduct);
+
+      if (index == widget.cartList.length - 1) {
+        setState(() {
+          _isLoading = false;
+          widget.clearCart();
+          initializeTransactionID();
+        });
+        Navigator.pop(context);
+      }
+    });
+  }
+
+  Future<void> showCashPaymentDialog() async {
+    _paymentMethod = 'Cash';
+
+    Navigator.pop(context);
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: const Text('Finalize Payment'),
+          children: _isLoading
+              ? [
+                  Text('Loading...'),
+                ]
+              : [
+                  HeaderOne(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      text:
+                          'Total: ${NumberFormat.currency(symbol: '₱').format(widget.total)}'),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 15),
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.4,
+                      child: TextFormFieldWithLabel(
+                        label: 'Cash',
+                        controller: cashController,
+                        padding: EdgeInsets.zero,
+                        isPassword: false,
+                        isNumber: true,
+                        onChanged: (String str) => calculateChange(str),
+                      ),
+                    ),
+                  ),
+                  HeaderOne(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    text:
+                        'Change: ${NumberFormat.currency(symbol: '₱').format(_change)}',
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.06,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            primary: Colors.white, onPrimary: Colors.red),
+                        onPressed: cancelPayment,
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.06,
+                      child: ElevatedButton(
+                        onPressed: pay,
+                        child: const Text('Pay'),
+                      ),
+                    ),
+                  ),
+                ],
+        );
+      },
+    );
+  }
+
+  Future<void> showPaymentMethodDialog() async {
+    if (widget.cartList.isEmpty) return;
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: const Text('Payment Method'),
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.5,
+              width: MediaQuery.of(context).size.height * 0.5,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                              color: Color.fromARGB(255, 231, 231, 231),
+                              width: 0.7),
+                        ),
+                      ),
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.35,
+                        child: TextButton(
+                          onPressed: showCashPaymentDialog,
+                          child: const Text(
+                            'Cash',
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.35,
+                      child: TextButton(
+                        onPressed: () {},
+                        child: const Text(
+                          'GCash',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          child: HeaderOne(padding: EdgeInsets.all(0), text: 'Cart'),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(15, 15, 15, 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              const HeaderOne(padding: EdgeInsets.all(0), text: 'Cart'),
+              Text('Transaction ID: $_transactionID'),
+            ],
+          ),
         ),
         const CartHeader(),
         Expanded(
@@ -349,7 +598,7 @@ class _CartState extends State<Cart> {
                         text: 'Total: ',
                       ),
                       HeaderOne(
-                        padding: EdgeInsets.all(0),
+                        padding: const EdgeInsets.all(0),
                         text: NumberFormat.currency(symbol: '₱')
                             .format(widget.total),
                       ),
@@ -375,7 +624,7 @@ class _CartState extends State<Cart> {
                   width: MediaQuery.of(context).size.width * 0.3,
                   height: MediaQuery.of(context).size.height * 0.05,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: showPaymentMethodDialog,
                     child: Text('Pay'),
                   ),
                 ),
@@ -394,9 +643,7 @@ class CartHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 15,
-      ),
+      padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
       child: Row(
         children: const <Widget>[
           Expanded(

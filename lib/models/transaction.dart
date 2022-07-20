@@ -5,6 +5,7 @@ import 'package:objectbox/objectbox.dart';
 @Entity()
 class Transaction {
   int id = 0;
+  int transactionID;
 
   final product = ToOne<Product>();
   final user = ToOne<Account>();
@@ -16,6 +17,7 @@ class Transaction {
   DateTime time;
 
   Transaction({
+    required this.transactionID,
     required this.quantity,
     required this.paymentMethod,
     required this.totalAmount,
@@ -25,6 +27,6 @@ class Transaction {
 
   @override
   String toString() {
-    return 'Transaction {$id, $product, $user, $quantity, $paymentMethod, $totalAmount, $date, $time}';
+    return 'Transaction {$transactionID, $product, $user, $quantity, $paymentMethod, $totalAmount, $date, $time}';
   }
 }
