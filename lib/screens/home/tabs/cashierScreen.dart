@@ -364,7 +364,6 @@ class _CartState extends State<Cart> {
   void initState() {
     super.initState();
     initializeTransactionID();
-    print(objectBox.transactionBox.getAll());
   }
 
   void initializeTransactionID() {
@@ -496,6 +495,61 @@ class _CartState extends State<Cart> {
     );
   }
 
+  Future<void> showGCashPaymentDialog() async {
+    _paymentMethod = 'Cash';
+
+    Navigator.pop(context);
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: const Text('Finalize Payment'),
+          children: _isLoading
+              ? [
+                  Text('Loading...'),
+                ]
+              : [
+                  HeaderOne(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      text:
+                          'Total: ${NumberFormat.currency(symbol: '₱').format(widget.total)}'),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.4,
+                    child: const HeaderOne(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      text: '09482791258',
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.06,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            primary: Colors.white, onPrimary: Colors.red),
+                        onPressed: cancelPayment,
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.06,
+                      child: ElevatedButton(
+                        onPressed: pay,
+                        child: const Text('Pay'),
+                      ),
+                    ),
+                  ),
+                ],
+        );
+      },
+    );
+  }
+
   Future<void> showPaymentMethodDialog() async {
     if (widget.cartList.isEmpty) return;
 
@@ -536,7 +590,7 @@ class _CartState extends State<Cart> {
                     child: SizedBox(
                       width: MediaQuery.of(context).size.width * 0.35,
                       child: TextButton(
-                        onPressed: () {},
+                        onPressed: showGCashPaymentDialog,
                         child: const Text(
                           'GCash',
                           textAlign: TextAlign.center,
