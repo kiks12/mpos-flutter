@@ -17,6 +17,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   get_storage: ^2.0.3
   intl: ^0.17.0
+  syncfusion_flutter_charts: ^20.2.39
 
 dev_dependencies:
   flutter_test:
