@@ -403,7 +403,7 @@ class _CartState extends State<Cart> {
         quantity: product.quantity,
         paymentMethod: _paymentMethod,
         totalAmount: product.totalPrice,
-        date: DateTime.now(),
+        date: DateTime.parse(DateFormat('yyyy-MM-dd').format(DateTime.now())),
         time: DateTime.now(),
       );
       newTransaction.product.target = product;

@@ -23,6 +23,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   final TextEditingController searchController = TextEditingController();
   DateTime? _selectedDate;
   String _dropDownValue = 'Today';
+  String _whichQuarter = 'First Quarter';
+  String _whichHalf = 'First Half';
+  String _whichYear = DateFormat('yyyy').format(DateTime.now());
 
   @override
   void initState() {
@@ -37,11 +40,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   }
 
   void initializeAttendanceStream() {
-    final attendanceQueryBuilder = objectBox.transactionBox.query()
-      ..order(Transaction_.transactionID, flags: Order.descending);
-    attendanceStream = attendanceQueryBuilder.watch(triggerImmediately: true);
-
-    _listController.addStream(attendanceStream.map((query) => query.find()));
+    _dropdownOnChange('Today');
   }
 
   TransactionListTile Function(BuildContext, int) _itemBuilder(
@@ -59,6 +58,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       _listController = StreamController(sync: true);
       initializeAttendanceStream();
       _selectedDate = null;
+      _dropDownValue = 'Today';
     });
   }
 
@@ -96,21 +96,21 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   }
 
   void _filter() {
-    // final attendanceQueryBuilder = objectBox.attendanceBox.query(
-    //   Attendance_.date.equals(DateTime.parse(
-    //     DateFormat('yyyy-MM-dd').format(_selectedDate as DateTime),
-    //   ).millisecondsSinceEpoch),
-    // )..order(
-    //     Attendance_.date,
-    //     flags: Order.descending,
-    //   );
-    // final attendanceQuery =
-    //     attendanceQueryBuilder.watch(triggerImmediately: true);
+    final transactionQueryBuilder = objectBox.transactionBox.query(
+      Transaction_.date.equals(DateTime.parse(
+        DateFormat('yyyy-MM-dd').format(_selectedDate as DateTime),
+      ).millisecondsSinceEpoch),
+    )..order(
+        Transaction_.date,
+        flags: Order.descending,
+      );
+    final transactionQuery =
+        transactionQueryBuilder.watch(triggerImmediately: true);
 
-    // setState(() {
-    //   _listController = StreamController(sync: true);
-    //   _listController.addStream(attendanceQuery.map((query) => query.find()));
-    // });
+    setState(() {
+      _listController = StreamController(sync: true);
+      _listController.addStream(transactionQuery.map((query) => query.find()));
+    });
   }
 
   void deleteAll() {
@@ -150,10 +150,189 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     );
   }
 
+  void _filterForToday() {
+    final transactionQueryBuilder = objectBox.transactionBox.query(Transaction_
+        .date
+        .equals(DateTime.parse(DateFormat('yyyy-MM-dd').format(DateTime.now()))
+            .millisecondsSinceEpoch));
+    final transactionQuery =
+        transactionQueryBuilder.watch(triggerImmediately: true);
+    setListControllerData(transactionQuery);
+  }
+
+  void _filterForLast7Days() {
+    final dateToday = DateTime.now();
+    final dateSevenDaysAgo =
+        DateTime(dateToday.year, dateToday.month, dateToday.day - 7);
+    final transactionQueryBuilder = objectBox.transactionBox.query(
+        Transaction_.date.between(dateToday.millisecondsSinceEpoch,
+            dateSevenDaysAgo.millisecondsSinceEpoch));
+    final transactionQuery =
+        transactionQueryBuilder.watch(triggerImmediately: true);
+    setListControllerData(transactionQuery);
+  }
+
+  void _filterForLast30Days() {
+    final dateToday = DateTime.now();
+    final dateSevenDaysAgo =
+        DateTime(dateToday.year, dateToday.month - 1, dateToday.day);
+    final transactionQueryBuilder = objectBox.transactionBox.query(
+        Transaction_.date.between(dateToday.millisecondsSinceEpoch,
+            dateSevenDaysAgo.millisecondsSinceEpoch));
+    final transactionQuery =
+        transactionQueryBuilder.watch(triggerImmediately: true);
+    setListControllerData(transactionQuery);
+  }
+
+  void _onQuarterChange(String newValue) {
+    setState(() {
+      _whichQuarter = newValue;
+    });
+    _filterForQuarterly();
+  }
+
+  void _filterForQuarterly() {
+    final now = DateTime.now();
+    switch (_whichQuarter) {
+      case 'First Quarter':
+        final firstDate = DateTime(now.year, 1, 1);
+        final secondDate = DateTime(now.year, 3, 31);
+        final transactionQueryBuilder = objectBox.transactionBox.query(
+            Transaction_.date.between(firstDate.millisecondsSinceEpoch,
+                secondDate.millisecondsSinceEpoch));
+        final transactionQuery =
+            transactionQueryBuilder.watch(triggerImmediately: true);
+        setListControllerData(transactionQuery);
+        break;
+
+      case 'Second Quarter':
+        final firstDate = DateTime(now.year, 4, 1);
+        final secondDate = DateTime(now.year, 6, 30);
+        final transactionQueryBuilder = objectBox.transactionBox.query(
+            Transaction_.date.between(firstDate.millisecondsSinceEpoch,
+                secondDate.millisecondsSinceEpoch));
+        final transactionQuery =
+            transactionQueryBuilder.watch(triggerImmediately: true);
+        setListControllerData(transactionQuery);
+        break;
+
+      case 'Third Quarter':
+        final firstDate = DateTime(now.year, 7, 1);
+        final secondDate = DateTime(now.year, 9, 30);
+        final transactionQueryBuilder = objectBox.transactionBox.query(
+            Transaction_.date.between(firstDate.millisecondsSinceEpoch,
+                secondDate.millisecondsSinceEpoch));
+        final transactionQuery =
+            transactionQueryBuilder.watch(triggerImmediately: true);
+        setListControllerData(transactionQuery);
+        break;
+
+      case 'Fourth Quarter':
+        final firstDate = DateTime(now.year, 10, 1);
+        final secondDate = DateTime(now.year, 12, 31);
+        final transactionQueryBuilder = objectBox.transactionBox.query(
+            Transaction_.date.between(firstDate.millisecondsSinceEpoch,
+                secondDate.millisecondsSinceEpoch));
+        final transactionQuery =
+            transactionQueryBuilder.watch(triggerImmediately: true);
+        setListControllerData(transactionQuery);
+        break;
+    }
+  }
+
+  void _onHalfChange(String newValue) {
+    setState(() {
+      _whichHalf = newValue;
+    });
+    _filterForSemiAnnually();
+  }
+
+  void _filterForSemiAnnually() {
+    final now = DateTime.now();
+    switch (_whichHalf) {
+      case 'First Half':
+        final firstDate = DateTime(now.year, 1, 1);
+        final secondDate = DateTime(now.year, 6, 30);
+        final transactionQueryBuilder = objectBox.transactionBox.query(
+            Transaction_.date.between(firstDate.millisecondsSinceEpoch,
+                secondDate.millisecondsSinceEpoch));
+        final transactionQuery =
+            transactionQueryBuilder.watch(triggerImmediately: true);
+        setListControllerData(transactionQuery);
+        break;
+
+      case 'Second Half':
+        final firstDate = DateTime(now.year, 7, 1);
+        final secondDate = DateTime(now.year, 12, 31);
+        final transactionQueryBuilder = objectBox.transactionBox.query(
+            Transaction_.date.between(firstDate.millisecondsSinceEpoch,
+                secondDate.millisecondsSinceEpoch));
+        final transactionQuery =
+            transactionQueryBuilder.watch(triggerImmediately: true);
+        setListControllerData(transactionQuery);
+        break;
+    }
+  }
+
+  void _onYearChange(String newValue) {
+    setState(() {
+      _whichYear = newValue;
+    });
+    _filterForAnnually(int.parse(_whichQuarter));
+  }
+
+  void _filterForAnnually(int year) {
+    final firstDate = DateTime(year, 1, 1);
+    final secondDate = DateTime(year, 12, 31);
+    final transactionQueryBuilder = objectBox.transactionBox.query(
+        Transaction_.date.between(firstDate.millisecondsSinceEpoch,
+            secondDate.millisecondsSinceEpoch));
+    final transactionQuery =
+        transactionQueryBuilder.watch(triggerImmediately: true);
+    setListControllerData(transactionQuery);
+  }
+
+  void setListControllerData(Stream<Query<Transaction>> transactionQuery) {
+    setState(() {
+      _listController = StreamController();
+      _listController.addStream(transactionQuery.map((query) => query.find()));
+    });
+  }
+
   void _dropdownOnChange(String newValue) {
     setState(() {
       _dropDownValue = newValue;
     });
+
+    switch (newValue) {
+      case 'Today':
+        _filterForToday();
+        break;
+
+      case 'Last 7 Days':
+        _filterForLast7Days();
+        break;
+
+      case 'Last 30 Days':
+        _filterForLast30Days();
+        break;
+
+      case 'Quarterly':
+        _filterForQuarterly();
+        break;
+
+      case 'Semi Annually':
+        _filterForSemiAnnually();
+        break;
+
+      case 'Annually':
+        _filterForAnnually(int.parse(_whichYear));
+        break;
+
+      default:
+        print('adsfsfdsdfasdf');
+        break;
+    }
   }
 
   @override
@@ -163,6 +342,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         child: Column(
           children: [
             TransactionScreenHeader(
+              whichQuarter: _whichQuarter,
+              whichHalf: _whichHalf,
+              whichYear: _whichYear,
               searchController: searchController,
               onPressed: search,
               selectDate: _selectDate,
@@ -171,6 +353,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               deleteAll: showDeleteAllConfirmationDialog,
               dropdownValue: _dropDownValue,
               dropdownOnChange: _dropdownOnChange,
+              onQuarterChange: _onQuarterChange,
+              onHalfChange: _onHalfChange,
+              onYearChange: _onYearChange,
             ),
             const ListHeader(),
             Expanded(
@@ -202,6 +387,12 @@ class TransactionScreenHeader extends StatefulWidget {
     required this.deleteAll,
     required this.dropdownValue,
     required this.dropdownOnChange,
+    required this.whichQuarter,
+    required this.whichHalf,
+    required this.whichYear,
+    required this.onQuarterChange,
+    required this.onHalfChange,
+    required this.onYearChange,
   }) : super(key: key);
 
   final TextEditingController searchController;
@@ -212,6 +403,12 @@ class TransactionScreenHeader extends StatefulWidget {
   final DateTime? date;
   final String dropdownValue;
   final void Function(String str) dropdownOnChange;
+  final void Function(String str) onQuarterChange;
+  final void Function(String str) onHalfChange;
+  final void Function(String str) onYearChange;
+  final String whichQuarter;
+  final String whichHalf;
+  final String whichYear;
 
   @override
   State<TransactionScreenHeader> createState() =>
@@ -219,6 +416,38 @@ class TransactionScreenHeader extends StatefulWidget {
 }
 
 class _TransactionScreenHeaderState extends State<TransactionScreenHeader> {
+  static const items = [
+    'Today',
+    'Last 7 Days',
+    'Last 30 Days',
+    'Quarterly',
+    'Semi Annually',
+    'Annually',
+    'Specific Date',
+    'All',
+  ];
+
+  static const quarters = [
+    'First Quarter',
+    'Second Quarter',
+    'Third Quarter',
+    'Fourth Quarter',
+  ];
+
+  static const halves = [
+    'First Half',
+    'Second Half',
+  ];
+
+  static const years = [
+    '2020',
+    '2021',
+    '2022',
+    '2023',
+    '2024',
+    '2025',
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -264,41 +493,148 @@ class _TransactionScreenHeaderState extends State<TransactionScreenHeader> {
             children: [
               Row(
                 children: [
-                  // DropdownButton<String>(
-                  //   value: widget.dropdownValue,
-                  //   elevation: 16,
-                  //   style: const TextStyle(color: Colors.deepPurple),
-                  //   onChanged: (String? newValue) {
-                  //     widget.dropdownOnChange(newValue as String);
-                  //   },
-                  //   items: <String>['One', 'Two', 'Free', 'Four']
-                  //       .map<DropdownMenuItem<String>>((String value) {
-                  //     return DropdownMenuItem<String>(
-                  //       value: value,
-                  //       child: Text(value),
-                  //     );
-                  //   }).toList(),
-                  // ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.white,
-                      onPrimary: Colors.blueGrey,
-                    ),
-                    onPressed: () => widget.selectDate(context),
-                    child: const Padding(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-                      child: Text('Select Date'),
-                    ),
-                  ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Text(
-                      widget.date != null
-                          ? "Selected Date: ${DateFormat('yyyy-MM-dd').format(widget.date as DateTime)}"
-                          : 'Selected Date: No Date Selected',
+                    padding: const EdgeInsets.fromLTRB(0, 1, 10, 1),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.white,
+                        onPrimary: Colors.blueGrey,
+                      ),
+                      onPressed: () {},
+                      child: DropdownButton<String>(
+                        value: widget.dropdownValue,
+                        underline: Container(
+                          width: 0,
+                          color: Colors.transparent,
+                        ),
+                        style: const TextStyle(color: Colors.blueGrey),
+                        onChanged: (String? newValue) {
+                          widget.dropdownOnChange(newValue as String);
+                        },
+                        items:
+                            items.map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ),
+                  widget.dropdownValue == 'Quarterly'
+                      ? Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 1, 10, 1),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.white,
+                              onPrimary: Colors.blueGrey,
+                            ),
+                            onPressed: () {},
+                            child: DropdownButton<String>(
+                              value: widget.whichQuarter,
+                              underline: Container(
+                                width: 0,
+                                color: Colors.transparent,
+                              ),
+                              style: const TextStyle(color: Colors.blueGrey),
+                              onChanged: (String? newValue) {
+                                widget.onQuarterChange(newValue as String);
+                              },
+                              items: quarters.map<DropdownMenuItem<String>>(
+                                  (String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        )
+                      : Container(),
+                  widget.dropdownValue == 'Semi Annually'
+                      ? Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 1, 10, 1),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.white,
+                              onPrimary: Colors.blueGrey,
+                            ),
+                            onPressed: () {},
+                            child: DropdownButton<String>(
+                              value: widget.whichHalf,
+                              underline: Container(
+                                width: 0,
+                                color: Colors.transparent,
+                              ),
+                              style: const TextStyle(color: Colors.blueGrey),
+                              onChanged: (String? newValue) {
+                                widget.onHalfChange(newValue as String);
+                              },
+                              items: halves.map<DropdownMenuItem<String>>(
+                                  (String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        )
+                      : Container(),
+                  widget.dropdownValue == 'Annually'
+                      ? Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 1, 10, 1),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.white,
+                              onPrimary: Colors.blueGrey,
+                            ),
+                            onPressed: () {},
+                            child: DropdownButton<String>(
+                              value: widget.whichYear,
+                              underline: Container(
+                                width: 0,
+                                color: Colors.transparent,
+                              ),
+                              style: const TextStyle(color: Colors.blueGrey),
+                              onChanged: (String? newValue) {
+                                widget.onYearChange(newValue as String);
+                              },
+                              items: years.map<DropdownMenuItem<String>>(
+                                  (String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        )
+                      : Container(),
+                  widget.dropdownValue == 'Specific Date'
+                      ? ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.white,
+                            onPrimary: Colors.blueGrey,
+                          ),
+                          onPressed: () => widget.selectDate(context),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 25),
+                            child: Text('Select Date'),
+                          ),
+                        )
+                      : Container(),
+                  widget.dropdownValue == 'Specific Date'
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Text(
+                            widget.date != null
+                                ? "Selected Date: ${DateFormat('yyyy-MM-dd').format(widget.date as DateTime)}"
+                                : 'Selected Date: No Date Selected',
+                          ),
+                        )
+                      : Container(),
                 ],
               ),
               Row(
