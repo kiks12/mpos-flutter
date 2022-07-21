@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/objectbox.g.dart';
 import 'package:mpos/screens/home/tabs/dashboard/model/sales.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+// import 'package:syncfusion_flutter_charts/charts.dart';
 
 class TotalRevenueToday extends StatefulWidget {
   const TotalRevenueToday({Key? key}) : super(key: key);
@@ -53,8 +53,7 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
       _salesGrowth = _totalRevenueYesterday == 0
           ? 0
           : ((_totalRevenueToday - _totalRevenueYesterday) /
-                  _totalRevenueYesterday) *
-              100;
+              _totalRevenueYesterday);
     });
   }
 
@@ -157,9 +156,14 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
                         ),
                         Text(
                           percentFormatter.format(_salesGrowth),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w800,
                             fontSize: 40,
+                            color: _salesGrowth == 0
+                                ? const Color.fromARGB(255, 176, 158, 0)
+                                : _salesGrowth > 0
+                                    ? Colors.green
+                                    : Colors.red,
                           ),
                         ),
                       ],
@@ -192,27 +196,27 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('Daily Sales Growth'),
-                  Expanded(
-                    child: Container(
-                      child: SfCartesianChart(
-                        primaryXAxis: CategoryAxis(),
-                        series: <LineSeries<Sales, String>>[
-                          LineSeries<Sales, String>(
-                              // Bind data source
-                              dataSource: <Sales>[
-                                Sales('Jan', 35),
-                                Sales('Feb', 28),
-                                Sales('Mar', 34),
-                                Sales('Apr', 32),
-                                Sales('May', 40)
-                              ],
-                              xValueMapper: (Sales sales, _) =>
-                                  sales.identifier,
-                              yValueMapper: (Sales sales, _) => sales.sales)
-                        ],
-                      ),
-                    ),
-                  )
+                  // Expanded(
+                  //   child: Container(
+                  //     child: SfCartesianChart(
+                  //       primaryXAxis: CategoryAxis(),
+                  //       series: <LineSeries<Sales, String>>[
+                  //         LineSeries<Sales, String>(
+                  //             // Bind data source
+                  //             dataSource: <Sales>[
+                  //               Sales('Jan', 35),
+                  //               Sales('Feb', 28),
+                  //               Sales('Mar', 34),
+                  //               Sales('Apr', 32),
+                  //               Sales('May', 40)
+                  //             ],
+                  //             xValueMapper: (Sales sales, _) =>
+                  //                 sales.identifier,
+                  //             yValueMapper: (Sales sales, _) => sales.sales)
+                  //       ],
+                  //     ),
+                  //   ),
+                  // )
                 ],
               ),
             ),
