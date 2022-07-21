@@ -26,11 +26,13 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   String _whichQuarter = 'First Quarter';
   String _whichHalf = 'First Half';
   String _whichYear = DateFormat('yyyy').format(DateTime.now());
+  int _totalRevenue = 0;
 
   @override
   void initState() {
     super.initState();
     initializeAttendanceStream();
+    // _calculateTotalRevenue();
   }
 
   @override
@@ -278,7 +280,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     setState(() {
       _whichYear = newValue;
     });
-    _filterForAnnually(int.parse(_whichQuarter));
+    _filterForAnnually(int.parse(_whichYear));
   }
 
   void _filterForAnnually(int year) {
@@ -297,6 +299,14 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       _listController = StreamController();
       _listController.addStream(transactionQuery.map((query) => query.find()));
     });
+  }
+
+  void _fetchAllTransactions() {
+    final transactionQueryBuilder = objectBox.transactionBox.query();
+    final transactionQuery =
+        transactionQueryBuilder.watch(triggerImmediately: true);
+
+    setListControllerData(transactionQuery);
   }
 
   void _dropdownOnChange(String newValue) {
@@ -330,7 +340,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         break;
 
       default:
-        print('adsfsfdsdfasdf');
+        _fetchAllTransactions();
         break;
     }
   }
@@ -342,6 +352,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         child: Column(
           children: [
             TransactionScreenHeader(
+              totalRevenue: _totalRevenue,
               whichQuarter: _whichQuarter,
               whichHalf: _whichHalf,
               whichYear: _whichYear,
@@ -393,8 +404,10 @@ class TransactionScreenHeader extends StatefulWidget {
     required this.onQuarterChange,
     required this.onHalfChange,
     required this.onYearChange,
+    required this.totalRevenue,
   }) : super(key: key);
 
+  final int totalRevenue;
   final TextEditingController searchController;
   final void Function() onPressed;
   final void Function() refresh;
@@ -457,7 +470,8 @@ class _TransactionScreenHeaderState extends State<TransactionScreenHeader> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              const HeaderOne(padding: EdgeInsets.all(0), text: 'Transactions'),
+              const HeaderOne(
+                  padding: EdgeInsets.all(0), text: 'Transactions  |  '),
               Row(
                 children: [
                   Padding(
@@ -743,15 +757,15 @@ class _TransactionListTileState extends State<TransactionListTile> {
             Expanded(
               child: Center(
                 child: Text(
-                  '${widget.transaction.user.target!.lastName}, ${widget.transaction.user.target!.firstName}',
+                  NumberFormat.currency(symbol: '₱')
+                      .format(widget.transaction.totalAmount),
                 ),
               ),
             ),
             Expanded(
               child: Center(
                 child: Text(
-                  NumberFormat.currency(symbol: '₱')
-                      .format(widget.transaction.totalAmount),
+                  '${widget.transaction.user.target!.lastName}, ${widget.transaction.user.target!.firstName}',
                 ),
               ),
             ),
