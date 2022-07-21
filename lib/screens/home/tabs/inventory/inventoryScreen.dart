@@ -216,7 +216,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
           children: [
             InventoryScreenHeader(
               showProductWithLessThan: showProductWithLessThan,
-              inventoryValue: NumberFormat.currency(symbol: 'PHP')
+              inventoryValue: NumberFormat.currency(symbol: '₱')
                   .format(_totalInventoryValue),
               searchController: searchController,
               onPressed: search,

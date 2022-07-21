@@ -6,7 +6,7 @@ import 'package:mpos/models/account.dart';
 import 'package:mpos/screens/home/tabs/accounts/accountsScreen.dart';
 import 'package:mpos/screens/home/tabs/attendance/attendanceScreen.dart';
 import 'package:mpos/screens/home/tabs/cashierScreen.dart';
-import 'package:mpos/screens/home/tabs/dashboardScreen.dart';
+import 'package:mpos/screens/home/tabs/dashboard/dashboardScreen.dart';
 import 'package:mpos/screens/home/tabs/inventory/inventoryScreen.dart';
 import 'package:mpos/screens/home/tabs/settingsScreen.dart';
 import 'package:mpos/screens/home/tabs/timeInTimeOutScreen.dart';
