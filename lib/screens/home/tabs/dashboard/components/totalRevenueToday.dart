@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/objectbox.g.dart';
+import 'package:mpos/screens/home/tabs/dashboard/model/sales.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class TotalRevenueToday extends StatefulWidget {
@@ -193,7 +194,23 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
                   const Text('Daily Sales Growth'),
                   Expanded(
                     child: Container(
-                      child: SfCartesianChart(),
+                      child: SfCartesianChart(
+                        primaryXAxis: CategoryAxis(),
+                        series: <LineSeries<Sales, String>>[
+                          LineSeries<Sales, String>(
+                              // Bind data source
+                              dataSource: <Sales>[
+                                Sales('Jan', 35),
+                                Sales('Feb', 28),
+                                Sales('Mar', 34),
+                                Sales('Apr', 32),
+                                Sales('May', 40)
+                              ],
+                              xValueMapper: (Sales sales, _) =>
+                                  sales.identifier,
+                              yValueMapper: (Sales sales, _) => sales.sales)
+                        ],
+                      ),
                     ),
                   )
                 ],
