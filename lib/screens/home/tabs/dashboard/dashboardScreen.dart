@@ -3,6 +3,7 @@ import 'package:mpos/components/HeaderOne.dart';
 // import 'package:mpos/main.dart';
 import 'package:mpos/screens/home/tabs/dashboard/components/fastMovingProducts.dart';
 import 'package:mpos/screens/home/tabs/dashboard/components/revenueChart.dart';
+import 'package:mpos/screens/home/tabs/dashboard/components/revenueFigures.dart';
 import 'package:mpos/screens/home/tabs/dashboard/components/totalRevenueToday.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -36,6 +37,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
               ),
+              const RevenueFigures(),
               const RevenueChart(),
             ],
           ),
