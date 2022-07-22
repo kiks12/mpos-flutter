@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mpos/components/HeaderOne.dart';
+import 'package:mpos/main.dart';
+import 'package:mpos/screens/home/tabs/dashboard/components/fastMovingProducts.dart';
 import 'package:mpos/screens/home/tabs/dashboard/components/totalRevenueToday.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -16,9 +18,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: SingleChildScrollView(
         child: SafeArea(
           child: Column(
-            children: const [
-              DashboardScreenHeader(),
-              TotalRevenueToday(),
+            children: [
+              const DashboardScreenHeader(),
+              Row(
+                children: const <Widget>[
+                  TotalRevenueToday(),
+                  FastMovingProducts(),
+                ],
+              ),
             ],
           ),
         ),
