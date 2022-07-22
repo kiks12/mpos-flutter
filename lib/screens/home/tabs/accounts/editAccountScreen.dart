@@ -63,7 +63,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
 
     try {
       widget.accountBox.put(newAccount);
-    } on UniqueViolationException catch (e) {
+    } on UniqueViolationException {
       setState(() {
         _error = 'This Email Address is used already!';
       });

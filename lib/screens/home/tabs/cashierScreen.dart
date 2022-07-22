@@ -146,7 +146,7 @@ class _CashierScreenState extends State<CashierScreen> {
           return previousValue + element.totalPrice;
         });
       });
-    } on StateError catch (e) {
+    } on StateError {
       setState(() {
         _cartList.add(newProduct);
         _total = _cartList.fold(0, (previousValue, element) {
@@ -440,7 +440,7 @@ class _CartState extends State<Cart> {
           title: const Text('Finalize Payment'),
           children: _isLoading
               ? [
-                  Text('Loading...'),
+                  const Text('Loading...'),
                 ]
               : [
                   HeaderOne(
@@ -508,7 +508,7 @@ class _CartState extends State<Cart> {
           title: const Text('Finalize Payment'),
           children: _isLoading
               ? [
-                  Text('Loading...'),
+                  const Text('Loading...'),
                 ]
               : [
                   HeaderOne(
@@ -670,7 +670,7 @@ class _CartState extends State<Cart> {
                         onPrimary: Colors.red,
                       ),
                       onPressed: widget.voidCart,
-                      child: Text('Void'),
+                      child: const Text('Void'),
                     ),
                   ),
                 ),
@@ -679,7 +679,7 @@ class _CartState extends State<Cart> {
                   height: MediaQuery.of(context).size.height * 0.05,
                   child: ElevatedButton(
                     onPressed: showPaymentMethodDialog,
-                    child: Text('Pay'),
+                    child: const Text('Pay'),
                   ),
                 ),
               ],

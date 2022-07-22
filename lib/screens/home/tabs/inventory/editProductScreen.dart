@@ -19,7 +19,7 @@ class EditProductScreen extends StatefulWidget {
 
 class _EditProductScreenState extends State<EditProductScreen> {
   final formKey = GlobalKey<FormState>();
-  String _error = '';
+  final String _error = '';
 
   final TextEditingController nameTextController = TextEditingController();
   final TextEditingController barcodeTextController = TextEditingController();

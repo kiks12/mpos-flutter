@@ -28,7 +28,7 @@ class _ManageExpirationDatesScreenState
   final TextEditingController _soldQuantity = TextEditingController();
   final TextEditingController _expiredQuantity = TextEditingController();
 
-  TextEditingController _quantityController = TextEditingController();
+  final TextEditingController _quantityController = TextEditingController();
   DateTime? _selectedDate;
 
   @override

@@ -16,8 +16,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: SingleChildScrollView(
         child: SafeArea(
           child: Column(
-            children: [
-              const DashboardScreenHeader(),
+            children: const [
+              DashboardScreenHeader(),
               TotalRevenueToday(),
             ],
           ),

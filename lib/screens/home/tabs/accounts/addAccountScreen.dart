@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mpos/components/CheckboxWithLabel.dart';
-import 'package:mpos/components/HeaderOne.dart';
 import 'package:mpos/components/HeaderTwo.dart';
 import 'package:mpos/components/TextFormFieldWithLabel.dart';
-import 'package:mpos/main.dart';
 import 'package:mpos/models/account.dart';
 import 'package:mpos/objectbox.g.dart';
-import 'package:mpos/screens/adminRegistrationScreen.dart';
-import 'package:mpos/screens/home/homeScreen.dart';
 
 class AddAccountScreen extends StatefulWidget {
   const AddAccountScreen({
@@ -65,7 +61,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
 
     try {
       widget.accountBox.put(newAccount);
-    } on UniqueViolationException catch (e) {
+    } on UniqueViolationException {
       setState(() {
         _error = 'This Email Address is used already!';
       });

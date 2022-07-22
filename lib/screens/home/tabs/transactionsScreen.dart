@@ -26,7 +26,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   String _whichQuarter = 'First Quarter';
   String _whichHalf = 'First Half';
   String _whichYear = DateFormat('yyyy').format(DateTime.now());
-  int _totalRevenue = 0;
+  final int _totalRevenue = 0;
 
   @override
   void initState() {
