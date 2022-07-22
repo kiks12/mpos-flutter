@@ -48,6 +48,21 @@ class _RevenueChartState extends State<RevenueChart> {
         initializeChartDataForMonthly();
         break;
 
+      case 'Quarterly':
+        getQuarterlyDates();
+        initializeChartDataForQuarterly();
+        break;
+
+      case 'Semi Annually':
+        getSemiAnnuallyDates();
+        initializeChartDataForSemiAnnually();
+        break;
+
+      case 'Annually':
+        getAnnuallyDates();
+        initializeChartDataForAnnually();
+        break;
+
       default:
         break;
     }
@@ -71,6 +86,27 @@ class _RevenueChartState extends State<RevenueChart> {
     _dates = [];
     for (int i = 1; i <= 12; i++) {
       _dates.add(DateTime(now.year, i, 1));
+    }
+  }
+
+  void getQuarterlyDates() {
+    _dates = [];
+    for (int i = 1; i <= 12; i += 3) {
+      _dates.add(DateTime(now.year, i, 1));
+    }
+  }
+
+  void getSemiAnnuallyDates() {
+    _dates = [];
+    for (int i = 1; i <= 12; i += 6) {
+      _dates.add(DateTime(now.year, i, 1));
+    }
+  }
+
+  void getAnnuallyDates() {
+    _dates = [];
+    for (int i = 0; i < 12; i++) {
+      _dates.add(DateTime(2020 + i, 1, 1));
     }
   }
 
@@ -106,6 +142,73 @@ class _RevenueChartState extends State<RevenueChart> {
 
       setState(() {
         _salesData.add(Sales(DateFormat('MMM').format(date), revenue));
+      });
+    });
+  }
+
+  void initializeChartDataForQuarterly() {
+    setState(() {
+      _salesData = [];
+    });
+    _dates.forEach((date) {
+      final secondDate = DateTime(date.year, date.month + 2, 30);
+      final revenueQueryBuilder = objectBox.transactionBox.query(
+        Transaction_.date.between(
+            date.millisecondsSinceEpoch, secondDate.millisecondsSinceEpoch),
+      );
+      final revenueQuery = revenueQueryBuilder.build();
+      final revenue = revenueQuery.property(Transaction_.totalAmount).sum();
+
+      setState(() {
+        _salesData.add(
+          Sales(
+              '${DateFormat('MMM').format(date)} - ${DateFormat('MMM').format(secondDate)}',
+              revenue),
+        );
+      });
+    });
+  }
+
+  void initializeChartDataForSemiAnnually() {
+    setState(() {
+      _salesData = [];
+    });
+    _dates.forEach((date) {
+      final secondDate = DateTime(date.year, date.month + 5, 30);
+      final revenueQueryBuilder = objectBox.transactionBox.query(
+        Transaction_.date.between(
+            date.millisecondsSinceEpoch, secondDate.millisecondsSinceEpoch),
+      );
+      final revenueQuery = revenueQueryBuilder.build();
+      final revenue = revenueQuery.property(Transaction_.totalAmount).sum();
+
+      setState(() {
+        _salesData.add(
+          Sales(
+              '${DateFormat('MMM').format(date)} - ${DateFormat('MMM').format(secondDate)}',
+              revenue),
+        );
+      });
+    });
+  }
+
+  void initializeChartDataForAnnually() {
+    setState(() {
+      _salesData = [];
+    });
+    _dates.forEach((date) {
+      final secondDate = DateTime(date.year, 12, 31);
+      final revenueQueryBuilder = objectBox.transactionBox.query(
+        Transaction_.date.between(
+            date.millisecondsSinceEpoch, secondDate.millisecondsSinceEpoch),
+      );
+      final revenueQuery = revenueQueryBuilder.build();
+      final revenue = revenueQuery.property(Transaction_.totalAmount).sum();
+
+      setState(() {
+        _salesData.add(
+          Sales(DateFormat('yyyy').format(date), revenue),
+        );
       });
     });
   }

@@ -106,94 +106,97 @@ class _FastMovingProductsState extends State<FastMovingProducts> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.only(right: 20),
-        child: Container(
-          padding: const EdgeInsets.all(15),
-          constraints: BoxConstraints(
-            minHeight: MediaQuery.of(context).size.height * 0.62,
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Colors.white,
-            boxShadow: const <BoxShadow>[
-              BoxShadow(
-                blurRadius: 7,
-                color: Color.fromARGB(255, 216, 216, 216),
-                offset: Offset(0, 10),
-              )
-            ],
-          ),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 10),
-                    child: Text('Fast Moving Products'),
-                  ),
-                  Row(
-                    children: [
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          primary: _byCategory ? Colors.blueGrey : Colors.white,
-                          onPrimary:
-                              _byCategory ? Colors.white : Colors.blueGrey,
-                        ),
-                        onPressed: byCategoryOnClick,
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 15, horizontal: 25),
-                          child: Text('By Category'),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: ElevatedButton(
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+          child: Container(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height * 0.65,
+            ),
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.white,
+              boxShadow: const <BoxShadow>[
+                BoxShadow(
+                  blurRadius: 7,
+                  color: Color.fromARGB(255, 216, 216, 216),
+                  offset: Offset(0, 10),
+                )
+              ],
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 10),
+                      child: Text('Fast Moving Products'),
+                    ),
+                    Row(
+                      children: [
+                        ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             primary:
-                                _byCategory ? Colors.white : Colors.blueGrey,
-                            onPrimary:
                                 _byCategory ? Colors.blueGrey : Colors.white,
+                            onPrimary:
+                                _byCategory ? Colors.white : Colors.blueGrey,
                           ),
-                          onPressed: byProductOnClick,
+                          onPressed: byCategoryOnClick,
                           child: const Padding(
                             padding: EdgeInsets.symmetric(
                                 vertical: 15, horizontal: 25),
-                            child: Text('By Product'),
+                            child: Text('By Category'),
                           ),
                         ),
-                      ),
-                    ],
-                  )
-                ],
-              ),
-              Container(
-                margin: EdgeInsets.only(top: 80),
-                child: SfCircularChart(
-                  tooltipBehavior: TooltipBehavior(),
-                  legend: Legend(
-                      isVisible: true,
-                      overflowMode: LegendItemOverflowMode.wrap),
-                  series: <CircularSeries<Sales, String>>[
-                    DoughnutSeries(
-                      radius: '160',
-                      dataSource: _fastMovingProducts.take(10).toList(),
-                      xValueMapper: (Sales sales, _) => sales.identifier,
-                      yValueMapper: (Sales sales, _) => sales.sales,
-                      dataLabelSettings: DataLabelSettings(
-                        isVisible: true,
-                      ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              primary:
+                                  _byCategory ? Colors.white : Colors.blueGrey,
+                              onPrimary:
+                                  _byCategory ? Colors.blueGrey : Colors.white,
+                            ),
+                            onPressed: byProductOnClick,
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 15, horizontal: 25),
+                              child: Text('By Product'),
+                            ),
+                          ),
+                        ),
+                      ],
                     )
                   ],
                 ),
-              ),
-            ],
+                Container(
+                  margin: const EdgeInsets.only(top: 80),
+                  child: SfCircularChart(
+                    tooltipBehavior: TooltipBehavior(),
+                    legend: Legend(
+                        isVisible: true,
+                        overflowMode: LegendItemOverflowMode.wrap),
+                    series: <CircularSeries<Sales, String>>[
+                      DoughnutSeries(
+                        radius: '${MediaQuery.of(context).size.height * 0.18}',
+                        dataSource: _fastMovingProducts.take(10).toList(),
+                        xValueMapper: (Sales sales, _) => sales.identifier,
+                        yValueMapper: (Sales sales, _) => sales.sales,
+                        dataLabelSettings: const DataLabelSettings(
+                          isVisible: true,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 }

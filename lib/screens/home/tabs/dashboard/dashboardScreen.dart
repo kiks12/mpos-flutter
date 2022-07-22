@@ -21,11 +21,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             children: [
               const DashboardScreenHeader(),
-              Row(
-                children: const <Widget>[
-                  TotalRevenueToday(),
-                  FastMovingProducts(),
-                ],
+              Container(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.65,
+                ),
+                child: Row(
+                  children: const <Widget>[
+                    Expanded(
+                      child: TotalRevenueToday(),
+                    ),
+                    Expanded(
+                      child: FastMovingProducts(),
+                    )
+                  ],
+                ),
               ),
               const RevenueChart(),
             ],

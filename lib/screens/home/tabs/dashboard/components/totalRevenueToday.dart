@@ -198,42 +198,44 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
                 ),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 15),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.white,
-                  boxShadow: const <BoxShadow>[
-                    BoxShadow(
-                      blurRadius: 7,
-                      color: Color.fromARGB(255, 216, 216, 216),
-                      offset: Offset(0, 10),
-                    )
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(15),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(bottom: 10),
-                        child: Text('Three Day Span'),
-                      ),
-                      SfCartesianChart(
-                        primaryXAxis: CategoryAxis(),
-                        series: <LineSeries<Sales, String>>[
-                          LineSeries<Sales, String>(
-                              // Bind data source
-                              dataSource: threeDaySpanDataSource,
-                              xValueMapper: (Sales sales, _) =>
-                                  sales.identifier,
-                              yValueMapper: (Sales sales, _) => sales.sales)
-                        ],
-                      ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 15),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                    boxShadow: const <BoxShadow>[
+                      BoxShadow(
+                        blurRadius: 7,
+                        color: Color.fromARGB(255, 216, 216, 216),
+                        offset: Offset(0, 10),
+                      )
                     ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: 10),
+                          child: Text('Three Day Span'),
+                        ),
+                        SfCartesianChart(
+                          primaryXAxis: CategoryAxis(),
+                          series: <LineSeries<Sales, String>>[
+                            LineSeries<Sales, String>(
+                                // Bind data source
+                                dataSource: threeDaySpanDataSource,
+                                xValueMapper: (Sales sales, _) =>
+                                    sales.identifier,
+                                yValueMapper: (Sales sales, _) => sales.sales)
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
