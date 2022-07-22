@@ -30,8 +30,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   int _totalPrice = 0;
   final List<DateTime> _expirationDates = [];
-  final TextEditingController tagController = TextEditingController();
-  List<String> tags = [];
+  final TextEditingController categoryTextController = TextEditingController();
 
   @override
   void initState() {
@@ -44,17 +43,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
       barcodeTextController.text = widget.product.barcode;
       unitPriceTextController.text = widget.product.unitPrice.toString();
       quantityTextController.text = widget.product.quantity.toString();
+      categoryTextController.text = widget.product.category;
       _totalPrice = widget.product.totalPrice;
-      tags = widget.product.tags;
     });
   }
 
   double _expirationDateListViewHeight() {
     return MediaQuery.of(context).size.height * 0.1 * _expirationDates.length;
-  }
-
-  double _tagsListViewHeight() {
-    return MediaQuery.of(context).size.height * 0.09 * tags.length;
   }
 
   void updateProduct() {
@@ -67,7 +62,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     productToUpdate.barcode = barcodeTextController.text;
     productToUpdate.unitPrice = int.parse(unitPriceTextController.text);
     productToUpdate.totalPrice = _totalPrice;
-    productToUpdate.tags = tags;
+    productToUpdate.category = categoryTextController.text;
 
     objectBox.productBox.put(productToUpdate);
 
@@ -99,48 +94,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
             children: [
               Text(
                 DateFormat('yyyy-MM-dd').format(_expirationDates[index]),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _addTag() {
-    // if (formKey.currentState!.validate()) {
-    setState(() {
-      tags.add(tagController.text);
-      tagController.clear();
-    });
-    // }
-  }
-
-  void _removeTag(int index) {
-    setState(() {
-      tags.removeAt(index);
-    });
-  }
-
-  Padding _tagsBuilder(BuildContext context, int index) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 20),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: const Color.fromARGB(255, 213, 213, 213),
-            width: 0.7,
-          ),
-          borderRadius: BorderRadius.circular(40),
-        ),
-        child: ListTile(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(tags[index]),
-              TextButton(
-                onPressed: () => _removeTag(index),
-                child: const Text('remove'),
               ),
             ],
           ),
@@ -239,41 +192,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       const HeaderTwo(
                         padding:
                             EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        text: 'Tags',
+                        text: 'Category',
                       ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormFieldWithLabel(
-                              label: 'Tags',
-                              controller: tagController,
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 20, horizontal: 20),
-                              isPassword: false,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: _addTag,
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 15, horizontal: 25),
-                              child: Text('Add'),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: _tagsListViewHeight(),
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: ListView.builder(
-                                itemCount: tags.length,
-                                itemBuilder: _tagsBuilder,
-                              ),
-                            ),
-                          ],
-                        ),
+                      TextFormFieldWithLabel(
+                        label: 'Category',
+                        controller: categoryTextController,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 20, horizontal: 20),
+                        isPassword: false,
                       ),
                     ],
                   ),

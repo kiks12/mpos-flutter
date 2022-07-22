@@ -119,7 +119,7 @@ class _CashierScreenState extends State<CashierScreen> {
     Product newProduct = Product(
       name: products[index].name,
       barcode: products[index].barcode,
-      tags: products[index].tags,
+      category: products[index].category,
       unitPrice: products[index].unitPrice,
       quantity: int.parse(quantityController.text),
       totalPrice:

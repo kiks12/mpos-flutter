@@ -26,8 +26,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final TextEditingController quantityTextController =
       TextEditingController(text: '0');
 
-  final TextEditingController tagController = TextEditingController();
-  List<String> tags = [];
+  final TextEditingController categoryTextController = TextEditingController();
 
   int _totalPrice = 0;
   DateTime? _expirationDates = DateTime.now();
@@ -37,17 +36,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
     return MediaQuery.of(context).size.height * 0.09 * 1;
   }
 
-  double _tagsListViewHeight() {
-    return MediaQuery.of(context).size.height * 0.09 * tags.length;
-  }
-
   void addProduct() {
     if (!formKey.currentState!.validate()) return;
 
     Product newProduct = Product(
       name: nameTextController.text,
       barcode: barcodeTextController.text,
-      tags: tags,
+      category: categoryTextController.text,
       unitPrice: int.parse(unitPriceTextController.text),
       quantity: int.parse(quantityTextController.text),
       totalPrice: _totalPrice,
@@ -92,21 +87,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
     });
   }
 
-  void _addTag() {
-    // if (formKey.currentState!.validate()) {
-    setState(() {
-      tags.add(tagController.text);
-      tagController.clear();
-    });
-    // }
-  }
-
-  void _removeTag(int index) {
-    setState(() {
-      tags.removeAt(index);
-    });
-  }
-
   Padding _expirationDateBuilder(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 20),
@@ -128,33 +108,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
               TextButton(
                 onPressed: () => _editExpirationDate(),
                 child: const Text('change'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Padding _tagsBuilder(BuildContext context, int index) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 20),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: const Color.fromARGB(255, 213, 213, 213),
-            width: 0.7,
-          ),
-          borderRadius: BorderRadius.circular(40),
-        ),
-        child: ListTile(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(tags[index]),
-              TextButton(
-                onPressed: () => _removeTag(index),
-                child: const Text('remove'),
               ),
             ],
           ),
@@ -272,41 +225,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       const HeaderTwo(
                         padding:
                             EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        text: 'Tags',
+                        text: 'Category',
                       ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormFieldWithLabel(
-                              label: 'Tags',
-                              controller: tagController,
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 20, horizontal: 20),
-                              isPassword: false,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: _addTag,
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 15, horizontal: 25),
-                              child: Text('Add'),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: _tagsListViewHeight(),
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: ListView.builder(
-                                itemCount: tags.length,
-                                itemBuilder: _tagsBuilder,
-                              ),
-                            ),
-                          ],
-                        ),
+                      TextFormFieldWithLabel(
+                        label: 'Category',
+                        controller: categoryTextController,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 20, horizontal: 20),
+                        isPassword: false,
                       ),
                     ],
                   ),
@@ -332,13 +258,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                 child: _expirationDateBuilder(context),
                               ),
                             ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: TextButton(
-                            onPressed: () => _selectDate(context),
-                            child: const Text('Add Expiration Date'),
                           ),
                         ),
                       ],
