@@ -427,7 +427,7 @@ class _CartState extends State<Cart> {
     });
   }
 
-  Future<void> showCashPaymentDialog() async {
+  Future<void> showCashPaymentDialog(BuildContext context) async {
     _paymentMethod = 'Cash';
 
     Navigator.pop(context);
@@ -495,7 +495,7 @@ class _CartState extends State<Cart> {
     );
   }
 
-  Future<void> showGCashPaymentDialog() async {
+  Future<void> showGCashPaymentDialog(BuildContext context) async {
     _paymentMethod = 'Cash';
 
     Navigator.pop(context);
@@ -577,7 +577,7 @@ class _CartState extends State<Cart> {
                       child: SizedBox(
                         width: MediaQuery.of(context).size.width * 0.35,
                         child: TextButton(
-                          onPressed: showCashPaymentDialog,
+                          onPressed: () => showCashPaymentDialog(context),
                           child: const Text(
                             'Cash',
                             textAlign: TextAlign.center,
@@ -590,7 +590,7 @@ class _CartState extends State<Cart> {
                     child: SizedBox(
                       width: MediaQuery.of(context).size.width * 0.35,
                       child: TextButton(
-                        onPressed: showGCashPaymentDialog,
+                        onPressed: () => showGCashPaymentDialog(context),
                         child: const Text(
                           'GCash',
                           textAlign: TextAlign.center,
