@@ -8,7 +8,7 @@ class Product {
   int id = 0;
   String name;
   String barcode;
-  List<String> tags;
+  String category;
   int unitPrice;
   int quantity;
   int totalPrice;
@@ -25,7 +25,7 @@ class Product {
   Product({
     required this.name,
     required this.barcode,
-    required this.tags,
+    required this.category,
     required this.unitPrice,
     required this.quantity,
     required this.totalPrice,
@@ -33,6 +33,6 @@ class Product {
 
   @override
   String toString() {
-    return 'Product {$id, $name, $barcode, $unitPrice, $quantity, $totalPrice}';
+    return 'Product {$id, $name, $barcode, $category,$unitPrice, $quantity, $totalPrice}';
   }
 }
