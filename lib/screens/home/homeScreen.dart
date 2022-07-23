@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 
 import 'package:mpos/main.dart';
 import 'package:mpos/models/account.dart';
+import 'package:mpos/models/expirationDates.dart';
+import 'package:mpos/objectbox.g.dart';
 
 import 'package:mpos/screens/home/tabs/accounts/accountsScreen.dart';
 import 'package:mpos/screens/home/tabs/attendance/attendanceScreen.dart';
 import 'package:mpos/screens/home/tabs/cashierScreen.dart';
 import 'package:mpos/screens/home/tabs/dashboard/dashboardScreen.dart';
 import 'package:mpos/screens/home/tabs/inventory/inventoryScreen.dart';
+import 'package:mpos/screens/home/tabs/notificationScreen.dart';
 import 'package:mpos/screens/home/tabs/settingsScreen.dart';
 import 'package:mpos/screens/home/tabs/timeInTimeOutScreen.dart';
 import 'package:mpos/screens/home/tabs/transactionsScreen.dart';
@@ -26,16 +29,109 @@ class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   Account? currentAccount;
 
+  late final _tabController =
+      TabController(length: currentAccount!.isAdmin ? 8 : 4, vsync: this);
+  static final now = DateTime.now();
+
+  List<ExpirationDate> _expiringNotifications = [];
+  List<ExpirationDate> _expiredNotifications = [];
+
   @override
   void initState() {
     super.initState();
     setState(() {
       currentAccount = Utils().getCurrentAccount(objectBox);
     });
+    getExpiringNotifications();
+    getExpiredNotifications();
   }
 
-  late final _tabController =
-      TabController(length: currentAccount!.isAdmin ? 7 : 3, vsync: this);
+  void getExpiringNotifications() {
+    final expirationsNotificationQueryBuilder =
+        objectBox.expirationDateBox.query(
+      ExpirationDate_.date.between(now.millisecondsSinceEpoch,
+          DateTime(now.year, now.month, now.day + 14).millisecondsSinceEpoch),
+    );
+    final expirationsNotificationQuery =
+        expirationsNotificationQueryBuilder.build();
+    final expirationsNotification = expirationsNotificationQuery.find();
+
+    expirationsNotification.forEach((exp) {
+      if (exp.quantity != exp.sold + exp.expired) {
+        setState(() {
+          _expiringNotifications.add(exp);
+        });
+      }
+    });
+  }
+
+  void getExpiredNotifications() {
+    final expirationsNotificationQueryBuilder =
+        objectBox.expirationDateBox.query(
+      ExpirationDate_.date.lessOrEqual(now.millisecondsSinceEpoch),
+    );
+    final expirationsNotificationQuery =
+        expirationsNotificationQueryBuilder.build();
+    final expirationsNotification = expirationsNotificationQuery.find();
+
+    expirationsNotification.forEach((exp) {
+      if (exp.quantity != exp.sold + exp.expired) {
+        setState(() {
+          _expiredNotifications.add(exp);
+        });
+      }
+    });
+  }
+
+  Tab _notificationTab() {
+    return Tab(
+      child: Stack(
+        children: <Widget>[
+          IconButton(
+            iconSize: 32,
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            icon: const Icon(
+              Icons.notifications,
+              color: Colors.blueGrey,
+            ),
+            onPressed: () {},
+          ),
+          _expiringNotifications.isNotEmpty
+              ? Positioned(
+                  top: 3,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(1),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 15,
+                      minHeight: 15,
+                    ),
+                    child: Text(
+                      '${_expiringNotifications.length}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                )
+              : Positioned(
+                  top: 3,
+                  right: 0,
+                  child: Container(),
+                ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,6 +183,7 @@ class _HomeScreenState extends State<HomeScreen>
                       style: TextStyle(color: Colors.black),
                     ),
                   ),
+                  _notificationTab(),
                 ]
               : [
                   const Tab(
@@ -107,6 +204,7 @@ class _HomeScreenState extends State<HomeScreen>
                       style: TextStyle(color: Colors.black),
                     ),
                   ),
+                  _notificationTab(),
                 ],
         ),
       ),
@@ -123,6 +221,10 @@ class _HomeScreenState extends State<HomeScreen>
                 const TransactionsScreen(),
                 const DashboardScreen(),
                 const SettingsScreen(),
+                NotificationScreen(
+                  expiredNotifications: _expiredNotifications,
+                  expiringNotifications: _expiringNotifications,
+                ),
               ]
             : [
                 const CashierScreen(),
@@ -130,6 +232,10 @@ class _HomeScreenState extends State<HomeScreen>
                   tabController: _tabController,
                 ),
                 const SettingsScreen(),
+                NotificationScreen(
+                  expiredNotifications: _expiredNotifications,
+                  expiringNotifications: _expiringNotifications,
+                ),
               ],
       ),
     );
