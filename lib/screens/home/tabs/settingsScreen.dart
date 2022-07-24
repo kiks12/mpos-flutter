@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mpos/components/HeaderOne.dart';
 import 'package:mpos/components/HeaderTwo.dart';
+import 'package:mpos/components/TextFormFieldWithLabel.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/account.dart';
 import 'package:mpos/screens/home/tabs/accounts/editAccountScreen.dart';
@@ -16,6 +17,11 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   Account? currentAccount;
+
+  final formKey = GlobalKey<FormState>();
+  final TextEditingController passwordController = TextEditingController();
+
+  String _error = '';
 
   @override
   void initState() {
@@ -42,6 +48,85 @@ class _SettingsScreenState extends State<SettingsScreen> {
           accountBox: objectBox.accountBox,
         ),
       ),
+    );
+  }
+
+  void _resetApp() {
+    if (!formKey.currentState!.validate()) return;
+
+    if (passwordController.text != currentAccount!.password) {
+      setState(() {
+        _error = 'Incorrect Password';
+      });
+      return;
+    }
+
+    objectBox.accountBox.removeAll();
+    objectBox.attendanceBox.removeAll();
+    objectBox.expirationDateBox.removeAll();
+    objectBox.transactionBox.removeAll();
+    objectBox.ingredientBox.removeAll();
+    objectBox.storeDetailsBox.removeAll();
+    objectBox.productBox.removeAll();
+
+    Navigator.push(
+        context, MaterialPageRoute(builder: ((context) => const MyApp())));
+  }
+
+  void _onCancel(void Function(void Function()) setState) {
+    passwordController.text = '';
+    setState(() {
+      _error = '';
+    });
+    Navigator.pop(context);
+  }
+
+  Future<void> _showResetDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: ((context, setState) => AlertDialog(
+                title: const Text('Reset System'),
+                content: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      const Text(
+                          'Resetting Mobile Point of Sale System. Please enter your admin password.'),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.5,
+                        child: Form(
+                          key: formKey,
+                          child: TextFormFieldWithLabel(
+                            label: 'Password',
+                            controller: passwordController,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            isPassword: true,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        _error,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ],
+                  ),
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('Cancel'),
+                    onPressed: () => _onCancel(setState),
+                  ),
+                  ElevatedButton(
+                    child: const Text('Confirm'),
+                    onPressed: _resetApp,
+                  ),
+                ],
+              )),
+        );
+      },
     );
   }
 
@@ -73,6 +158,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
+            currentAccount!.isAdmin
+                ? Container(
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                            width: 1,
+                            color: Color.fromARGB(255, 228, 228, 228)),
+                      ),
+                    ),
+                    width: MediaQuery.of(context).size.width * 0.5,
+                    child: TextButton(
+                      onPressed: _showResetDialog,
+                      child: const Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Text('Reset System'),
+                      ),
+                    ),
+                  )
+                : Container(),
             Container(
               decoration: const BoxDecoration(
                 border: Border(
