@@ -165,7 +165,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       child: SizedBox(
                         width: MediaQuery.of(context).size.width * 0.35,
                         child: TextButton(
-                          onPressed: navigateToAddProductScreen,
+                          onPressed: () => navigateToAddProductScreen(context),
                           child: const Text(
                             'Product\n\n(No Ingredients, ex. sardines, milk, coke)',
                             textAlign: TextAlign.center,
@@ -195,7 +195,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  void navigateToAddProductScreen() {
+  void navigateToAddProductScreen(BuildContext context) {
     Navigator.of(context).pop();
     Navigator.push(
       context,

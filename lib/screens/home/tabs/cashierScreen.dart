@@ -66,9 +66,9 @@ class _CashierScreenState extends State<CashierScreen> {
     });
   }
 
-  void voidCart() {
+  void voidCart(BuildContext context) {
     clearCart();
-    Navigator.pop(context);
+    Navigator.of(context).pop();
   }
 
   void clearCart() {
@@ -107,7 +107,7 @@ class _CashierScreenState extends State<CashierScreen> {
             ),
             ElevatedButton(
               child: const Text('Confirm'),
-              onPressed: voidCart,
+              onPressed: () => voidCart(context),
             ),
           ],
         );
