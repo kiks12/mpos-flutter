@@ -119,7 +119,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     });
   }
 
-  void deleteAll() {
+  void deleteAll(BuildContext context) {
     objectBox.attendanceBox.removeAll();
     Navigator.of(context).pop();
   }
@@ -148,7 +148,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             ),
             ElevatedButton(
               child: const Text('Confirm'),
-              onPressed: deleteAll,
+              onPressed: () => deleteAll(context),
             ),
           ],
         );

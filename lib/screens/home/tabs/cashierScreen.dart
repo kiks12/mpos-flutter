@@ -386,10 +386,10 @@ class _CartState extends State<Cart> {
     });
   }
 
-  void cancelPayment() {
+  void cancelPayment(BuildContext context) {
     cashController.text = widget.total.toString();
     calculateChange('str');
-    Navigator.pop(context);
+    Navigator.of(context).pop();
   }
 
   Future<void> pay(BuildContext context) async {
@@ -474,7 +474,7 @@ class _CartState extends State<Cart> {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             primary: Colors.white, onPrimary: Colors.red),
-                        onPressed: cancelPayment,
+                        onPressed: () => cancelPayment(context),
                         child: const Text('Cancel'),
                       ),
                     ),
@@ -529,7 +529,7 @@ class _CartState extends State<Cart> {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             primary: Colors.white, onPrimary: Colors.red),
-                        onPressed: cancelPayment,
+                        onPressed: () => cancelPayment(context),
                         child: const Text('Cancel'),
                       ),
                     ),

@@ -113,6 +113,7 @@ class _FastMovingProductsState extends State<FastMovingProducts> {
           child: Container(
             constraints: BoxConstraints(
               minHeight: MediaQuery.of(context).size.height * 0.65,
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
             ),
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
@@ -145,11 +146,7 @@ class _FastMovingProductsState extends State<FastMovingProducts> {
                                 _byCategory ? Colors.white : Colors.blueGrey,
                           ),
                           onPressed: byCategoryOnClick,
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 15, horizontal: 25),
-                            child: Text('By Category'),
-                          ),
+                          child: const Text('By Category'),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(left: 10),
@@ -161,11 +158,7 @@ class _FastMovingProductsState extends State<FastMovingProducts> {
                                   _byCategory ? Colors.blueGrey : Colors.white,
                             ),
                             onPressed: byProductOnClick,
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 15, horizontal: 25),
-                              child: Text('By Product'),
-                            ),
+                            child: const Text('By Product'),
                           ),
                         ),
                       ],

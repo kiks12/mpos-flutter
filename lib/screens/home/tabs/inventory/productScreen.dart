@@ -48,7 +48,7 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  void deleteProduct() {
+  void deleteProduct(BuildContext context) {
     objectBox.productBox.remove(widget.product.id);
     Navigator.of(context).pop();
     Navigator.of(context).pop();
@@ -81,7 +81,7 @@ class _ProductScreenState extends State<ProductScreen> {
             ),
             ElevatedButton(
               child: const Text('Confirm'),
-              onPressed: deleteProduct,
+              onPressed: () => deleteProduct(context),
             ),
           ],
         );
