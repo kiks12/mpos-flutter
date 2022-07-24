@@ -30,7 +30,7 @@ class _AccountListTileState extends State<AccountListTile> {
     });
   }
 
-  void deleteAccount() {
+  void deleteAccount(BuildContext context) {
     widget.accountsBox.remove(curr!.id);
     Navigator.of(context).pop();
   }
@@ -76,7 +76,7 @@ class _AccountListTileState extends State<AccountListTile> {
             ),
             ElevatedButton(
               child: const Text('Confirm'),
-              onPressed: deleteAccount,
+              onPressed: () => deleteAccount(context),
             ),
           ],
         );
