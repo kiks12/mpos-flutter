@@ -82,7 +82,6 @@ class _ManageExpirationDatesScreenState
 
     Navigator.of(context).pop();
     Navigator.of(context).pop();
-    Navigator.of(context).pop();
   }
 
   // Future<void> showDeleteAllConfirmationDialog() async {

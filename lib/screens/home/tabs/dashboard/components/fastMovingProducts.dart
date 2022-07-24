@@ -113,7 +113,7 @@ class _FastMovingProductsState extends State<FastMovingProducts> {
           child: Container(
             constraints: BoxConstraints(
               minHeight: MediaQuery.of(context).size.height * 0.65,
-              maxHeight: MediaQuery.of(context).size.height * 0.7,
+              maxHeight: MediaQuery.of(context).size.height * 0.78,
             ),
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
@@ -166,7 +166,7 @@ class _FastMovingProductsState extends State<FastMovingProducts> {
                   ],
                 ),
                 Container(
-                  margin: const EdgeInsets.only(top: 80),
+                  margin: const EdgeInsets.symmetric(vertical: 50),
                   child: SfCircularChart(
                     tooltipBehavior: TooltipBehavior(),
                     legend: Legend(
