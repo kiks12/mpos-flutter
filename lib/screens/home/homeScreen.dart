@@ -33,8 +33,8 @@ class _HomeScreenState extends State<HomeScreen>
       TabController(length: currentAccount!.isAdmin ? 8 : 4, vsync: this);
   static final now = DateTime.now();
 
-  List<ExpirationDate> _expiringNotifications = [];
-  List<ExpirationDate> _expiredNotifications = [];
+  final List<ExpirationDate> _expiringNotifications = [];
+  final List<ExpirationDate> _expiredNotifications = [];
 
   @override
   void initState() {
@@ -56,13 +56,13 @@ class _HomeScreenState extends State<HomeScreen>
         expirationsNotificationQueryBuilder.build();
     final expirationsNotification = expirationsNotificationQuery.find();
 
-    expirationsNotification.forEach((exp) {
+    for (var exp in expirationsNotification) {
       if (exp.quantity != exp.sold + exp.expired) {
         setState(() {
           _expiringNotifications.add(exp);
         });
       }
-    });
+    }
   }
 
   void getExpiredNotifications() {
@@ -74,13 +74,13 @@ class _HomeScreenState extends State<HomeScreen>
         expirationsNotificationQueryBuilder.build();
     final expirationsNotification = expirationsNotificationQuery.find();
 
-    expirationsNotification.forEach((exp) {
+    for (var exp in expirationsNotification) {
       if (exp.quantity != exp.sold + exp.expired) {
         setState(() {
           _expiredNotifications.add(exp);
         });
       }
-    });
+    }
   }
 
   Tab _notificationTab() {

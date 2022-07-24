@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mpos/components/HeaderOne.dart';
 import 'package:mpos/components/HeaderTwo.dart';
-import 'package:mpos/main.dart';
 import 'package:mpos/models/expirationDates.dart';
 import 'package:mpos/models/inventory.dart';
 import 'package:mpos/screens/home/tabs/inventory/manageExpirationDatesScreen.dart';
@@ -129,7 +128,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               itemBuilder: _expiredItemBuilder,
                               itemCount: widget.expiredNotifications.length,
                             )
-                          : Center(child: Text('No Expired Products')),
+                          : const Center(child: Text('No Expired Products')),
                     ),
                     const HeaderTwo(
                       padding: EdgeInsets.symmetric(vertical: 10),
@@ -145,7 +144,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               itemBuilder: _expiringItemBuilder,
                               itemCount: widget.expiringNotifications.length,
                             )
-                          : Center(child: Text('No Expiring Products')),
+                          : const Center(child: Text('No Expiring Products')),
                     ),
                   ],
                 ),

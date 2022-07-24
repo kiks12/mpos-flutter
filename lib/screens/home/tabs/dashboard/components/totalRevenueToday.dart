@@ -91,7 +91,7 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
+      child: SizedBox(
         width: MediaQuery.of(context).size.width * 0.45,
         child: Column(
           children: [

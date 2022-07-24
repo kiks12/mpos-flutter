@@ -52,7 +52,7 @@ class _FastMovingProductsState extends State<FastMovingProducts> {
       _fastMovingProducts = [];
     });
 
-    _distinctProducts.forEach((product) {
+    for (var product in _distinctProducts) {
       final queryBuilder = objectBox.transactionBox.query(
         Transaction_.date.between(
           now.millisecondsSinceEpoch,
@@ -62,7 +62,7 @@ class _FastMovingProductsState extends State<FastMovingProducts> {
       final query =
           queryBuilder.build().property(Transaction_.totalAmount).sum();
       _fastMovingProducts.add(Sales(product, query));
-    });
+    }
 
     _fastMovingProducts.sort((a, b) => a.sales.compareTo(b.sales));
   }
@@ -73,7 +73,7 @@ class _FastMovingProductsState extends State<FastMovingProducts> {
       _fastMovingProducts = [];
     });
 
-    _distinctCategories.forEach((category) {
+    for (var category in _distinctCategories) {
       final queryBuilder = objectBox.transactionBox.query(
         Transaction_.date.between(
           now.millisecondsSinceEpoch,
@@ -83,7 +83,7 @@ class _FastMovingProductsState extends State<FastMovingProducts> {
       final query =
           queryBuilder.build().property(Transaction_.totalAmount).sum();
       _fastMovingProducts.add(Sales(category, query));
-    });
+    }
 
     setState(() {
       _fastMovingProducts.sort((a, b) => a.sales.compareTo(b.sales));

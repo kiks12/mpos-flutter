@@ -114,7 +114,7 @@ class _RevenueChartState extends State<RevenueChart> {
     setState(() {
       _salesData = [];
     });
-    _dates.forEach((date) {
+    for (var date in _dates) {
       final revenueQueryBuilder = objectBox.transactionBox
           .query(Transaction_.date.equals(date.millisecondsSinceEpoch));
       final revenueQuery = revenueQueryBuilder.build();
@@ -123,14 +123,14 @@ class _RevenueChartState extends State<RevenueChart> {
       setState(() {
         _salesData.add(Sales(DateFormat('yyyy-MM-dd').format(date), revenue));
       });
-    });
+    }
   }
 
   void initializeChartDataForMonthly() {
     setState(() {
       _salesData = [];
     });
-    _dates.forEach((date) {
+    for (var date in _dates) {
       final revenueQueryBuilder = objectBox.transactionBox.query(
         Transaction_.date.between(
             date.millisecondsSinceEpoch,
@@ -143,14 +143,14 @@ class _RevenueChartState extends State<RevenueChart> {
       setState(() {
         _salesData.add(Sales(DateFormat('MMM').format(date), revenue));
       });
-    });
+    }
   }
 
   void initializeChartDataForQuarterly() {
     setState(() {
       _salesData = [];
     });
-    _dates.forEach((date) {
+    for (var date in _dates) {
       final secondDate = DateTime(date.year, date.month + 2, 30);
       final revenueQueryBuilder = objectBox.transactionBox.query(
         Transaction_.date.between(
@@ -166,14 +166,14 @@ class _RevenueChartState extends State<RevenueChart> {
               revenue),
         );
       });
-    });
+    }
   }
 
   void initializeChartDataForSemiAnnually() {
     setState(() {
       _salesData = [];
     });
-    _dates.forEach((date) {
+    for (var date in _dates) {
       final secondDate = DateTime(date.year, date.month + 5, 30);
       final revenueQueryBuilder = objectBox.transactionBox.query(
         Transaction_.date.between(
@@ -189,14 +189,14 @@ class _RevenueChartState extends State<RevenueChart> {
               revenue),
         );
       });
-    });
+    }
   }
 
   void initializeChartDataForAnnually() {
     setState(() {
       _salesData = [];
     });
-    _dates.forEach((date) {
+    for (var date in _dates) {
       final secondDate = DateTime(date.year, 12, 31);
       final revenueQueryBuilder = objectBox.transactionBox.query(
         Transaction_.date.between(
@@ -210,7 +210,7 @@ class _RevenueChartState extends State<RevenueChart> {
           Sales(DateFormat('yyyy').format(date), revenue),
         );
       });
-    });
+    }
   }
 
   @override
