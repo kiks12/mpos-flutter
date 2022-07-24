@@ -26,14 +26,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 constraints: BoxConstraints(
                   maxHeight: MediaQuery.of(context).size.height * 0.65,
                 ),
-                child: Row(
-                  children: const <Widget>[
+                child: Column(
+                  children: [
                     Expanded(
-                      child: TotalRevenueToday(),
+                      child: Row(
+                        children: const <Widget>[
+                          Expanded(
+                            child: TotalRevenueToday(),
+                          ),
+                          Expanded(
+                            child: FastMovingProducts(),
+                          )
+                        ],
+                      ),
                     ),
-                    Expanded(
-                      child: FastMovingProducts(),
-                    )
                   ],
                 ),
               ),
