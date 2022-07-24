@@ -101,7 +101,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     });
   }
 
-  void deleteAll() {
+  void deleteAll(BuildContext context) {
     objectBox.productBox.removeAll();
     objectBox.expirationDateBox.removeAll();
     Navigator.of(context).pop();
@@ -132,7 +132,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
             ),
             ElevatedButton(
               child: const Text('Confirm'),
-              onPressed: deleteAll,
+              onPressed: () => deleteAll(context),
             ),
           ],
         );
@@ -196,6 +196,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
   }
 
   void navigateToAddProductScreen() {
+    Navigator.of(context).pop();
     Navigator.push(
       context,
       MaterialPageRoute(

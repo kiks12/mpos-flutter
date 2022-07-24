@@ -58,8 +58,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     newProduct.expirationDates.add(newExpirationDate);
     objectBox.productBox.put(newProduct);
 
-    Navigator.pop(context);
-    Navigator.pop(context);
+    Navigator.of(context).pop();
   }
 
   void _editExpirationDate() async {
@@ -137,8 +136,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
       appBar: AppBar(
         title: const Text('Add Product'),
       ),
-      body: Center(
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        child: Center(
           child: Form(
             key: formKey,
             child: Column(

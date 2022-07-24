@@ -66,8 +66,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
     objectBox.productBox.put(productToUpdate);
 
-    Navigator.pop(context);
-    Navigator.pop(context);
+    Navigator.of(context).pop();
+    Navigator.of(context).pop();
   }
 
   void _calculateTotalPrice() {
@@ -108,8 +108,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
       appBar: AppBar(
         title: const Text('Edit Product'),
       ),
-      body: Center(
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        child: Center(
           child: Form(
             key: formKey,
             child: Column(
