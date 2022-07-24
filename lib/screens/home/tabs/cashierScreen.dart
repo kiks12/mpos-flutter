@@ -392,7 +392,7 @@ class _CartState extends State<Cart> {
     Navigator.pop(context);
   }
 
-  Future<void> pay() async {
+  Future<void> pay(BuildContext context) async {
     setState(() {
       _isLoading = true;
     });
@@ -484,7 +484,7 @@ class _CartState extends State<Cart> {
                     child: SizedBox(
                       height: MediaQuery.of(context).size.height * 0.06,
                       child: ElevatedButton(
-                        onPressed: pay,
+                        onPressed: () => pay(context),
                         child: const Text('Pay'),
                       ),
                     ),
@@ -539,7 +539,7 @@ class _CartState extends State<Cart> {
                     child: SizedBox(
                       height: MediaQuery.of(context).size.height * 0.06,
                       child: ElevatedButton(
-                        onPressed: pay,
+                        onPressed: () => pay(context),
                         child: const Text('Pay'),
                       ),
                     ),
