@@ -63,7 +63,7 @@ class _ManageExpirationDatesScreenState
     });
   }
 
-  _addExpirationDate() {
+  _addExpirationDate(BuildContext context) {
     ExpirationDate newExp = ExpirationDate(
       date: _selectedDate as DateTime,
       quantity: int.parse(_quantityController.text),
@@ -80,43 +80,43 @@ class _ManageExpirationDatesScreenState
     product.expirationDates.add(newExp);
     objectBox.productBox.put(product);
 
-    Navigator.pop(context);
-    Navigator.pop(context);
-    Navigator.pop(context);
+    Navigator.of(context).pop();
+    Navigator.of(context).pop();
+    Navigator.of(context).pop();
   }
 
-  Future<void> showDeleteAllConfirmationDialog() async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // user must tap button!
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Delete All Products'),
-          content: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const <Widget>[
-                Text(
-                    'Are you sure you want to delete all products in inventory?')
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            ElevatedButton(
-              child: const Text('Confirm'),
-              onPressed: () {},
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // Future<void> showDeleteAllConfirmationDialog() async {
+  //   return showDialog<void>(
+  //     context: context,
+  //     barrierDismissible: false, // user must tap button!
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text('Delete All Products'),
+  //         content: SingleChildScrollView(
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: const <Widget>[
+  //               Text(
+  //                   'Are you sure you want to delete all products in inventory?')
+  //             ],
+  //           ),
+  //         ),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             child: const Text('Cancel'),
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //           ),
+  //           ElevatedButton(
+  //             child: const Text('Confirm'),
+  //             onPressed: () {},
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   Future<void> showAddDialog() async {
     return showDialog<void>(
@@ -172,7 +172,7 @@ class _ManageExpirationDatesScreenState
                           ),
                         ),
                         ElevatedButton(
-                          onPressed: _addExpirationDate,
+                          onPressed: () => _addExpirationDate(context),
                           child: const Text('Add'),
                         ),
                       ],
@@ -187,7 +187,7 @@ class _ManageExpirationDatesScreenState
     );
   }
 
-  void setQuantities(int id) {
+  void setQuantities(BuildContext context, int id) {
     ExpirationDate expirationDateToUpdate =
         objectBox.expirationDateBox.get(id) as ExpirationDate;
     expirationDateToUpdate.sold = int.parse(_soldQuantity.text);
@@ -202,13 +202,17 @@ class _ManageExpirationDatesScreenState
 
     objectBox.expirationDateBox.put(expirationDateToUpdate);
 
-    Navigator.pop(context);
+    Navigator.of(context).pop();
   }
 
   Container _itemBuilder(BuildContext context, int index) {
+    final curr = _ongoingDates[index];
     return Container(
-      decoration: const BoxDecoration(
-        border: Border(
+      decoration: BoxDecoration(
+        color: curr.quantity == curr.expired + curr.sold
+            ? const Color.fromARGB(255, 243, 243, 243)
+            : Colors.transparent,
+        border: const Border(
           bottom:
               BorderSide(color: Color.fromARGB(255, 222, 222, 222), width: 0.7),
         ),
@@ -248,22 +252,39 @@ class _ManageExpirationDatesScreenState
             ),
             Expanded(
               child: TextButton(
-                onPressed: () => showSetDialog(index),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+                onPressed: curr.quantity == curr.expired + curr.sold
+                    ? () {}
+                    : () => showSetDialog(index),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
                   child: Text(
                     'Delete',
-                    style: TextStyle(color: Colors.red),
+                    style: TextStyle(
+                      color: curr.quantity == curr.expired + curr.sold
+                          ? Colors.grey
+                          : Colors.red,
+                    ),
                   ),
                 ),
               ),
             ),
             Expanded(
               child: TextButton(
-                onPressed: () => showSetDialog(index),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-                  child: Text('Set'),
+                onPressed: curr.quantity == curr.expired + curr.sold
+                    ? () {}
+                    : () => showSetDialog(index),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+                  child: Text(
+                    'Set',
+                    style: TextStyle(
+                      color: curr.quantity == curr.expired + curr.sold
+                          ? Colors.grey
+                          : Colors.blueGrey,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -346,7 +367,7 @@ class _ManageExpirationDatesScreenState
                         ),
                         ElevatedButton(
                           onPressed: () =>
-                              setQuantities(_ongoingDates[index].id),
+                              setQuantities(context, _ongoingDates[index].id),
                           child: const Text('Set Quantities'),
                         ),
                       ],
