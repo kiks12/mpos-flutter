@@ -1,8 +1,13 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 
 import 'package:mpos/main.dart';
 import 'package:mpos/models/account.dart';
 import 'package:mpos/models/expirationDates.dart';
+import 'package:mpos/models/inventory.dart';
 import 'package:mpos/objectbox.g.dart';
 
 import 'package:mpos/screens/home/tabs/accounts/accountsScreen.dart';
@@ -15,6 +20,7 @@ import 'package:mpos/screens/home/tabs/settingsScreen.dart';
 import 'package:mpos/screens/home/tabs/timeInTimeOutScreen.dart';
 import 'package:mpos/screens/home/tabs/transactionsScreen.dart';
 import 'package:mpos/utils/utils.dart';
+import 'package:path_provider/path_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -44,7 +50,30 @@ class _HomeScreenState extends State<HomeScreen>
     });
     getExpiringNotifications();
     getExpiredNotifications();
+    // readCsvFile();
   }
+
+  // void readCsvFile() async {
+  //   final directory = (await getApplicationSupportDirectory()).path;
+  //   final path = '$directory/csv-try.csv';
+  //   final csvFile = File(path).openRead();
+  //   final listValues = await csvFile
+  //       .transform(utf8.decoder)
+  //       .transform(const CsvToListConverter())
+  //       .toList();
+  //   for (int i = 0; i < listValues.length; i++) {
+  //     if (i == 0) continue;
+  //     final prod = listValues[i];
+  //     objectBox.productBox.put(Product(
+  //       name: prod[1],
+  //       barcode: prod[2],
+  //       category: prod[3],
+  //       unitPrice: prod[4],
+  //       quantity: prod[5],
+  //       totalPrice: prod[6],
+  //     ));
+  //   }
+  // }
 
   void getExpiringNotifications() {
     final expirationsNotificationQueryBuilder =
