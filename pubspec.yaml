@@ -18,6 +18,9 @@ dependencies:
   get_storage: ^2.0.3
   intl: ^0.17.0
   syncfusion_flutter_charts: ^20.2.39
+  csv: ^5.0.1
+  path_provider: ^2.0.11
+  file_picker: ^5.0.0
 
 dev_dependencies:
   flutter_test:
