@@ -1,12 +1,22 @@
+import 'dart:io';
+
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:intl/intl.dart';
 import 'package:mpos/components/HeaderOne.dart';
 import 'package:mpos/components/HeaderTwo.dart';
 import 'package:mpos/components/TextFormFieldWithLabel.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/account.dart';
+import 'package:mpos/models/attendance.dart';
+import 'package:mpos/models/expirationDates.dart';
+import 'package:mpos/models/inventory.dart';
+import 'package:mpos/models/storeDetails.dart';
+import 'package:mpos/models/transaction.dart';
 import 'package:mpos/screens/home/tabs/accounts/editAccountScreen.dart';
 import 'package:mpos/utils/utils.dart';
+import 'package:path_provider/path_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -22,6 +32,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   String _error = '';
+  bool _isLoading = false;
+
+  static final now = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
   @override
   void initState() {
@@ -29,6 +42,220 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       currentAccount = Utils().getCurrentAccount(objectBox);
     });
+  }
+
+  Future<void> _generateCSVs() async {
+    setState(() {
+      _isLoading = true;
+    });
+    await generateCSVofStoreDetails();
+    await generateCSVofAccounts();
+    await generateCSVofAttendance();
+    await generateCSVofInventory();
+    await generateCSVofExpirationDate();
+    await generateCSVofTransactions();
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future<void> generateCSVofInventory() async {
+    List<List<dynamic>> inventoryValues = [
+      [
+        'id',
+        'name',
+        'barcode',
+        'category',
+        'unitPrice',
+        'quantity',
+        'totalPrice',
+      ],
+    ];
+    final inventory = objectBox.productBox.getAll();
+    inventory.forEach((Product product) {
+      inventoryValues.add([
+        product.id,
+        product.name,
+        product.barcode,
+        product.category,
+        product.unitPrice,
+        product.quantity,
+        product.totalPrice,
+      ]);
+    });
+
+    final csvData = const ListToCsvConverter().convert(inventoryValues);
+
+    final directory = (await getApplicationSupportDirectory()).path;
+    final path = '$directory/$now-inventory.csv';
+
+    final File file = File(path);
+    await file.writeAsString(csvData);
+    return Future.delayed(const Duration(seconds: 1));
+  }
+
+  Future<void> generateCSVofStoreDetails() async {
+    List<List<dynamic>> storeDetailsValues = [
+      ['id', 'name', 'contactNumber', 'contactPerson'],
+    ];
+    final storeDetails = objectBox.storeDetailsBox.getAll();
+    storeDetails.forEach((StoreDetails store) {
+      storeDetailsValues.add([
+        store.id,
+        store.name,
+        store.contactNumber,
+        store.contactPerson,
+      ]);
+    });
+
+    final csvData = const ListToCsvConverter().convert(storeDetailsValues);
+
+    final directory = (await getApplicationSupportDirectory()).path;
+    final path = '$directory/$now-store-details.csv';
+
+    final File file = File(path);
+    await file.writeAsString(csvData);
+    return Future.delayed(const Duration(seconds: 1));
+  }
+
+  Future<void> generateCSVofAccounts() async {
+    List<List<dynamic>> accountValues = [
+      [
+        'id',
+        'firstName',
+        'middleName',
+        'lastName',
+        'isAdmin',
+        'emailAddress',
+        'contactNumber',
+        'password',
+      ],
+    ];
+    final accounts = objectBox.accountBox.getAll();
+    accounts.forEach((Account account) {
+      accountValues.add([
+        account.id,
+        account.firstName,
+        account.middleName,
+        account.lastName,
+        account.isAdmin,
+        account.emailAddress,
+        account.contactNumber,
+        account.password,
+      ]);
+    });
+
+    final csvData = const ListToCsvConverter().convert(accountValues);
+
+    final directory = (await getApplicationSupportDirectory()).path;
+    final path = '$directory/$now-accounts.csv';
+
+    final File file = File(path);
+    await file.writeAsString(csvData);
+    return Future.delayed(const Duration(seconds: 1));
+  }
+
+  Future<void> generateCSVofAttendance() async {
+    List<List<dynamic>> attendanceValues = [
+      [
+        'id',
+        'user',
+        'date',
+        'timeIn',
+        'timeOut',
+      ],
+    ];
+    final attendances = objectBox.attendanceBox.getAll();
+    attendances.forEach((Attendance attendance) {
+      attendanceValues.add([
+        attendance.id,
+        attendance.user.target!.emailAddress,
+        attendance.date,
+        attendance.timeIn,
+        attendance.timeOut,
+      ]);
+    });
+
+    final csvData = const ListToCsvConverter().convert(attendanceValues);
+
+    final directory = (await getApplicationSupportDirectory()).path;
+    final path = '$directory/$now-attendance.csv';
+
+    final File file = File(path);
+    await file.writeAsString(csvData);
+    return Future.delayed(const Duration(seconds: 1));
+  }
+
+  Future<void> generateCSVofExpirationDate() async {
+    List<List<dynamic>> expirationDateValues = [
+      [
+        'id',
+        'product',
+        'date',
+        'quantity',
+        'sold',
+        'expired',
+      ],
+    ];
+    final expirationsDates = objectBox.expirationDateBox.getAll();
+    expirationsDates.forEach((ExpirationDate expirationDate) {
+      expirationDateValues.add([
+        expirationDate.id,
+        expirationDate.productExp.target!.barcode,
+        expirationDate.date,
+        expirationDate.quantity,
+        expirationDate.sold,
+        expirationDate.expired,
+      ]);
+    });
+
+    final csvData = const ListToCsvConverter().convert(expirationDateValues);
+
+    final directory = (await getApplicationSupportDirectory()).path;
+    final path = '$directory/$now-expirationDates.csv';
+
+    final File file = File(path);
+    await file.writeAsString(csvData);
+    return Future.delayed(const Duration(seconds: 1));
+  }
+
+  Future<void> generateCSVofTransactions() async {
+    List<List<dynamic>> transactionsValues = [
+      [
+        'id',
+        'transactionID',
+        'product',
+        'user',
+        'quantity',
+        'paymentMethod',
+        'totalAmount',
+        'date',
+        'time',
+      ],
+    ];
+    final transactions = objectBox.transactionBox.getAll();
+    transactions.forEach((Transaction transaction) {
+      transactionsValues.add([
+        transaction.id,
+        transaction.transactionID,
+        transaction.product.target!.barcode,
+        transaction.user.target!.emailAddress,
+        transaction.quantity,
+        transaction.paymentMethod,
+        transaction.totalAmount,
+        transaction.date,
+        transaction.time,
+      ]);
+    });
+
+    final csvData = const ListToCsvConverter().convert(transactionsValues);
+
+    final directory = (await getApplicationSupportDirectory()).path;
+    final path = '$directory/$now-transactions.csv';
+
+    final File file = File(path);
+    await file.writeAsString(csvData);
+    return Future.delayed(const Duration(seconds: 1));
   }
 
   void logout() {
@@ -134,32 +361,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const HeaderOne(padding: EdgeInsets.all(0), text: 'Settings'),
-            SettingsHeader(
-              currentAccount: currentAccount,
-            ),
-            Container(
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                      width: 1, color: Color.fromARGB(255, 228, 228, 228)),
-                ),
-              ),
-              width: MediaQuery.of(context).size.width * 0.5,
-              child: TextButton(
-                onPressed: navigateToEditAccountScreen,
-                child: const Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Text('Edit Account'),
-                ),
-              ),
-            ),
-            currentAccount!.isAdmin
-                ? Container(
+        child: _isLoading
+            ? const CircularProgressIndicator()
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const HeaderOne(padding: EdgeInsets.all(0), text: 'Settings'),
+                  SettingsHeader(
+                    currentAccount: currentAccount,
+                  ),
+                  Container(
                     decoration: const BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
@@ -169,32 +381,70 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     width: MediaQuery.of(context).size.width * 0.5,
                     child: TextButton(
-                      onPressed: _showResetDialog,
+                      onPressed: navigateToEditAccountScreen,
                       child: const Padding(
                         padding: EdgeInsets.all(10),
-                        child: Text('Reset System'),
+                        child: Text('Edit Account'),
                       ),
                     ),
-                  )
-                : Container(),
-            Container(
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                      width: 1, color: Color.fromARGB(255, 228, 228, 228)),
-                ),
+                  ),
+                  currentAccount!.isAdmin
+                      ? Container(
+                          decoration: const BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                  width: 1,
+                                  color: Color.fromARGB(255, 228, 228, 228)),
+                            ),
+                          ),
+                          width: MediaQuery.of(context).size.width * 0.5,
+                          child: TextButton(
+                            onPressed: _generateCSVs,
+                            child: const Padding(
+                              padding: EdgeInsets.all(10),
+                              child: Text('Backup Database'),
+                            ),
+                          ),
+                        )
+                      : Container(),
+                  currentAccount!.isAdmin
+                      ? Container(
+                          decoration: const BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                  width: 1,
+                                  color: Color.fromARGB(255, 228, 228, 228)),
+                            ),
+                          ),
+                          width: MediaQuery.of(context).size.width * 0.5,
+                          child: TextButton(
+                            onPressed: _showResetDialog,
+                            child: const Padding(
+                              padding: EdgeInsets.all(10),
+                              child: Text('Reset System'),
+                            ),
+                          ),
+                        )
+                      : Container(),
+                  Container(
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                            width: 1,
+                            color: Color.fromARGB(255, 228, 228, 228)),
+                      ),
+                    ),
+                    width: MediaQuery.of(context).size.width * 0.5,
+                    child: TextButton(
+                      onPressed: logout,
+                      child: const Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Text('Logout'),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              width: MediaQuery.of(context).size.width * 0.5,
-              child: TextButton(
-                onPressed: logout,
-                child: const Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Text('Logout'),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
