@@ -18,6 +18,14 @@ import 'package:mpos/screens/home/tabs/accounts/editAccountScreen.dart';
 import 'package:mpos/utils/utils.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+const serverUploadAPIEndpoint =
+    'https://mpos-data-center.herokuapp.com/backup/upload/';
+const loginAPIEndpoint = 'https://mpos-data-center.herokuapp.com/login/';
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
 
@@ -48,18 +56,60 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       _isLoading = true;
     });
-    await generateCSVofStoreDetails();
-    await generateCSVofAccounts();
-    await generateCSVofAttendance();
-    await generateCSVofInventory();
-    await generateCSVofExpirationDate();
-    await generateCSVofTransactions();
+    if (!await launchUrl(Uri.parse(loginAPIEndpoint))) {
+      throw 'Could not launch Login URL';
+    }
+
+    // final File storeDetailsCSVFile = await generateCSVofStoreDetails();
+    // final File accountsCSVFile = await generateCSVofAccounts();
+    // final File attendanceCSVFile = await generateCSVofAttendance();
+    // final File inventoryCSVFile = await generateCSVofInventory();
+    // final File expirationDatesCSVFile = await generateCSVofExpirationDate();
+    // final File transactionsCSVFile = await generateCSVofTransactions();
+
+    // _uploadCSVFilesToServer(
+    //   storeDetailsCSVFile,
+    //   accountsCSVFile,
+    //   attendanceCSVFile,
+    //   inventoryCSVFile,
+    //   expirationDatesCSVFile,
+    //   transactionsCSVFile,
+    // );
     setState(() {
       _isLoading = false;
     });
   }
 
-  Future<void> generateCSVofInventory() async {
+  Future<void> _uploadCSVFilesToServer(
+    File storeDetails,
+    File accounts,
+    File attendance,
+    File inventory,
+    File expirationDates,
+    File transactions,
+  ) async {
+    try {
+      final request =
+          http.MultipartRequest('POST', Uri.parse(serverUploadAPIEndpoint));
+      request.headers.addAll({
+        'Authorization': 'Bearer ${GetStorage().read('uuid')}',
+      });
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'files',
+          await storeDetails.readAsBytes(),
+          contentType: MediaType('application', 'CSV'),
+        ),
+      );
+
+      final response = await request.send();
+      print('Status Code: ${response.statusCode}');
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<File> generateCSVofInventory() async {
     List<List<dynamic>> inventoryValues = [
       [
         'id',
@@ -91,10 +141,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     final File file = File(path);
     await file.writeAsString(csvData);
-    return Future.delayed(const Duration(seconds: 1));
+    return Future.value(file);
   }
 
-  Future<void> generateCSVofStoreDetails() async {
+  Future<File> generateCSVofStoreDetails() async {
     List<List<dynamic>> storeDetailsValues = [
       ['id', 'name', 'contactNumber', 'contactPerson'],
     ];
@@ -115,10 +165,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     final File file = File(path);
     await file.writeAsString(csvData);
-    return Future.delayed(const Duration(seconds: 1));
+    return Future.value(file);
   }
 
-  Future<void> generateCSVofAccounts() async {
+  Future<File> generateCSVofAccounts() async {
     List<List<dynamic>> accountValues = [
       [
         'id',
@@ -152,10 +202,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     final File file = File(path);
     await file.writeAsString(csvData);
-    return Future.delayed(const Duration(seconds: 1));
+    return Future.value(file);
   }
 
-  Future<void> generateCSVofAttendance() async {
+  Future<File> generateCSVofAttendance() async {
     List<List<dynamic>> attendanceValues = [
       [
         'id',
@@ -183,10 +233,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     final File file = File(path);
     await file.writeAsString(csvData);
-    return Future.delayed(const Duration(seconds: 1));
+    return Future.value(file);
   }
 
-  Future<void> generateCSVofExpirationDate() async {
+  Future<File> generateCSVofExpirationDate() async {
     List<List<dynamic>> expirationDateValues = [
       [
         'id',
@@ -216,10 +266,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     final File file = File(path);
     await file.writeAsString(csvData);
-    return Future.delayed(const Duration(seconds: 1));
+    return Future.value(file);
   }
 
-  Future<void> generateCSVofTransactions() async {
+  Future<File> generateCSVofTransactions() async {
     List<List<dynamic>> transactionsValues = [
       [
         'id',
@@ -255,7 +305,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     final File file = File(path);
     await file.writeAsString(csvData);
-    return Future.delayed(const Duration(seconds: 1));
+    return Future.value(file);
   }
 
   void logout() {
