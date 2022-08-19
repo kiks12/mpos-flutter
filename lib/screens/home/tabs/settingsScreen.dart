@@ -9,6 +9,7 @@ import 'package:mpos/main.dart';
 import 'package:mpos/models/account.dart';
 import 'package:mpos/screens/backupDataScreen.dart';
 import 'package:mpos/screens/home/tabs/accounts/editAccountScreen.dart';
+import 'package:mpos/screens/restoreDataScreen.dart';
 import 'package:mpos/utils/utils.dart';
 
 const serverUploadAPIEndpoint =
@@ -41,6 +42,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void navigateToBackupScreen(BuildContext context) {
     Navigator.push(context,
         MaterialPageRoute(builder: ((context) => const BackupDataScreen())));
+  }
+
+  void navigateToRestoreDataScreen(BuildContext context) {
+    Navigator.push(context,
+        MaterialPageRoute(builder: ((context) => const RestoreDataScreen())));
   }
 
   void logout() {
@@ -170,44 +176,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
-            currentAccount!.isAdmin
-                ? Container(
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                            width: 1,
-                            color: Color.fromARGB(255, 228, 228, 228)),
-                      ),
-                    ),
-                    width: MediaQuery.of(context).size.width * 0.5,
-                    child: TextButton(
-                      onPressed: () => navigateToBackupScreen(context),
-                      child: const Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Text('Backup Database'),
-                      ),
-                    ),
-                  )
-                : Container(),
-            currentAccount!.isAdmin
-                ? Container(
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                            width: 1,
-                            color: Color.fromARGB(255, 228, 228, 228)),
-                      ),
-                    ),
-                    width: MediaQuery.of(context).size.width * 0.5,
-                    child: TextButton(
-                      onPressed: _showResetDialog,
-                      child: const Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Text('Reset System'),
-                      ),
-                    ),
-                  )
-                : Container(),
+            if (currentAccount!.isAdmin)
+              Container(
+                decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                        width: 1, color: Color.fromARGB(255, 228, 228, 228)),
+                  ),
+                ),
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: TextButton(
+                  onPressed: () => navigateToBackupScreen(context),
+                  child: const Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Text('Backup Database'),
+                  ),
+                ),
+              ),
+            if (currentAccount!.isAdmin)
+              Container(
+                decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                        width: 1, color: Color.fromARGB(255, 228, 228, 228)),
+                  ),
+                ),
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: TextButton(
+                  onPressed: () => navigateToRestoreDataScreen(context),
+                  child: const Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Text('Restore Data'),
+                  ),
+                ),
+              ),
+            if (currentAccount!.isAdmin)
+              Container(
+                decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                        width: 1, color: Color.fromARGB(255, 228, 228, 228)),
+                  ),
+                ),
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: TextButton(
+                  onPressed: _showResetDialog,
+                  child: const Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Text('Reset System'),
+                  ),
+                ),
+              ),
             Container(
               decoration: const BoxDecoration(
                 border: Border(
