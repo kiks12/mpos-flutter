@@ -18,12 +18,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:csv/csv.dart';
 
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
 
-const serverUploadAPIEndpoint =
-    'https://mpos-data-center.herokuapp.com/backup/upload/';
-const loginAPIEndpoint =
-    'https://mpos-data-center.herokuapp.com/login/callback/';
+// const serverUploadAPIEndpoint =
+//     'https://mpos-data-center.herokuapp.com/backup/upload/';
+// const loginAPIEndpoint =
+//     'https://mpos-data-center.herokuapp.com/login/callback/';
+const serverUploadAPIEndpoint = 'http://localhost:3000/backup/upload';
+const loginAPIEndpoint = 'http://localhost:3000/login/callback';
 
 class BackupDataScreen extends StatefulWidget {
   const BackupDataScreen({Key? key}) : super(key: key);
@@ -35,7 +36,8 @@ class BackupDataScreen extends StatefulWidget {
 class _BackupDataScreenState extends State<BackupDataScreen> {
   bool isLoading = false;
   bool loggedIn = false;
-  String error = 'sadfs';
+  double progress = 0;
+  String error = '';
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -81,14 +83,7 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
 
   Future<void> backupData() async {
     final csvs = await _generateCSVs();
-    await uploadCSVFilesToServer(
-      csvs['StoreDetails']!,
-      csvs['Accounts']!,
-      csvs['Attendance']!,
-      csvs['Inventory']!,
-      csvs['ExpirationDates']!,
-      csvs['Transactions']!,
-    );
+    await uploadCSVFilesToServer(csvs.values.toList(), csvs.keys.toList());
     Navigator.push(
         context, MaterialPageRoute(builder: ((context) => const HomeScreen())));
   }
@@ -102,44 +97,50 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
     final File transactionsCSVFile = await generateCSVofTransactions();
 
     return Future.value({
-      'StoreDetails': storeDetailsCSVFile,
+      'Store-Details': storeDetailsCSVFile,
       'Accounts': accountsCSVFile,
       'Attendance': attendanceCSVFile,
       'Inventory': inventoryCSVFile,
-      'ExpirationDates': expirationDatesCSVFile,
+      'Expiration-Dates': expirationDatesCSVFile,
       'Transactions': transactionsCSVFile,
     });
   }
 
+  Future<int?> sendFilesToSpecificDirs(String dir, String filePath) async {
+    try {
+      final Map<String, String> headers = {
+        'Authorization': 'Bearer ${GetStorage().read('uuid')}',
+        'Content-Type': 'multipart/form-data',
+      };
+      final file = await http.MultipartFile.fromPath('files', filePath);
+      final request = http.MultipartRequest(
+          'POST', Uri.parse('$serverUploadAPIEndpoint?dir=$dir'));
+      request.headers.addAll(headers);
+      request.files.add(file);
+      final streamResponse = await request.send();
+      final response = await http.Response.fromStream(streamResponse);
+      return Future.value(response.statusCode);
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+
   Future<void> uploadCSVFilesToServer(
-    File storeDetails,
-    File accounts,
-    File attendance,
-    File inventory,
-    File expirationDates,
-    File transactions,
+    List<File> files,
+    List<String> fileDirs,
   ) async {
     try {
-      final request =
-          http.MultipartRequest('POST', Uri.parse(serverUploadAPIEndpoint));
-      request.headers.addAll({
-        'Authorization': 'Bearer ${GetStorage().read('uuid')}',
-      });
-      request.files.add(
-        http.MultipartFile.fromBytes(
-          'files',
-          await storeDetails.readAsBytes(),
-          contentType: MediaType('application', 'CSV'),
-        ),
-      );
-
-      final response = await request.send();
-
-      if (response.statusCode != 200) {
-        error = 'Error Backing Up database. Please try again later.';
-        isLoading = false;
-        setState(() {});
-        return;
+      for (int i = 0; i < files.length; i++) {
+        final status =
+            await sendFilesToSpecificDirs(fileDirs[i], files[i].path);
+        if (status != 200) {
+          error = 'There Seems to be a problem. Please try again later.';
+          progress = i + 1 / files.length * 100;
+          setState(() {});
+          break;
+        }
+        continue;
       }
 
       error = 'Redirecting...';
@@ -372,9 +373,14 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: (isLoading)
-                      ? const <Widget>[
+                      ? <Widget>[
                           Center(
-                            child: CircularProgressIndicator(),
+                            child: Column(
+                              children: <Widget>[
+                                const CircularProgressIndicator(),
+                                Text('Loading... ${progress.toString()}%'),
+                              ],
+                            ),
                           ),
                         ]
                       : <Widget>[
