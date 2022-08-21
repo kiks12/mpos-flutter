@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:csv/csv.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
@@ -9,14 +10,10 @@ import 'package:mpos/components/HeaderOne.dart';
 import 'package:mpos/components/TextFormFieldWithLabel.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/account.dart';
-import 'package:mpos/models/attendance.dart';
-import 'package:mpos/models/expirationDates.dart';
 import 'package:mpos/models/inventory.dart';
 import 'package:mpos/models/storeDetails.dart';
-import 'package:mpos/models/transaction.dart';
 import 'package:mpos/screens/home/homeScreen.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:csv/csv.dart';
 
 import 'package:http/http.dart' as http;
 
@@ -94,10 +91,106 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
   }
 
   Future<void> restoreData() async {
-    await downloadFiles();
+    final downloadedFiles = await downloadFiles();
+    await encodeDownloadedFilesToDB(downloadedFiles);
     Navigator.push(
         context, MaterialPageRoute(builder: ((context) => const HomeScreen())));
   }
+
+  Future<void> encodeDownloadedFilesToDB(List<File> downloadedFiles) async {
+    for (int i = 0; i < downloadedFiles.length; i++) {
+      final fileString = downloadedFiles[i].openRead();
+      final fields = await fileString
+          .transform(utf8.decoder)
+          .transform(const CsvToListConverter())
+          .toList();
+      if (files[i] == 'Store-Details') addStoreDetailsRow(fields);
+      // if (files[i] == 'Accounts') addAccountRow(fields);
+      if (files[i] == 'Inventory') addInventoryRow(fields);
+    }
+  }
+
+  addStoreDetailsRow(List<List<dynamic>> fields) {
+    for (int i = 0; i < fields.length; i++) {
+      print(fields[i]);
+      // objectBox.storeDetailsBox.put(
+      //   StoreDetails(
+      //     name: fields[i][1],
+      //     contactNumber: fields[i][2],
+      //     contactPerson: fields[i][3],
+      //   ),
+      // );
+    }
+  }
+
+  addAccountRow(List<List<dynamic>> fields) {
+    for (int i = 0; i < fields.length; i++) {
+      print(fields[i]);
+      // objectBox.accountBox.put(
+      //   Account(
+      //     firstName: fields[i][1],
+      //     middleName: fields[i][2],
+      //     lastName: fields[i][3],
+      //     isAdmin: fields[i][4],
+      //     emailAddress: fields[i][5],
+      //     contactNumber: fields[i][6],
+      //     password: fields[i][7],
+      //   ),
+      // );
+    }
+  }
+
+  addInventoryRow(List<List<dynamic>> fields) {
+    for (int i = 0; i < fields.length; i++) {
+      print(fields[i]);
+      // objectBox.productBox.put(
+      //   Product(
+      //     name: fields[i][1],
+      //     barcode: fields[i][2],
+      //     category: fields[i][3],
+      //     unitPrice: fields[i][4],
+      //     quantity: fields[i][5],
+      //     totalPrice: fields[i][6],
+      //   ),
+      // );
+    }
+  }
+
+  // addStoreDetailsRow(List<List<dynamic>> fields) {
+  //   for (int i = 0; i < fields.length; i++) {
+  //     objectBox.storeDetailsBox.put(
+  //       StoreDetails(
+  //         name: fields[i][1],
+  //         contactNumber: fields[i][2],
+  //         contactPerson: fields[i][3],
+  //       ),
+  //     );
+  //   }
+  // }
+
+  // addStoreDetailsRow(List<List<dynamic>> fields) {
+  //   for (int i = 0; i < fields.length; i++) {
+  //     objectBox.storeDetailsBox.put(
+  //       StoreDetails(
+  //         name: fields[i][1],
+  //         contactNumber: fields[i][2],
+  //         contactPerson: fields[i][3],
+  //       ),
+  //     );
+  //   }
+  // }
+
+  // addStoreDetailsRow(List<List<dynamic>> fields) {
+  //   for (int i = 0; i < fields.length; i++) {
+  //     objectBox.storeDetailsBox.put(
+  //       StoreDetails(
+  //         name: fields[i][1],
+  //         contactNumber: fields[i][2],
+  //         contactPerson: fields[i][3],
+  //       ),
+  //     );
+  //   }
+  // }
 
   Future<File> downloadSpecificFile(String file) async {
     final request = await httpClient.getUrl(
@@ -112,11 +205,13 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
     return Future.value(finalFile);
   }
 
-  Future<void> downloadFiles() async {
+  Future<List<File>> downloadFiles() async {
+    final List<File> downloadedFiles = [];
     for (int i = 0; i < files.length; i++) {
       final file = await downloadSpecificFile(files[i]);
-      print(file.path);
+      downloadedFiles.add(file);
     }
+    return downloadedFiles;
   }
 
   void loginThenBackupData() async {
