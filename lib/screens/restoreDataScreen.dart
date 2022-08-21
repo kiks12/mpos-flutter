@@ -91,10 +91,22 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
   }
 
   Future<void> restoreData() async {
+    await clearData();
     final downloadedFiles = await downloadFiles();
     await encodeDownloadedFilesToDB(downloadedFiles);
     Navigator.push(
         context, MaterialPageRoute(builder: ((context) => const HomeScreen())));
+  }
+
+  Future<void> clearData() async {
+    objectBox.storeDetailsBox.removeAll();
+    objectBox.accountBox.removeAll();
+    objectBox.attendanceBox.removeAll();
+    objectBox.transactionBox.removeAll();
+    objectBox.ingredientBox.removeAll();
+    objectBox.productBox.removeAll();
+    objectBox.expirationDateBox.removeAll();
+    return Future.delayed(const Duration(seconds: 1));
   }
 
   Future<void> encodeDownloadedFilesToDB(List<File> downloadedFiles) async {
@@ -105,54 +117,54 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
           .transform(const CsvToListConverter())
           .toList();
       if (files[i] == 'Store-Details') addStoreDetailsRow(fields);
-      // if (files[i] == 'Accounts') addAccountRow(fields);
+      if (files[i] == 'Accounts') addAccountRow(fields);
       if (files[i] == 'Inventory') addInventoryRow(fields);
     }
   }
 
   addStoreDetailsRow(List<List<dynamic>> fields) {
     for (int i = 0; i < fields.length; i++) {
-      print(fields[i]);
-      // objectBox.storeDetailsBox.put(
-      //   StoreDetails(
-      //     name: fields[i][1],
-      //     contactNumber: fields[i][2],
-      //     contactPerson: fields[i][3],
-      //   ),
-      // );
+      if (i == 0) continue;
+      objectBox.storeDetailsBox.put(
+        StoreDetails(
+          name: fields[i][1],
+          contactNumber: fields[i][2],
+          contactPerson: fields[i][3],
+        ),
+      );
     }
   }
 
   addAccountRow(List<List<dynamic>> fields) {
     for (int i = 0; i < fields.length; i++) {
-      print(fields[i]);
-      // objectBox.accountBox.put(
-      //   Account(
-      //     firstName: fields[i][1],
-      //     middleName: fields[i][2],
-      //     lastName: fields[i][3],
-      //     isAdmin: fields[i][4],
-      //     emailAddress: fields[i][5],
-      //     contactNumber: fields[i][6],
-      //     password: fields[i][7],
-      //   ),
-      // );
+      if (i == 0) continue;
+      objectBox.accountBox.put(
+        Account(
+          firstName: fields[i][1],
+          middleName: fields[i][2],
+          lastName: fields[i][3],
+          isAdmin: (fields[i][4] == 'true') ? true : false,
+          emailAddress: fields[i][5],
+          contactNumber: fields[i][6].toString(),
+          password: fields[i][7],
+        ),
+      );
     }
   }
 
   addInventoryRow(List<List<dynamic>> fields) {
     for (int i = 0; i < fields.length; i++) {
-      print(fields[i]);
-      // objectBox.productBox.put(
-      //   Product(
-      //     name: fields[i][1],
-      //     barcode: fields[i][2],
-      //     category: fields[i][3],
-      //     unitPrice: fields[i][4],
-      //     quantity: fields[i][5],
-      //     totalPrice: fields[i][6],
-      //   ),
-      // );
+      if (i == 0) continue;
+      objectBox.productBox.put(
+        Product(
+          name: fields[i][1],
+          barcode: fields[i][2],
+          category: fields[i][3],
+          unitPrice: fields[i][4],
+          quantity: fields[i][5],
+          totalPrice: fields[i][6],
+        ),
+      );
     }
   }
 
