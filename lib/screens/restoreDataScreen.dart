@@ -21,12 +21,12 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:http/http.dart' as http;
 
-// const serverUploadAPIEndpoint =
-//     'https://mpos-data-center.herokuapp.com/backup/restore/';
-// const loginAPIEndpoint =
-//     'https://mpos-data-center.herokuapp.com/login/callback/';
-const serverRestoreDataAPIEndpoint = 'http://localhost:3000/backup/restore';
-const loginAPIEndpoint = 'http://localhost:3000/login/callback';
+const serverRestoreDataAPIEndpoint =
+     'https://mpos-data-center.herokuapp.com/backup/restore/';
+const loginAPIEndpoint =
+     'https://mpos-data-center.herokuapp.com/login/callback/';
+//const serverRestoreDataAPIEndpoint = 'http://localhost:3000/backup/restore';
+//const loginAPIEndpoint = 'http://localhost:3000/login/callback';
 
 const files = [
   'Store-Details',
