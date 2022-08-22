@@ -73,71 +73,76 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 200),
-          child: Form(
-            key: formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 25),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const <Widget>[
-                      HeaderOne(
-                        padding: EdgeInsets.symmetric(vertical: 0),
-                        text: 'Welcome',
+        child: SingleChildScrollView(
+          child: Center(
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width * 0.6,
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 25),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const <Widget>[
+                          HeaderOne(
+                            padding: EdgeInsets.symmetric(vertical: 0),
+                            text: 'Welcome',
+                          ),
+                          Text('Please Login to continue')
+                        ],
                       ),
-                      Text('Please Login to continue')
-                    ],
-                  ),
-                ),
-                TextFormFieldWithLabel(
-                  label: 'Email Address',
-                  controller: emailAddressTextController,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  isPassword: false,
-                ),
-                TextFormFieldWithLabel(
-                  label: 'Password',
-                  controller: passwordTextController,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  isPassword: true,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Text(
-                    _error,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 25),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: exitApp,
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 15, horizontal: 25),
-                          child: Text('Exit'),
-                        ),
+                    ),
+                    TextFormFieldWithLabel(
+                      label: 'Email Address',
+                      controller: emailAddressTextController,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      isPassword: false,
+                    ),
+                    TextFormFieldWithLabel(
+                      label: 'Password',
+                      controller: passwordTextController,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      isPassword: true,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Text(
+                        _error,
+                        style: const TextStyle(color: Colors.red),
                       ),
-                      ElevatedButton(
-                        onPressed: login,
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 15, horizontal: 25),
-                          child: Text('Login'),
-                        ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 25),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: exitApp,
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 15, horizontal: 25),
+                              child: Text('Exit'),
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: login,
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 15, horizontal: 25),
+                              child: Text('Login'),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                )
-              ],
+                    )
+                  ],
+                ),
+              ),
             ),
           ),
         ),
