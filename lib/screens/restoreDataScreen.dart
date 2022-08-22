@@ -5,7 +5,6 @@ import 'package:csv/csv.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:intl/intl.dart';
 import 'package:mpos/components/HeaderOne.dart';
 import 'package:mpos/components/TextFormFieldWithLabel.dart';
 import 'package:mpos/main.dart';
@@ -16,7 +15,6 @@ import 'package:mpos/models/inventory.dart';
 import 'package:mpos/models/storeDetails.dart';
 import 'package:mpos/models/transaction.dart';
 import 'package:mpos/objectbox.g.dart';
-import 'package:mpos/screens/home/homeScreen.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:http/http.dart' as http;
@@ -291,7 +289,7 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Container(
+          child: SizedBox(
             height: MediaQuery.of(context).size.height,
             child: Form(
               key: formKey,

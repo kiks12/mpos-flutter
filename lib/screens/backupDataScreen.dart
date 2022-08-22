@@ -7,12 +7,6 @@ import 'package:intl/intl.dart';
 import 'package:mpos/components/HeaderOne.dart';
 import 'package:mpos/components/TextFormFieldWithLabel.dart';
 import 'package:mpos/main.dart';
-import 'package:mpos/models/account.dart';
-import 'package:mpos/models/attendance.dart';
-import 'package:mpos/models/expirationDates.dart';
-import 'package:mpos/models/inventory.dart';
-import 'package:mpos/models/storeDetails.dart';
-import 'package:mpos/models/transaction.dart';
 import 'package:mpos/screens/home/homeScreen.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:csv/csv.dart';
@@ -165,7 +159,7 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
       ],
     ];
     final inventory = objectBox.productBox.getAll();
-    inventory.forEach((Product product) {
+    for (var product in inventory) {
       inventoryValues.add([
         product.id,
         product.name,
@@ -175,7 +169,7 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
         product.quantity,
         product.totalPrice,
       ]);
-    });
+    }
 
     final csvData = const ListToCsvConverter().convert(inventoryValues);
 
@@ -192,14 +186,14 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
       ['id', 'name', 'contactNumber', 'contactPerson'],
     ];
     final storeDetails = objectBox.storeDetailsBox.getAll();
-    storeDetails.forEach((StoreDetails store) {
+    for (var store in storeDetails) {
       storeDetailsValues.add([
         store.id,
         store.name,
         store.contactNumber,
         store.contactPerson,
       ]);
-    });
+    }
 
     final csvData = const ListToCsvConverter().convert(storeDetailsValues);
 
@@ -225,7 +219,7 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
       ],
     ];
     final accounts = objectBox.accountBox.getAll();
-    accounts.forEach((Account account) {
+    for (var account in accounts) {
       accountValues.add([
         account.id,
         account.firstName,
@@ -236,7 +230,7 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
         account.contactNumber,
         account.password,
       ]);
-    });
+    }
 
     final csvData = const ListToCsvConverter().convert(accountValues);
 
@@ -259,7 +253,7 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
       ],
     ];
     final attendances = objectBox.attendanceBox.getAll();
-    attendances.forEach((Attendance attendance) {
+    for (var attendance in attendances) {
       attendanceValues.add([
         attendance.id,
         attendance.user.target!.emailAddress,
@@ -267,7 +261,7 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
         attendance.timeIn,
         attendance.timeOut,
       ]);
-    });
+    }
 
     final csvData = const ListToCsvConverter().convert(attendanceValues);
 
@@ -291,7 +285,7 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
       ],
     ];
     final expirationsDates = objectBox.expirationDateBox.getAll();
-    expirationsDates.forEach((ExpirationDate expirationDate) {
+    for (var expirationDate in expirationsDates) {
       expirationDateValues.add([
         expirationDate.id,
         expirationDate.productExp.target!.barcode,
@@ -300,7 +294,7 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
         expirationDate.sold,
         expirationDate.expired,
       ]);
-    });
+    }
 
     final csvData = const ListToCsvConverter().convert(expirationDateValues);
 
@@ -327,7 +321,7 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
       ],
     ];
     final transactions = objectBox.transactionBox.getAll();
-    transactions.forEach((Transaction transaction) {
+    for (var transaction in transactions) {
       transactionsValues.add([
         transaction.id,
         transaction.transactionID,
@@ -339,7 +333,7 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
         transaction.date,
         transaction.time,
       ]);
-    });
+    }
 
     final csvData = const ListToCsvConverter().convert(transactionsValues);
 
@@ -363,7 +357,7 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Container(
+          child: SizedBox(
             height: MediaQuery.of(context).size.height,
             child: Form(
               key: formKey,
