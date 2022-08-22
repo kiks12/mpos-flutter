@@ -10,8 +10,12 @@ import 'package:mpos/components/HeaderOne.dart';
 import 'package:mpos/components/TextFormFieldWithLabel.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/account.dart';
+import 'package:mpos/models/attendance.dart';
+import 'package:mpos/models/expirationDates.dart';
 import 'package:mpos/models/inventory.dart';
 import 'package:mpos/models/storeDetails.dart';
+import 'package:mpos/models/transaction.dart';
+import 'package:mpos/objectbox.g.dart';
 import 'package:mpos/screens/home/homeScreen.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -50,8 +54,6 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
-  static final now = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
   Future<void> login() async {
     try {
@@ -100,7 +102,7 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
 
   Future<void> clearData() async {
     objectBox.storeDetailsBox.removeAll();
-    objectBox.accountBox.removeAll();
+    // objectBox.accountBox.removeAll();
     objectBox.attendanceBox.removeAll();
     objectBox.transactionBox.removeAll();
     objectBox.ingredientBox.removeAll();
@@ -117,8 +119,11 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
           .transform(const CsvToListConverter())
           .toList();
       if (files[i] == 'Store-Details') addStoreDetailsRow(fields);
-      if (files[i] == 'Accounts') addAccountRow(fields);
+      // if (files[i] == 'Accounts') addAccountRow(fields);
       if (files[i] == 'Inventory') addInventoryRow(fields);
+      if (files[i] == 'Attendance') addAttendanceRow(fields);
+      if (files[i] == 'Transactions') addTransactionsRow(fields);
+      if (files[i] == 'Expiration-Dates') addExpirationDateRow(fields);
     }
   }
 
@@ -168,41 +173,84 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
     }
   }
 
-  // addStoreDetailsRow(List<List<dynamic>> fields) {
-  //   for (int i = 0; i < fields.length; i++) {
-  //     objectBox.storeDetailsBox.put(
-  //       StoreDetails(
-  //         name: fields[i][1],
-  //         contactNumber: fields[i][2],
-  //         contactPerson: fields[i][3],
-  //       ),
-  //     );
-  //   }
-  // }
+  addAttendanceRow(List<List<dynamic>> fields) {
+    for (int i = 0; i < fields.length; i++) {
+      if (i == 0) continue;
 
-  // addStoreDetailsRow(List<List<dynamic>> fields) {
-  //   for (int i = 0; i < fields.length; i++) {
-  //     objectBox.storeDetailsBox.put(
-  //       StoreDetails(
-  //         name: fields[i][1],
-  //         contactNumber: fields[i][2],
-  //         contactPerson: fields[i][3],
-  //       ),
-  //     );
-  //   }
-  // }
+      final user = objectBox.accountBox
+          .query(Account_.emailAddress.equals(fields[i][1]))
+          .build()
+          .findFirst();
+      final attendance = Attendance(
+        date: DateTime.parse(fields[i][2]),
+        timeIn: DateTime.parse(fields[i][3]),
+        timeOut: DateTime.parse(fields[i][4]),
+      );
 
-  // addStoreDetailsRow(List<List<dynamic>> fields) {
-  //   for (int i = 0; i < fields.length; i++) {
-  //     objectBox.storeDetailsBox.put(
-  //       StoreDetails(
-  //         name: fields[i][1],
-  //         contactNumber: fields[i][2],
-  //         contactPerson: fields[i][3],
-  //       ),
-  //     );
-  //   }
-  // }
+      attendance.user.target = user;
+      user!.attendance.add(attendance);
+
+      objectBox.attendanceBox.put(attendance);
+    }
+  }
+
+  addTransactionsRow(List<List<dynamic>> fields) {
+    for (int i = 0; i < fields.length; i++) {
+      if (i == 0) continue;
+      final product = objectBox.productBox
+          .query(Product_.barcode.equals(fields[i][2]))
+          .build()
+          .findFirst();
+      final user = objectBox.accountBox
+          .query(Account_.emailAddress.equals(fields[i][3]))
+          .build()
+          .findFirst();
+
+      final transaction = Transaction(
+        transactionID: fields[i][1],
+        quantity: fields[i][4],
+        paymentMethod: fields[i][5],
+        totalAmount: fields[i][6],
+        date: DateTime.parse(fields[i][7]),
+        time: DateTime.parse(fields[i][8]),
+      );
+
+      transaction.product.target = product;
+      transaction.user.target = user;
+
+      objectBox.transactionBox.put(transaction);
+
+      product?.transation.add(transaction);
+      user?.transactions.add(transaction);
+
+      // objectBox.productBox.put(product!);
+      // objectBox.accountBox.put(user!);
+    }
+  }
+
+  addExpirationDateRow(List<List<dynamic>> fields) {
+    for (int i = 0; i < fields.length; i++) {
+      if (i == 0) continue;
+
+      final product = objectBox.productBox
+          .query(Product_.barcode.equals(fields[i][1]))
+          .build()
+          .findFirst();
+
+      final expirationDate = ExpirationDate(
+        date: DateTime.parse(fields[i][2]),
+        quantity: fields[i][3],
+        sold: fields[i][4],
+        expired: fields[i][5],
+      );
+
+      // expirationDate.productExp.target = product;
+      objectBox.expirationDateBox.put(expirationDate);
+
+      product?.expirationDates.add(expirationDate);
+      objectBox.productBox.put(product!);
+    }
+  }
 
   Future<File> downloadSpecificFile(String file) async {
     final request = await httpClient.getUrl(

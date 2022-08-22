@@ -40,10 +40,10 @@ class _ManageExpirationDatesScreenState
   void initializeDates() {
     setState(() {
       for (var exp in widget.product.expirationDates) {
-        if (exp.date.isBefore(DateTime.now())) {
-          _expiredDates.add(exp);
-          continue;
-        }
+        // if (exp.date.isBefore(DateTime.now())) {
+        //   _expiredDates.add(exp);
+        //   continue;
+        // }
 
         _ongoingDates.add(exp);
         continue;

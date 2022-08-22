@@ -33,6 +33,13 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     // print(objectBox.accountBox.getAll());
+    // objectBox.productBox.removeAll();
+    // objectBox.accountBox.removeAll();
+    // objectBox.ingredientBox.removeAll();
+    // objectBox.attendanceBox.removeAll();
+    // objectBox.transactionBox.removeAll();
+    // objectBox.storeDetailsBox.removeAll();
+    // objectBox.expirationDateBox.removeAll();
   }
 
   bool noAdminAccount() {
