@@ -92,17 +92,22 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
     }
   }
 
-  Future<void> restoreData() async {
+  Future<void> restoreData(BuildContext context) async {
     await clearData();
     final downloadedFiles = await downloadFiles();
     await encodeDownloadedFilesToDB(downloadedFiles);
+    GetStorage().remove('id');
+    GetStorage().remove('email');
+
     Navigator.push(
-        context, MaterialPageRoute(builder: ((context) => const HomeScreen())));
+        context, MaterialPageRoute(builder: (context) => const MyApp()));
+    // Navigator.push(
+    // context, MaterialPageRoute(builder: ((context) => const HomeScreen())));
   }
 
   Future<void> clearData() async {
     objectBox.storeDetailsBox.removeAll();
-    // objectBox.accountBox.removeAll();
+    objectBox.accountBox.removeAll();
     objectBox.attendanceBox.removeAll();
     objectBox.transactionBox.removeAll();
     objectBox.ingredientBox.removeAll();
@@ -119,7 +124,7 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
           .transform(const CsvToListConverter())
           .toList();
       if (files[i] == 'Store-Details') addStoreDetailsRow(fields);
-      // if (files[i] == 'Accounts') addAccountRow(fields);
+      if (files[i] == 'Accounts') addAccountRow(fields);
       if (files[i] == 'Inventory') addInventoryRow(fields);
       if (files[i] == 'Attendance') addAttendanceRow(fields);
       if (files[i] == 'Transactions') addTransactionsRow(fields);
@@ -220,8 +225,8 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
 
       objectBox.transactionBox.put(transaction);
 
-      product?.transation.add(transaction);
-      user?.transactions.add(transaction);
+      // product?.transation.add(transaction);
+      // user?.transactions.add(transaction);
 
       // objectBox.productBox.put(product!);
       // objectBox.accountBox.put(user!);
@@ -244,7 +249,7 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
         expired: fields[i][5],
       );
 
-      // expirationDate.productExp.target = product;
+      expirationDate.productExp.target = product;
       objectBox.expirationDateBox.put(expirationDate);
 
       product?.expirationDates.add(expirationDate);
@@ -274,11 +279,11 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
     return downloadedFiles;
   }
 
-  void loginThenBackupData() async {
+  void loginThenBackupData(BuildContext context) async {
     if (!formKey.currentState!.validate()) return;
     await login();
     if (!loggedIn) return;
-    restoreData();
+    restoreData(context);
   }
 
   @override
@@ -342,7 +347,7 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 10),
                                 child: ElevatedButton(
-                                  onPressed: loginThenBackupData,
+                                  onPressed: () => loginThenBackupData(context),
                                   child: const Padding(
                                     padding: EdgeInsets.symmetric(
                                       vertical: 15,
