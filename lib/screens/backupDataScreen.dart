@@ -91,12 +91,12 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
     final File transactionsCSVFile = await generateCSVofTransactions();
 
     return Future.value({
-      'Store-Details': storeDetailsCSVFile,
-      'Accounts': accountsCSVFile,
-      'Attendance': attendanceCSVFile,
-      'Inventory': inventoryCSVFile,
-      'Expiration-Dates': expirationDatesCSVFile,
-      'Transactions': transactionsCSVFile,
+      'STORE_DETAILS': storeDetailsCSVFile,
+      'ACCOUNTS': accountsCSVFile,
+      'ATTENDANCE': attendanceCSVFile,
+      'INVENTORY': inventoryCSVFile,
+      'EXPIRATION_DATES': expirationDatesCSVFile,
+      'TRANSACTIONS': transactionsCSVFile,
     });
   }
 
@@ -106,9 +106,11 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
         'Authorization': 'Bearer ${GetStorage().read('uuid')}',
         'Content-Type': 'multipart/form-data',
       };
-      final file = await http.MultipartFile.fromPath('files', filePath);
+      final file = await http.MultipartFile.fromPath('file', filePath);
       final request = http.MultipartRequest(
-          'POST', Uri.parse('$serverUploadAPIEndpoint?dir=$dir'));
+        'POST',
+        Uri.parse('$serverUploadAPIEndpoint?type=$dir&isDefault=true'),
+      );
       request.headers.addAll(headers);
       request.files.add(file);
       final streamResponse = await request.send();
@@ -130,10 +132,12 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
             await sendFilesToSpecificDirs(fileDirs[i], files[i].path);
         if (status != 200) {
           error = 'There Seems to be a problem. Please try again later.';
-          progress = i + 1 / files.length * 100;
+          progress = ((i + 1) / files.length) * 100;
           setState(() {});
           break;
         }
+        progress = ((i + 1) / files.length) * 100;
+        setState(() {});
         continue;
       }
 
