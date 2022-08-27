@@ -33,6 +33,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     // print(objectBox.accountBox.getAll());
+    // GetStorage().erase();
     // objectBox.productBox.removeAll();
     // objectBox.accountBox.removeAll();
     // objectBox.ingredientBox.removeAll();

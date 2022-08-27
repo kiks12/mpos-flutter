@@ -20,19 +20,19 @@ import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 
 const serverRestoreDataAPIEndpoint =
-     'https://mpos-data-center.herokuapp.com/backup/restore/';
+    'https://mpos-data-center.herokuapp.com/backup/restore/';
 const loginAPIEndpoint =
-     'https://mpos-data-center.herokuapp.com/login/callback/';
-//const serverRestoreDataAPIEndpoint = 'http://localhost:3000/backup/restore';
+    'https://mpos-data-center.herokuapp.com/login/callback/';
+//const serverRestoreDataAPIEndpoint = 'http://localhost:3000/backup/download';
 //const loginAPIEndpoint = 'http://localhost:3000/login/callback';
 
 const files = [
-  'Store-Details',
-  'Accounts',
-  'Inventory',
-  'Attendance',
-  'Transactions',
-  'Expiration-Dates',
+  'STORE_DETAILS',
+  'ACCOUNTS',
+  'INVENTORY',
+  'ATTENDANCE',
+  'TRANSACTIONS',
+  'EXPIRATION_DATES',
 ];
 
 final httpClient = HttpClient();
@@ -99,8 +99,6 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
 
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => const MyApp()));
-    // Navigator.push(
-    // context, MaterialPageRoute(builder: ((context) => const HomeScreen())));
   }
 
   Future<void> clearData() async {
@@ -121,12 +119,14 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
           .transform(utf8.decoder)
           .transform(const CsvToListConverter())
           .toList();
-      if (files[i] == 'Store-Details') addStoreDetailsRow(fields);
-      if (files[i] == 'Accounts') addAccountRow(fields);
-      if (files[i] == 'Inventory') addInventoryRow(fields);
-      if (files[i] == 'Attendance') addAttendanceRow(fields);
-      if (files[i] == 'Transactions') addTransactionsRow(fields);
-      if (files[i] == 'Expiration-Dates') addExpirationDateRow(fields);
+      if (files[i] == 'STORE_DETAILS') addStoreDetailsRow(fields);
+      if (files[i] == 'ACCOUNTS') addAccountRow(fields);
+      if (files[i] == 'INVENTORY') addInventoryRow(fields);
+      if (files[i] == 'ATTENDANCE') addAttendanceRow(fields);
+      if (files[i] == 'TRANSACTIONS') addTransactionsRow(fields);
+      if (files[i] == 'EXPIRATION_DATES') addExpirationDateRow(fields);
+      progress = ((i + 1) * 2 / downloadedFiles.length * 2);
+      setState(() {});
     }
   }
 
@@ -273,6 +273,8 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
     for (int i = 0; i < files.length; i++) {
       final file = await downloadSpecificFile(files[i]);
       downloadedFiles.add(file);
+      progress = (i + 1 / files.length * 2);
+      setState(() {});
     }
     return downloadedFiles;
   }
