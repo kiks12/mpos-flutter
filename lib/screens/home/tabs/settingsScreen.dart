@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mpos/components/HeaderOne.dart';
@@ -266,30 +265,32 @@ class _SettingsHeaderState extends State<SettingsHeader> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20),
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.5,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              child: Text(widget.currentAccount!.firstName[0].toUpperCase()),
-              radius: 40,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  HeaderTwo(
-                    padding: const EdgeInsets.symmetric(vertical: 7),
-                    text:
-                        '${widget.currentAccount!.lastName}, ${widget.currentAccount!.firstName} ${widget.currentAccount!.middleName[0].toUpperCase()}.',
-                  ),
-                  Text(widget.currentAccount!.emailAddress),
-                ],
+      child: SingleChildScrollView(
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.5,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                child: Text(widget.currentAccount!.firstName[0].toUpperCase()),
+                radius: 40,
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    HeaderTwo(
+                      padding: const EdgeInsets.symmetric(vertical: 7),
+                      text:
+                          '${widget.currentAccount!.lastName}, ${widget.currentAccount!.firstName} ${widget.currentAccount!.middleName[0].toUpperCase()}.',
+                    ),
+                    Text(widget.currentAccount!.emailAddress),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

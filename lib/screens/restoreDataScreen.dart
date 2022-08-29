@@ -289,6 +289,9 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Restore Data'),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -312,13 +315,28 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
                           ),
                         ]
                       : <Widget>[
-                          Row(
-                            children: const <Widget>[
-                              HeaderOne(
-                                padding: EdgeInsets.symmetric(vertical: 20),
-                                text: 'Login',
-                              ),
-                            ],
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: Row(
+                              children: <Widget>[
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: const [
+                                    HeaderOne(
+                                      padding: EdgeInsets.zero,
+                                      text: 'Restore Data from Cloud',
+                                    ),
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 2),
+                                      child: Text(
+                                        'Enter Email and Password to Continue',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                           TextFormFieldWithLabel(
                             label: 'Email',
@@ -353,7 +371,7 @@ class _RestoreDataScreenState extends State<RestoreDataScreen> {
                                       vertical: 15,
                                       horizontal: 35,
                                     ),
-                                    child: Text('Login & Backup'),
+                                    child: Text('Restore'),
                                   ),
                                 ),
                               ),

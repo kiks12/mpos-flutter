@@ -359,6 +359,9 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Backup Data'),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -382,13 +385,28 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
                           ),
                         ]
                       : <Widget>[
-                          Row(
-                            children: const <Widget>[
-                              HeaderOne(
-                                padding: EdgeInsets.symmetric(vertical: 20),
-                                text: 'Login',
-                              ),
-                            ],
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: Row(
+                              children: <Widget>[
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: const [
+                                    HeaderOne(
+                                      padding: EdgeInsets.zero,
+                                      text: 'Backup Data to Cloud',
+                                    ),
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 2),
+                                      child: Text(
+                                        'Enter Email and Password to Continue',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                           TextFormFieldWithLabel(
                             label: 'Email',
@@ -423,7 +441,7 @@ class _BackupDataScreenState extends State<BackupDataScreen> {
                                       vertical: 15,
                                       horizontal: 35,
                                     ),
-                                    child: Text('Login & Backup'),
+                                    child: Text('Backup'),
                                   ),
                                 ),
                               ),
