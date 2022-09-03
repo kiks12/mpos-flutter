@@ -4,7 +4,6 @@ import 'package:mpos/models/account.dart';
 import 'package:mpos/models/objectBox.dart';
 import 'package:mpos/models/storeDetails.dart';
 import 'package:mpos/objectbox.g.dart';
-import 'package:mpos/screens/adminRegistrationScreen.dart';
 import 'package:mpos/screens/splashScreen.dart';
 import 'package:mpos/screens/startupMenuScreen.dart';
 import 'package:mpos/screens/storeDetailsRegistrationScreen.dart';
