@@ -6,6 +6,7 @@ import 'package:mpos/models/storeDetails.dart';
 import 'package:mpos/objectbox.g.dart';
 import 'package:mpos/screens/adminRegistrationScreen.dart';
 import 'package:mpos/screens/splashScreen.dart';
+import 'package:mpos/screens/startupMenuScreen.dart';
 import 'package:mpos/screens/storeDetailsRegistrationScreen.dart';
 
 late ObjectBox objectBox;
@@ -32,15 +33,6 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    // print(objectBox.accountBox.getAll());
-    // GetStorage().erase();
-    // objectBox.productBox.removeAll();
-    // objectBox.accountBox.removeAll();
-    // objectBox.ingredientBox.removeAll();
-    // objectBox.attendanceBox.removeAll();
-    // objectBox.transactionBox.removeAll();
-    // objectBox.storeDetailsBox.removeAll();
-    // objectBox.expirationDateBox.removeAll();
   }
 
   bool noAdminAccount() {
@@ -57,9 +49,7 @@ class _MyAppState extends State<MyApp> {
 
   dynamic screenToShow() {
     if (noAdminAccount()) {
-      return AdminRegistrationScreen(
-        accountBox: objectBox.accountBox,
-      );
+      return const StartUpMenuScreen();
     }
 
     if (noStoreDetails()) {

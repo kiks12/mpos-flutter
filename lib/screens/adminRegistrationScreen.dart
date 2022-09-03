@@ -77,13 +77,12 @@ class _AdminRegistrationScreenState extends State<AdminRegistrationScreen> {
         context, MaterialPageRoute(builder: (context) => const MyApp()));
   }
 
-  void exitApp() {
-    exit(0);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Create Admin Account'),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Form(
@@ -203,14 +202,6 @@ class _AdminRegistrationScreenState extends State<AdminRegistrationScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      TextButton(
-                        onPressed: exitApp,
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 25, vertical: 15),
-                          child: Text('Exit'),
-                        ),
-                      ),
                       ElevatedButton(
                         onPressed: registerAdminAccount,
                         child: const Padding(
