@@ -11,17 +11,17 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  objectbox: ^1.7.0
+  objectbox: ^4.0.1
   objectbox_flutter_libs: any
 
   cupertino_icons: ^1.0.2
   get_storage: ^2.0.3
-  intl: ^0.17.0
-  syncfusion_flutter_charts: ^20.2.39
-  csv: ^5.0.1
+  intl: ^0.19.0
+  syncfusion_flutter_charts: ^26.1.40
+  csv: ^6.0.0
   path_provider: ^2.0.11
   file_picker: ^8.0.5
-  http: ^0.13.5
+  http: ^1.2.1
   url_launcher: ^6.1.5
   fluttertoast: ^8.2.6
   image_picker: ^1.1.2
@@ -42,7 +42,7 @@ dev_dependencies:
   build_runner: ^2.0.0
   objectbox_generator: any
 
-  flutter_lints: ^1.0.0
+  flutter_lints: ^4.0.0
 
 flutter:
   uses-material-design: true
