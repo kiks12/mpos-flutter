@@ -98,8 +98,8 @@ class _DiscountsScreenState extends State<DiscountsScreen> {
               },
             ),
             FilledButton(
-              child: const Text('Confirm'),
               onPressed: deleteAll,
+              child: const Text('Confirm'),
             ),
           ],
         );

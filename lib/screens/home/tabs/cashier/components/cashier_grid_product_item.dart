@@ -56,10 +56,10 @@ class _CashierGridProductItemState extends State<CashierGridProductItem> {
                     padding: const EdgeInsets.only(top: 10),
                     child: Row(
                       children: [
-                        FilledButton.tonal(child: const Padding(
+                        FilledButton.tonal(onPressed: lessQuantity, child: const Padding(
                           padding: EdgeInsets.symmetric(vertical: 10),
                           child: Text("-", style: TextStyle(fontSize: 26),),
-                        ), onPressed: lessQuantity),
+                        )),
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -76,10 +76,10 @@ class _CashierGridProductItemState extends State<CashierGridProductItem> {
                             ),
                           ),
                         ),
-                        FilledButton.tonal(child: const Padding(
+                        FilledButton.tonal(onPressed: addQuantity, child: const Padding(
                           padding: EdgeInsets.symmetric(vertical: 10),
                           child: Text("+", style: TextStyle(fontSize: 26),),
-                        ), onPressed: addQuantity),
+                        )),
                       ],
                     ),
                   )

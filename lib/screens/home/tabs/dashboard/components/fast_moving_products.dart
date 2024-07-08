@@ -174,7 +174,7 @@ class _FastMovingProductsState extends State<FastMovingProducts> {
                     tooltipBehavior: TooltipBehavior(
                       enable: true
                     ),
-                    legend: Legend(
+                    legend: const Legend(
                       position: LegendPosition.right,
                       isVisible: true,
                       overflowMode: LegendItemOverflowMode.scroll),

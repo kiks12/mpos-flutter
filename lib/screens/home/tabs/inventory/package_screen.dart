@@ -72,8 +72,8 @@ class _PackageScreenState extends State<PackageScreen> {
                   foregroundColor: const Color.fromRGBO(255, 230, 230, 1),
                   backgroundColor: Colors.red
               ),
-              child: const Text('Confirm'),
               onPressed: deletePackage,
+              child: const Text('Confirm'),
             ),
           ],
         );

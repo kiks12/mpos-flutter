@@ -151,8 +151,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onPressed: () => _onCancel(setState),
                   ),
                   FilledButton(
-                    child: const Text('Confirm'),
                     onPressed: _resetApp,
+                    child: const Text('Confirm'),
                   ),
                 ],
               )),
@@ -294,8 +294,8 @@ class _SettingsHeaderState extends State<SettingsHeader> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CircleAvatar(
-                child: Text(widget.currentAccount!.firstName[0].toUpperCase()),
                 radius: 40,
+                child: Text(widget.currentAccount!.firstName[0].toUpperCase()),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),

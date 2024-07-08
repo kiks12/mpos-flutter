@@ -121,8 +121,8 @@ class _EditDiscountScreenState extends State<EditDiscountScreen> with TickerProv
               },
             ),
             FilledButton(
-              child: const Text('Confirm'),
               onPressed: deleteDiscount,
+              child: const Text('Confirm'),
             ),
           ],
         );

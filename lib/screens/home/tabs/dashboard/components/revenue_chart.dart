@@ -257,11 +257,11 @@ class _RevenueChartState extends State<RevenueChart> {
               padding: const EdgeInsets.symmetric(vertical: 15),
               height: MediaQuery.of(context).size.height * 0.5,
               child: SfCartesianChart(
-                legend: Legend(
+                legend: const Legend(
                   isVisible: true,
                   position: LegendPosition.right
                 ),
-                primaryXAxis: CategoryAxis(
+                primaryXAxis: const CategoryAxis(
                   labelRotation: 45,
                 ),
                 tooltipBehavior: TooltipBehavior(

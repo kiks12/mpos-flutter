@@ -63,8 +63,8 @@ class _AccountsScreenControlPnaelState
               },
             ),
             FilledButton(
-              child: const Text('Confirm'),
               onPressed: deleteAll,
+              child: const Text('Confirm'),
             ),
           ],
         );

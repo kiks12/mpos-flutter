@@ -132,8 +132,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               },
             ),
             FilledButton(
-              child: const Text('Confirm'),
               onPressed: deleteAll,
+              child: const Text('Confirm'),
             ),
           ],
         );

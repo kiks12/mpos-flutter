@@ -542,8 +542,8 @@ class _CartState extends State<Cart> {
         Expanded(
           child: ListView(
             children: [
-              ...widget.cartPackageList.asMap().entries.map((e) => _itemPackageBuilder(e.value, e.key)).toList(),
-              ...widget.cartList.asMap().entries.map((e) => _itemProductBuilder(e.value, e.key)).toList(),
+              ...widget.cartPackageList.asMap().entries.map((e) => _itemPackageBuilder(e.value, e.key)),
+              ...widget.cartList.asMap().entries.map((e) => _itemProductBuilder(e.value, e.key)),
               // for (var product in widget.cartList) _itemBuilder(product),
             ],
           )

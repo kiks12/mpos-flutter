@@ -406,7 +406,7 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
                           child: Text('Three Day Span'),
                         ),
                         SfCartesianChart(
-                          primaryXAxis: CategoryAxis(),
+                          primaryXAxis: const CategoryAxis(),
                           tooltipBehavior: TooltipBehavior(enable: true),
                           series: <LineSeries<Sales, String>>[
                             LineSeries<Sales, String>(

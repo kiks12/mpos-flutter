@@ -238,7 +238,7 @@ class _CashierPackageBuilderState extends State<CashierPackageBuilder> {
                                   ],
                                 ),
                               ),
-                            )).toList(),
+                            )),
                           ],
                         ),
                       ),
