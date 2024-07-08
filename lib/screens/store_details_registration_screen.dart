@@ -4,7 +4,6 @@ import 'package:mpos/components/header_one.dart';
 import 'package:mpos/components/text_form_field_with_label.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/store_details.dart';
-import 'package:mpos/utils/database_setup.dart';
 import 'package:objectbox/objectbox.dart';
 
 class StoreDetailsRegistrationScreen extends StatefulWidget {
@@ -39,10 +38,10 @@ class _StoreDetailsRegistrationScreenState
 
     try {
       widget.storeDetailsBox.put(newStoreDetails);
-      await setupProductsData();
-      await setupPackagesData();
-      await setupDiscountsData();
-      Fluttertoast.showToast(msg: "System Setup Complete");
+      // await setupProductsData();
+      // await setupPackagesData();
+      // await setupDiscountsData();
+      // Fluttertoast.showToast(msg: "System Setup Complete");
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => const MyApp()));
     } on UniqueViolationException catch (e) {
