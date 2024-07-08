@@ -1,5 +1,7 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:mpos/firebase_options.dart';
 import 'package:mpos/models/account.dart';
 import 'package:mpos/models/object_box.dart';
 import 'package:mpos/models/store_details.dart';
@@ -16,6 +18,10 @@ Future<void> main() async {
 
   objectBox = await ObjectBox.create();
   await GetStorage.init();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform
+  );
 
   runApp(const MyApp());
 }
