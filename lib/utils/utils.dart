@@ -16,13 +16,9 @@ class Utils {
     return currentAccount;
   }
 
-  void writeServerAccount(String email) {
-    GetStorage().write("SERVER_ACCOUNT", email);
-  }
+  void writeServerAccount(String email) => GetStorage().write("SERVER_ACCOUNT", email);
 
-  void removeServerAccount() {
-    GetStorage().remove("SERVER_ACCOUNT");
-  }
+  void removeServerAccount() => GetStorage().remove("SERVER_ACCOUNT");
 
   String getServerAccount() => GetStorage().read("SERVER_ACCOUNT") ?? "";
 
