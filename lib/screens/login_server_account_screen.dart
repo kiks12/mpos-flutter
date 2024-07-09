@@ -1,9 +1,12 @@
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mpos/components/header_one.dart';
+import 'package:mpos/components/header_two.dart';
 import 'package:mpos/components/text_form_field_with_label.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mpos/firebase/store.dart';
 import 'package:mpos/utils/utils.dart';
 
 class LoginServerAccountScreen extends StatefulWidget {
@@ -15,11 +18,23 @@ class LoginServerAccountScreen extends StatefulWidget {
 
 class _LoginServerAccountScreenState extends State<LoginServerAccountScreen> {
   FirebaseAuth auth = FirebaseAuth.instance;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
   bool _showPassword = false;
+  String _serverAccount = "";
   final formKey = GlobalKey<FormState>();
+  List<Store> _stores = [];
+  String _selectedStore = "";
 
   TextEditingController emailAddressTextController = TextEditingController();
   TextEditingController passwordTextController = TextEditingController();
+
+  @override
+  void initState() {
+    _serverAccount = Utils().getServerAccount();
+
+    if (_serverAccount != "") getStores();
+    super.initState();
+  }
 
   void loginServerAccount() async {
     try {
@@ -29,10 +44,39 @@ class _LoginServerAccountScreenState extends State<LoginServerAccountScreen> {
       if (signInResponse.user != null) {
         Utils().writeServerAccount(email);
         Fluttertoast.showToast(msg: "Logged in as $email");
+        _serverAccount = Utils().getServerAccount();
+        getStores();
+        setState((){});
       }
     } on FirebaseAuthException catch (e) {
       Fluttertoast.showToast(msg: e.message!);
     }
+  }
+
+  void getStores() async {
+    final snapshot = await firestore.collection("users").doc(_serverAccount).collection("stores").withConverter(fromFirestore: Store.fromFirestore, toFirestore: (Store store, _) => store.toFirestore()).get();
+    _stores = snapshot.docs.map((document) => document.data()).toList();
+    _selectedStore = _stores.first.storeName;
+    setState(() {});
+  }
+
+  void logoutServerAccount() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      Utils().removeServerAccount();
+      Utils().removeStore();
+      Fluttertoast.showToast(msg: "Logged out Server Account");
+      _serverAccount = Utils().getServerAccount();
+      _selectedStore = "";
+      setState(() {});
+    } on FirebaseAuthException catch (e) {
+      Fluttertoast.showToast(msg: e.message!);
+    }
+  }
+
+  void confirmSelectedStore() {
+    Utils().writeStore(_selectedStore);
+    Fluttertoast.showToast(msg: "Store Selected $_selectedStore");
   }
 
   @override
@@ -43,7 +87,7 @@ class _LoginServerAccountScreenState extends State<LoginServerAccountScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Center(
+          child: (_serverAccount == "") ? Center(
             child: SizedBox(
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width * 0.6,
@@ -136,6 +180,44 @@ class _LoginServerAccountScreenState extends State<LoginServerAccountScreen> {
                 ),
               ),
             ),
+          ) : Center(
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.8,
+              width: MediaQuery.of(context).size.width * 0.4,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const HeaderTwo(padding: EdgeInsets.zero, text: "Select Store"),
+                  const Text("Select the corresponding store for this Point of Sale System"),
+                  const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+                  DropdownButton(
+                    value: _selectedStore,
+                    isExpanded: true,
+                    items: _stores.map((store) => DropdownMenuItem<String>(value: store.storeName, child: Text(store.storeName))).toList(),
+                    onChanged: (newVal) {
+                      _selectedStore = newVal.toString();
+                      setState(() {});
+                    }
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 15),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: confirmSelectedStore,
+                        child: const Text("Confirm"),
+                      ),
+                    )
+                  ),
+                  const Padding(padding: EdgeInsets.symmetric(vertical: 30)),
+                  Text("Logged in as $_serverAccount"),
+                  TextButton(
+                    onPressed: logoutServerAccount,
+                    child: const Text("Logout"),
+                  ),
+                ],
+              ),
+            )
           ),
         ),
       ),
