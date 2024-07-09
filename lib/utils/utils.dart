@@ -25,4 +25,10 @@ class Utils {
   }
 
   String getServerAccount() => GetStorage().read("SERVER_ACCOUNT") ?? "";
+
+  void writeStore(String store) => GetStorage().write("STORE", store);
+
+  void removeStore() => GetStorage().remove("STORE");
+
+  String getStore() => GetStorage().read("STORE") ?? "";
 }
