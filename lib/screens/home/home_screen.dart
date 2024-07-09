@@ -1,5 +1,12 @@
 
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mpos/components/header_one.dart';
 
 import 'package:mpos/main.dart';
 import 'package:mpos/models/account.dart';
@@ -38,6 +45,11 @@ class _HomeScreenState extends State<HomeScreen>
   final List<ExpirationDate> _expiringNotifications = [];
   final List<ExpirationDate> _expiredNotifications = [];
 
+  List<ConnectivityResult> _connectionStatus = [ConnectivityResult.none];
+  String _serverAccount = "";
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+
   @override
   void initState() {
     super.initState();
@@ -45,6 +57,56 @@ class _HomeScreenState extends State<HomeScreen>
     _tabController = TabController(length: currentAccount!.isAdmin ? 10 : 4, vsync: this);
     getExpiringNotifications();
     getExpiredNotifications();
+
+    initConnectivity();
+    initServerAccount();
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _connectivitySubscription.cancel();
+  }
+
+  void initServerAccount() {
+    _serverAccount = Utils().getServerAccount();
+    setState(() {});
+  }
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initConnectivity() async {
+    late List<ConnectivityResult> result;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      Fluttertoast.showToast(msg: e.message!);
+      return;
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return Future.value(null);
+
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(List<ConnectivityResult> result) async {
+    initServerAccount();
+    _connectionStatus = result;
+    setState(() {});
+  }
+
+  void logoutServerAccount() {
+    FirebaseAuth.instance.signOut();
+    Utils().removeServerAccount();
+    Fluttertoast.showToast(msg: "Server Account Logged out");
+    initConnectivity();
+    initServerAccount();
     setState(() {});
   }
 
@@ -128,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: BottomAppBar(
-        child: TabBar(
+        child: ((_serverAccount != "" && _connectionStatus.last != ConnectivityResult.none) || _serverAccount == "") ? TabBar(
           controller: _tabController,
           tabs: currentAccount!.isAdmin
               ? [
@@ -209,9 +271,9 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                   _notificationTab(),
                 ],
-        ),
+        ) : Container(),
       ),
-      body: TabBarView(
+      body: ((_serverAccount != "" && _connectionStatus.last != ConnectivityResult.none) || _serverAccount == "") ? TabBarView(
         controller: _tabController,
         children: currentAccount!.isAdmin
             ? [
@@ -242,6 +304,18 @@ class _HomeScreenState extends State<HomeScreen>
                   expiringNotifications: _expiringNotifications,
                 ),
               ],
+      ) : Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const HeaderOne(padding: EdgeInsets.zero, text: "Internet not Available"),
+            Text("Connection Result: $_connectionStatus"),
+            Text("Server Account: $_serverAccount"),
+            const Text("Logout your server account to continue without internet connection"),
+            const Padding(padding: EdgeInsets.symmetric(vertical: 15)),
+            FilledButton(onPressed: logoutServerAccount, child: const Text("Logout"))
+          ],
+        ),
       ),
     );
   }
