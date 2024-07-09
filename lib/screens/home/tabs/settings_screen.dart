@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_storage/get_storage.dart';
@@ -55,17 +54,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         MaterialPageRoute(builder: ((context) => const LocalRestoreDataScreen())));
   }
 
-  void logoutServerAccount() async {
-    try {
-      await FirebaseAuth.instance.signOut();
-      Utils().removeServerAccount();
-      Fluttertoast.showToast(msg: "Logged out Server Account");
-      serverAccount = Utils().getServerAccount();
-      setState(() {});
-    } on FirebaseAuthException catch (e) {
-      Fluttertoast.showToast(msg: e.message!);
-    }
-  }
+
 
   void logout() {
     GetStorage().remove('id');
@@ -212,7 +201,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ),
-                  if (serverAccount == "") Container(
+                  Container(
                     decoration: const BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
@@ -224,23 +213,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onPressed: navigateToLoginServerAccount,
                       child: const Padding(
                         padding: EdgeInsets.all(10),
-                        child: Text('Login Server Account'),
-                      ),
-                    ),
-                  ),
-                  if (serverAccount != "") Container(
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                            width: 1, color: Color.fromARGB(255, 228, 228, 228)),
-                      ),
-                    ),
-                    width: MediaQuery.of(context).size.width * 0.5,
-                    child: TextButton(
-                      onPressed: logoutServerAccount,
-                      child: const Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Text('Logout Server Account'),
+                        child: Text('Manage Server Account'),
                       ),
                     ),
                   ),
