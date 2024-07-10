@@ -1,8 +1,11 @@
 
 import 'dart:async';
+// import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+// import 'package:csv/csv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -24,6 +27,9 @@ import 'package:mpos/screens/home/tabs/time_in_time_out_screen.dart';
 import 'package:mpos/screens/home/tabs/transactions/transactions_screen.dart';
 import 'package:mpos/screens/home/tabs/discounts/discounts_screen.dart';
 import 'package:mpos/utils/utils.dart';
+// import 'package:path_provider/path_provider.dart';
+
+// import 'package:path/path.dart' as p;
 
 
 class HomeScreen extends StatefulWidget {
@@ -50,6 +56,8 @@ class _HomeScreenState extends State<HomeScreen>
   final Connectivity _connectivity = Connectivity();
   late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
 
+  // Timer? transactionsCSVTimer;
+
   @override
   void initState() {
     super.initState();
@@ -62,6 +70,8 @@ class _HomeScreenState extends State<HomeScreen>
     initServerAccount();
     _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+
+    // transactionsCSVTimer = Timer.periodic(const Duration(minutes: 10), (Timer t) => uploadTransactions());
     setState(() {});
   }
 
@@ -69,7 +79,56 @@ class _HomeScreenState extends State<HomeScreen>
   void dispose() {
     super.dispose();
     _connectivitySubscription.cancel();
+    // transactionsCSVTimer?.cancel();
   }
+
+  // void uploadTransactions() async {
+  //   try {
+  //     if (_connectionStatus.last == ConnectivityResult.none) return;
+  //     final file = await generateCSVofTransactions();
+  //     final serverAccount = Utils().getServerAccount();
+  //     final store = Utils().getStore();
+  //     final storageRef = FirebaseStorage.instance.ref();
+  //     final transactionsRef = storageRef.child("$serverAccount/$store/transactions.json");
+  //     await transactionsRef.putFile(file);
+  //     Fluttertoast.showToast(msg: "Transactions uploaded to server");
+  //   } on FirebaseException catch(e) {
+  //     Fluttertoast.showToast(msg: e.message!);
+  //     return;
+  //   }
+  // }
+  //
+  // Future<File> generateCSVofTransactions() async {
+  //   final List<List<String>> csvData = [
+  //     ["id", "transactionID", "packagesJson", "productsJson", "paymentMethod", "referenceNumber", "subTotal", "discount", "totalAmount", "payment", "change", "date", "time", "userId"]
+  //   ];
+  //   final transactions = objectBox.transactionBox.getAll();
+  //   for (var transaction in transactions) {
+  //     final List<String> transactionData = [
+  //       transaction.id.toString(),
+  //       transaction.transactionID.toString(),
+  //       transaction.packagesJson,
+  //       transaction.productsJson,
+  //       transaction.paymentMethod,
+  //       transaction.referenceNumber,
+  //       transaction.subTotal.toString(),
+  //       transaction.discount.toString(),
+  //       transaction.totalAmount.toString(),
+  //       transaction.payment.toString(),
+  //       transaction.change.toString(),
+  //       transaction.date.toString(),
+  //       transaction.time.toString(),
+  //       transaction.user.target != null ? transaction.user.target!.id.toString() : "0"
+  //     ];
+  //     csvData.add(transactionData);
+  //   }
+  //   String csv = const ListToCsvConverter().convert(csvData);
+  //   final directory = await getExternalStorageDirectory();
+  //   final filePath = p.join(directory!.path, 'transactions.json');
+  //   final file = File(filePath);
+  //   await file.writeAsString(csv);
+  //   return Future.value(file);
+  // }
 
   void initServerAccount() {
     _serverAccount = Utils().getServerAccount();
