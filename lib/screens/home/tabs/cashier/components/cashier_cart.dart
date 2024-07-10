@@ -1,6 +1,7 @@
 
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart' as firestore;
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
@@ -15,6 +16,7 @@ import 'package:mpos/objectbox.g.dart';
 import 'package:mpos/screens/home/tabs/cashier/components/cashier_cart_header.dart';
 import 'package:mpos/screens/home/tabs/cashier/components/cashier_package_builder.dart';
 import 'package:mpos/utils/receipt_printer.dart';
+import 'package:mpos/utils/utils.dart';
 
 class Cart extends StatefulWidget {
   const Cart({
@@ -290,8 +292,23 @@ class _CartState extends State<Cart> {
     widget.clearCart();
     initializeTransactionID();
     _createdTransaction = newTransaction;
+    if (Utils().getServerAccount() != "" && Utils().getStore() != "") await saveTransactionInServer(newTransaction);
     Fluttertoast.showToast(msg: "Transaction Complete");
     setState((){});
+  }
+
+  Future<void> saveTransactionInServer(Transaction transaction) async {
+    try {
+      final serverAccount = Utils().getServerAccount();
+      final storeName = Utils().getStore();
+      firestore.FirebaseFirestore db = firestore.FirebaseFirestore.instance;
+      final snapshot = await db.collection("users").doc(serverAccount).collection("stores").where("storeName", isEqualTo: storeName).get();
+      final documentId = snapshot.docs.first.id;
+      final transactionRef = db.collection("users").doc(serverAccount).collection("stores").doc(documentId).collection("transactions");
+      await transactionRef.add(transaction.toJson());
+    } on firestore.FirebaseException catch(e) {
+      Fluttertoast.showToast(msg: e.message!);
+    }
   }
 
   Future<void> showCashPaymentDialog() async {
