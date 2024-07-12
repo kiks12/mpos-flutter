@@ -132,7 +132,25 @@ class _TransactionScreenState extends State<TransactionScreen> {
     );
   }
 
+  void addQuantityToProduct(Product product) {
+    final productToUpdate = objectBox.productBox.get(product.id);
+    if (productToUpdate == null) {
+      Fluttertoast.showToast(msg: "Product not found");
+      return;
+    }
+    productToUpdate.quantity = productToUpdate.quantity + product.quantity;
+    objectBox.productBox.put(productToUpdate);
+  }
+
   void deleteTransaction(BuildContext context) {
+    for (var package in widget.transaction.packages) {
+      for (var product in package.productsList) {
+        addQuantityToProduct(product);
+      }
+    }
+    for (var product in widget.transaction.products) {
+      addQuantityToProduct(product);
+    }
     objectBox.transactionBox.remove(widget.transaction.id);
     Fluttertoast.showToast(msg: "Successfully deleted transaction");
     Navigator.of(context).pop();
