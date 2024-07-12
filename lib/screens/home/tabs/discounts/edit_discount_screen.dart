@@ -282,7 +282,7 @@ class _EditDiscountScreenState extends State<EditDiscountScreen> with TickerProv
                                                 child: Row(
                                                   children: [
                                                     Checkbox(value: _selectedProducts.contains(e), onChanged: (val) {}),
-                                                    Text(e),
+                                                    Flexible(child: Text(e)),
                                                   ],
                                                 )
                                             ),

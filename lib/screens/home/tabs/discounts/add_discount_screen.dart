@@ -223,7 +223,7 @@ class _AddDiscountScreenState extends State<AddDiscountScreen> with TickerProvid
                                           child: Row(
                                             children: [
                                               Checkbox(value: _selectedProducts.contains(e), onChanged: (val) {}),
-                                              Text(e),
+                                              Flexible(child: Text(e)),
                                             ],
                                           )
                                         ),
