@@ -68,9 +68,9 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     final attendanceQueryBuilder = objectBox.attendanceBox.query()
       ..link(
           Attendance_.user,
-          Account_.firstName.contains(strToSearch) |
-              Account_.lastName.contains(strToSearch) |
-              Account_.emailAddress.contains(strToSearch))
+          Account_.firstName.contains(strToSearch, caseSensitive: false) |
+              Account_.lastName.contains(strToSearch, caseSensitive: false) |
+              Account_.emailAddress.contains(strToSearch, caseSensitive: false))
       ..order(
         Attendance_.date,
         flags: Order.descending,

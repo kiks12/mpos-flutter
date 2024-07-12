@@ -73,7 +73,7 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
         flags: Order.descending,
       );
     final packageQueryBuilder = objectBox.packagedProductBox.query(
-        PackagedProduct_.name.contains(strToSearch))..order(
+        PackagedProduct_.name.contains(strToSearch, caseSensitive: false))..order(
         PackagedProduct_.id,
         flags: Order.descending,
       );
