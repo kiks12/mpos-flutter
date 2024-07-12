@@ -109,8 +109,10 @@ class _CashierScreenState extends State<CashierScreen> {
 
   void searchProduct() {
     final String strToSearch = searchController.text;
-    final searchQuery = objectBox.productBox.query(Product_.name.contains(strToSearch));
-    _productList = searchQuery.build().find();
+    final productSearchQuery = objectBox.productBox.query(Product_.name.contains(strToSearch, caseSensitive: false));
+    final packageSearchQuery = objectBox.packagedProductBox.query(PackagedProduct_.name.contains(strToSearch, caseSensitive: false));
+    _productList = productSearchQuery.build().find();
+    _packageList = packageSearchQuery.build().find();
     setState((){});
   }
 
@@ -122,6 +124,7 @@ class _CashierScreenState extends State<CashierScreen> {
   void clearCart() {
     _cartList = [];
     _cartPackageList = [];
+    _appliedDiscountList = [];
     _discount = 0;
     _total = 0;
 
@@ -178,6 +181,9 @@ class _CashierScreenState extends State<CashierScreen> {
     if (discount.type == "SPECIFIC" && discount.operation == "FIXED") {
       for (var element in _cartPackageList) {
         if (discount.products.contains(element.name)) _discount += discount.value;
+        for (var product in element.productsList) {
+          if (discount.products.contains(product.name)) _discount += discount.value * product.quantity;
+        }
       }
       for (var element in _cartList) {
         if (discount.products.contains(element.name)) _discount += (discount.value * element.quantity);
@@ -186,6 +192,9 @@ class _CashierScreenState extends State<CashierScreen> {
     if (discount.type == "SPECIFIC" && discount.operation == "PERCENTAGE") {
       for (var element in _cartPackageList) {
         if (discount.products.contains(element.name)) _discount += element.price * (discount.value / 100);
+        for (var product in element.productsList) {
+          if (discount.products.contains(product.name)) _discount += product.totalPrice * (discount.value / 100);
+        }
       }
       for (var element in _cartList) {
         if (discount.products.contains(element.name)) _discount += element.totalPrice * (discount.value / 100);
@@ -193,6 +202,33 @@ class _CashierScreenState extends State<CashierScreen> {
     }
     setState(() {});
   }
+
+  // void calculateDiscount(Discount discount) {
+  //   if (discount.type == "TOTAL" && discount.operation == "FIXED") {
+  //     _discount += discount.value;
+  //     setState(() {});
+  //   }
+  //   if (discount.type == "TOTAL" && discount.operation == "PERCENTAGE") {
+  //     _discount += _total * (discount.value / 100);
+  //   }
+  //   if (discount.type == "SPECIFIC" && discount.operation == "FIXED") {
+  //     for (var element in _cartPackageList) {
+  //       if (discount.products.contains(element.name)) _discount += discount.value;
+  //     }
+  //     for (var element in _cartList) {
+  //       if (discount.products.contains(element.name)) _discount += (discount.value * element.quantity);
+  //     }
+  //   }
+  //   if (discount.type == "SPECIFIC" && discount.operation == "PERCENTAGE") {
+  //     for (var element in _cartPackageList) {
+  //       if (discount.products.contains(element.name)) _discount += element.price * (discount.value / 100);
+  //     }
+  //     for (var element in _cartList) {
+  //       if (discount.products.contains(element.name)) _discount += element.totalPrice * (discount.value / 100);
+  //     }
+  //   }
+  //   setState(() {});
+  // }
 
   void calculateDiscountSubtract(Discount discount) {
     if (discount.type == "TOTAL" && discount.operation == "FIXED") {
@@ -205,6 +241,9 @@ class _CashierScreenState extends State<CashierScreen> {
     if (discount.type == "SPECIFIC" && discount.operation == "FIXED") {
       for (var element in _cartPackageList) {
         if (discount.products.contains(element.name)) _discount -= discount.value;
+        for (var product in element.productsList) {
+          if (discount.products.contains(product.name)) _discount -= discount.value * product.quantity;
+        }
       }
       for (var element in _cartList) {
         if (discount.products.contains(element.name)) _discount -= (discount.value * element.quantity);
@@ -213,11 +252,47 @@ class _CashierScreenState extends State<CashierScreen> {
     if (discount.type == "SPECIFIC" && discount.operation == "PERCENTAGE") {
       for (var element in _cartPackageList) {
         if (discount.products.contains(element.name)) _discount -= element.price * (discount.value / 100);
+        for (var product in element.productsList) {
+          if (discount.products.contains(product.name)) _discount -= product.totalPrice * (discount.value / 100);
+        }
       }
       for (var element in _cartList) {
         if (discount.products.contains(element.name)) _discount -= element.totalPrice * (discount.value / 100);
       }
     }
+    setState(() {});
+  }
+
+  // void calculateDiscountSubtract(Discount discount) {
+  //   if (discount.type == "TOTAL" && discount.operation == "FIXED") {
+  //     _discount -= discount.value;
+  //     setState(() {});
+  //   }
+  //   if (discount.type == "TOTAL" && discount.operation == "PERCENTAGE") {
+  //     _discount -= _total * (discount.value / 100);
+  //   }
+  //   if (discount.type == "SPECIFIC" && discount.operation == "FIXED") {
+  //     for (var element in _cartPackageList) {
+  //       if (discount.products.contains(element.name)) _discount -= discount.value;
+  //     }
+  //     for (var element in _cartList) {
+  //       if (discount.products.contains(element.name)) _discount -= (discount.value * element.quantity);
+  //     }
+  //   }
+  //   if (discount.type == "SPECIFIC" && discount.operation == "PERCENTAGE") {
+  //     for (var element in _cartPackageList) {
+  //       if (discount.products.contains(element.name)) _discount -= element.price * (discount.value / 100);
+  //     }
+  //     for (var element in _cartList) {
+  //       if (discount.products.contains(element.name)) _discount -= element.totalPrice * (discount.value / 100);
+  //     }
+  //   }
+  //   setState(() {});
+  // }
+
+  void clearAppliedDiscounts() {
+    _appliedDiscountList = [];
+    _discount = 0;
     setState(() {});
   }
 
@@ -300,6 +375,13 @@ class _CashierScreenState extends State<CashierScreen> {
                 ),
               ),
               actions: [
+                FilledButton.tonal(
+                  child: const Text('Clear'),
+                  onPressed: () {
+                    clearAppliedDiscounts();
+                    setState((){});
+                  },
+                ),
                 FilledButton(
                   child: const Text('Okay'),
                   onPressed: () {

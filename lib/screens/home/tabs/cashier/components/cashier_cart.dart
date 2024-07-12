@@ -114,6 +114,58 @@ class _CartState extends State<Cart> {
     );
   }
 
+  Future<void> showTransactionCompleteDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(''),
+          content: const SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(Icons.check_circle, size: 80, color: Colors.green),
+                Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+                Text('Transaction Complete', style: TextStyle(fontSize: 24)),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.tonalIcon(
+                icon: const Icon(Icons.print),
+                label: const Text('Print Receipt'),
+                onPressed: () async {
+                  if (_createdTransaction != null) return await printReceipt(_createdTransaction!);
+                  Fluttertoast.showToast(msg: "Not Available");
+                },
+              ),
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                icon: const Icon(Icons.check),
+                label: const Text('Okay'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  widget.clearCart();
+                  _createdTransaction = null;
+                  cashController.text = "";
+                  referenceController.text = "";
+                  initializeTransactionID();
+                  Fluttertoast.showToast(msg: "Transaction Complete");
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> showRemoveProductDialog(Product product, int index) async {
     return showDialog(
         context: context,
@@ -263,7 +315,7 @@ class _CartState extends State<Cart> {
       totalAmount: widget.total - widget.discount.toInt(),
       date: DateTime.parse(DateFormat('yyyy-MM-dd').format(DateTime.now())),
       time: DateTime.now(),
-      payment: _paymentMethod == "Cash" ? int.parse(cashController.text) : widget.total,
+      payment: _paymentMethod == "Cash" ? int.parse(cashController.text) : widget.total - int.parse(widget.discount.toString()),
       change: _paymentMethod == "Cash" ? _change : 0,
       paymentMethod: _paymentMethod,
       referenceNumber: referenceController.text,
@@ -289,11 +341,10 @@ class _CartState extends State<Cart> {
     }
 
     objectBox.transactionBox.put(newTransaction);
-    widget.clearCart();
-    initializeTransactionID();
     _createdTransaction = newTransaction;
     if (Utils().getServerAccount() != "" && Utils().getStore() != "") await saveTransactionInServer(newTransaction);
-    Fluttertoast.showToast(msg: "Transaction Complete");
+    if (mounted) Navigator.of(context).pop();
+    showTransactionCompleteDialog();
     setState((){});
   }
 
@@ -360,19 +411,19 @@ class _CartState extends State<Cart> {
                       child: const Text('Cancel'),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.06,
-                      child: FilledButton.tonal(
-                        onPressed: () async {
-                          if (_createdTransaction != null) return await printReceipt(_createdTransaction!);
-                          Fluttertoast.showToast(msg: "Not Available");
-                        },
-                        child: const Text('Print Receipt'),
-                      ),
-                    ),
-                  ),
+                  // Padding(
+                  //   padding: const EdgeInsets.symmetric(horizontal: 10),
+                  //   child: SizedBox(
+                  //     height: MediaQuery.of(context).size.height * 0.06,
+                  //     child: FilledButton.tonal(
+                  //       onPressed: () async {
+                  //         if (_createdTransaction != null) return await printReceipt(_createdTransaction!);
+                  //         Fluttertoast.showToast(msg: "Not Available");
+                  //       },
+                  //       child: const Text('Print Receipt'),
+                  //     ),
+                  //   ),
+                  // ),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.06,
                     child: FilledButton(
@@ -403,7 +454,7 @@ class _CartState extends State<Cart> {
             HeaderOne(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 text:
-                'Total: ${NumberFormat.currency(symbol: '₱').format(widget.total)}'),
+                'Total: ${NumberFormat.currency(symbol: '₱').format(widget.total - widget.discount)}'),
             Padding(
               padding: const EdgeInsets.symmetric(
                   horizontal: 20, vertical: 15),
@@ -432,19 +483,19 @@ class _CartState extends State<Cart> {
                       child: const Text('Cancel'),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.06,
-                      child: FilledButton.tonal(
-                        onPressed: () async {
-                          // if (_createdTransaction != null) return await printReceipt(_createdTransaction!);
-                          Fluttertoast.showToast(msg: "Not Available");
-                        },
-                        child: const Text('Print Receipt'),
-                      ),
-                    ),
-                  ),
+                  // Padding(
+                  //   padding: const EdgeInsets.symmetric(horizontal: 10),
+                  //   child: SizedBox(
+                  //     height: MediaQuery.of(context).size.height * 0.06,
+                  //     child: FilledButton.tonal(
+                  //       onPressed: () async {
+                  //         if (_createdTransaction != null) return await printReceipt(_createdTransaction!);
+                  //         Fluttertoast.showToast(msg: "Not Available");
+                  //       },
+                  //       child: const Text('Print Receipt'),
+                  //     ),
+                  //   ),
+                  // ),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.06,
                     child: FilledButton(
