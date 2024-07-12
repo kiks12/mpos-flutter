@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:mpos/main.dart';
+import 'package:mpos/models/inventory.dart';
 import 'package:mpos/models/transaction.dart';
 import 'package:mpos/objectbox.g.dart';
 import 'package:mpos/screens/home/tabs/transactions/components/transactions_header.dart';
@@ -104,7 +105,28 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     setTransactionListData(transactionQuery);
   }
 
+  void addQuantityToProduct(Product product) {
+    final productToUpdate = objectBox.productBox.get(product.id);
+    if (productToUpdate == null) {
+      Fluttertoast.showToast(msg: "Product not found");
+      return;
+    }
+    productToUpdate.quantity = productToUpdate.quantity + product.quantity;
+    objectBox.productBox.put(productToUpdate);
+  }
+
   void deleteAll() {
+    final transactions = objectBox.transactionBox.getAll();
+    for (var transaction in transactions) {
+      for (var package in transaction.packages) {
+        for (var product in package.productsList) {
+          addQuantityToProduct(product);
+        }
+      }
+      for (var product in transaction.products) {
+        addQuantityToProduct(product);
+      }
+    }
     objectBox.transactionBox.removeAll();
     Fluttertoast.showToast(msg: "Successfully deleted all transactions");
   }
