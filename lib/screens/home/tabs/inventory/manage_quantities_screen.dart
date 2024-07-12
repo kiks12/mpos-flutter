@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:mpos/components/header_one.dart';
 import 'package:mpos/main.dart';
@@ -83,6 +84,54 @@ class _ManageQuantitiesScreenState
 
     Navigator.of(context).pop();
     initializeDates();
+  }
+
+  void deleteExpirationDate(BuildContext context, ExpirationDate expirationDate) async {
+    try {
+      final product = expirationDate.productExp.target;
+      final productQuery = objectBox.productBox.get(product!.id);
+      productQuery?.expirationDates.remove(expirationDate);
+      objectBox.expirationDateBox.remove(expirationDate.id);
+      Fluttertoast.showToast(msg: "Successfully deleted expiration date");
+      initializeDates();
+      Navigator.of(context).pop();
+    } catch (e) {
+      Fluttertoast.showToast(msg: e.toString());
+    }
+  }
+
+  Future<void> showDeleteExpirationDateConfirmationDialog(ExpirationDate expirationDate) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Expiration Date'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                const Text(
+                    'Are you sure you want to delete this expiration date?'),
+                Text("${expirationDate.productExp.target!.name} - ${expirationDate.date.toString()}")
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FilledButton(
+              child: const Text('Confirm'),
+              onPressed: () => deleteExpirationDate(context, expirationDate),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> showAddDialog() async {
@@ -246,9 +295,7 @@ class _ManageQuantitiesScreenState
             ),
             Expanded(
               child: TextButton(
-                onPressed: curr.quantity == curr.expired + curr.sold
-                    ? () {}
-                    : () => showSetDialog(index),
+                onPressed: () => showDeleteExpirationDateConfirmationDialog(curr),
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
