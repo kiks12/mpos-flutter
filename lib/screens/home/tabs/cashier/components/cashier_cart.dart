@@ -315,7 +315,7 @@ class _CartState extends State<Cart> {
       totalAmount: widget.total - widget.discount.toInt(),
       date: DateTime.parse(DateFormat('yyyy-MM-dd').format(DateTime.now())),
       time: DateTime.now(),
-      payment: _paymentMethod == "Cash" ? int.parse(cashController.text) : widget.total - int.parse(widget.discount.toString()),
+      payment: _paymentMethod == "Cash" ? int.parse(cashController.text) : widget.total - widget.discount.toInt(),
       change: _paymentMethod == "Cash" ? _change : 0,
       paymentMethod: _paymentMethod,
       referenceNumber: referenceController.text,
@@ -356,7 +356,11 @@ class _CartState extends State<Cart> {
       final snapshot = await db.collection("users").doc(serverAccount).collection("stores").where("storeName", isEqualTo: storeName).get();
       final documentId = snapshot.docs.first.id;
       final transactionRef = db.collection("users").doc(serverAccount).collection("stores").doc(documentId).collection("transactions");
-      await transactionRef.add(transaction.toJson());
+      final jsonTransaction = transaction.toJson();
+      jsonTransaction["date"] = firestore.Timestamp.fromDate(transaction.date);
+      jsonTransaction["time"] = firestore.Timestamp.fromDate(transaction.time);
+      jsonTransaction["cashier"] = "${transaction.user.target!.firstName} ${transaction.user.target!.lastName}";
+      await transactionRef.add(jsonTransaction);
     } on firestore.FirebaseException catch(e) {
       Fluttertoast.showToast(msg: e.message!);
     }
