@@ -358,7 +358,6 @@ class _CartState extends State<Cart> {
       final transactionRef = db.collection("users").doc(serverAccount).collection("stores").doc(documentId).collection("transactions");
       final jsonTransaction = transaction.toJson();
       jsonTransaction["date"] = firestore.Timestamp.fromDate(transaction.date);
-      jsonTransaction["time"] = firestore.Timestamp.fromDate(transaction.time);
       jsonTransaction["cashier"] = "${transaction.user.target!.firstName} ${transaction.user.target!.lastName}";
       await transactionRef.add(jsonTransaction);
     } on firestore.FirebaseException catch(e) {
