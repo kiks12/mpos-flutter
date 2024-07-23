@@ -27,4 +27,10 @@ class Utils {
   void removeStore() => GetStorage().remove("STORE");
 
   String getStore() => GetStorage().read("STORE") ?? "";
+
+  void writePOS(String pos) => GetStorage().write("POS", pos);
+
+  void removePOS() => GetStorage().remove("POS");
+
+  String getPOS() => GetStorage().read("POS") ?? "";
 }
