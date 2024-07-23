@@ -6,6 +6,7 @@ import 'package:mpos/components/header_one.dart';
 import 'package:mpos/components/header_two.dart';
 import 'package:mpos/components/text_form_field_with_label.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mpos/firebase/pos.dart';
 import 'package:mpos/firebase/store.dart';
 import 'package:mpos/utils/utils.dart';
 
@@ -24,6 +25,8 @@ class _LoginServerAccountScreenState extends State<LoginServerAccountScreen> {
   final formKey = GlobalKey<FormState>();
   List<Store> _stores = [];
   String _selectedStore = "";
+  List<POS> _pos = [];
+  String _selectedPOS = "";
 
   TextEditingController emailAddressTextController = TextEditingController();
   TextEditingController passwordTextController = TextEditingController();
@@ -60,11 +63,21 @@ class _LoginServerAccountScreenState extends State<LoginServerAccountScreen> {
     setState(() {});
   }
 
+  void getPOS() async {
+    final snapshot = await firestore.collection("users").doc(_serverAccount).collection("stores").where("storeName", isEqualTo: _selectedStore).get();
+    final storeID = snapshot.docs.first.id;
+    final posSnapshot = await firestore.collection("users").doc(_serverAccount).collection("stores").doc(storeID).collection("POS").withConverter(fromFirestore: POS.fromFirestore, toFirestore: (POS pos, _) => pos.toFirestore()).get();
+    _pos = posSnapshot.docs.map((document) => document.data()).toList();
+    _selectedPOS = _pos.first.name;
+    setState(() {});
+  }
+
   void logoutServerAccount() async {
     try {
       await FirebaseAuth.instance.signOut();
       Utils().removeServerAccount();
       Utils().removeStore();
+      Utils().removePOS();
       Fluttertoast.showToast(msg: "Logged out Server Account");
       _serverAccount = Utils().getServerAccount();
       _selectedStore = "";
@@ -77,6 +90,12 @@ class _LoginServerAccountScreenState extends State<LoginServerAccountScreen> {
   void confirmSelectedStore() {
     Utils().writeStore(_selectedStore);
     Fluttertoast.showToast(msg: "Store Selected $_selectedStore");
+    getPOS();
+  }
+
+  void confirmSelectedPOS() {
+    Utils().writePOS(_selectedPOS);
+    Fluttertoast.showToast(msg: "POS Selected $_selectedPOS");
   }
 
   @override
@@ -205,9 +224,36 @@ class _LoginServerAccountScreenState extends State<LoginServerAccountScreen> {
                       width: double.infinity,
                       child: FilledButton(
                         onPressed: confirmSelectedStore,
-                        child: const Text("Confirm"),
+                        child: const Text("Confirm Store"),
                       ),
                     )
+                  ),
+                  if (_selectedStore != "") Column(
+                    children: [
+                      const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+                      const HeaderTwo(padding: EdgeInsets.zero, text: "Select POS"),
+                      const Text("Select the corresponding device for this Point of Sale System"),
+                      const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+                      DropdownButton(
+                          value: _selectedPOS,
+                          isExpanded: true,
+                          items: _pos.map((store) => DropdownMenuItem<String>(value: store.name, child: Text(store.name))).toList(),
+                          onChanged: (newVal) {
+                            _selectedPOS = newVal.toString();
+                            setState(() {});
+                          }
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.only(top: 15),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: FilledButton(
+                              onPressed: confirmSelectedPOS,
+                              child: const Text("Confirm POS"),
+                            ),
+                          )
+                      ),
+                    ],
                   ),
                   const Padding(padding: EdgeInsets.symmetric(vertical: 30)),
                   Text("Logged in as $_serverAccount"),
