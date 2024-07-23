@@ -9,8 +9,10 @@ import 'package:mpos/components/text_form_field_with_label.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/inventory.dart';
 import 'package:mpos/objectbox.g.dart';
+import 'package:mpos/utils/utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import 'package:cloud_firestore/cloud_firestore.dart' as firestore;
 
 class AddPackageScreen extends StatefulWidget {
   const AddPackageScreen({Key? key}) : super(key: key);
@@ -52,7 +54,24 @@ class _AddPackageScreenState extends State<AddPackageScreen> {
     return pq.find();
   }
 
-  void addPackage() {
+  Future<void> savePackageInServer(PackagedProduct package) async {
+    try {
+      final serverAccount = Utils().getServerAccount();
+      final storeName = Utils().getStore();
+      firestore.FirebaseFirestore db = firestore.FirebaseFirestore.instance;
+      final snapshot = await db.collection("users").doc(serverAccount).collection("stores").where("storeName", isEqualTo: storeName).get();
+      final documentId = snapshot.docs.first.id;
+      final packagesRef = db.collection("users").doc(serverAccount).collection("stores").doc(documentId).collection("packages");
+      final packageJson = package.toJson();
+      packageJson["POS"] = Utils().getPOS();
+      packageJson["type"] = "PACKAGE";
+      await packagesRef.add(packageJson);
+    } on firestore.FirebaseException catch(e) {
+      Fluttertoast.showToast(msg: e.message!);
+    }
+  }
+
+  void addPackage() async {
     if (!formKey.currentState!.validate()) return;
 
     PackagedProduct newPackage = PackagedProduct(
@@ -65,7 +84,9 @@ class _AddPackageScreenState extends State<AddPackageScreen> {
     );
 
     objectBox.packagedProductBox.put(newPackage);
-    Navigator.of(context).pop();
+    if (Utils().getServerAccount() != "" && Utils().getStore() != "" && Utils().getPOS() != "") await savePackageInServer(newPackage);
+    Fluttertoast.showToast(msg: "Successfully created new package");
+    if (mounted) Navigator.of(context).pop();
   }
 
   Future<void> pickAndSaveImage() async {

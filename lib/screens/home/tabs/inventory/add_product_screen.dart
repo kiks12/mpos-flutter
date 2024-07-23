@@ -10,8 +10,10 @@ import 'package:mpos/main.dart';
 import 'package:mpos/models/expiration_dates.dart';
 import 'package:mpos/models/inventory.dart';
 import 'package:mpos/objectbox.g.dart';
+import 'package:mpos/utils/utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import 'package:cloud_firestore/cloud_firestore.dart' as firestore;
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({
@@ -56,7 +58,24 @@ class _AddProductScreenState extends State<AddProductScreen> {
     return MediaQuery.of(context).size.height * 0.09 * 1;
   }
 
-  void addProduct() {
+  Future<void> saveProductInServer(Product product) async {
+    try {
+      final serverAccount = Utils().getServerAccount();
+      final storeName = Utils().getStore();
+      firestore.FirebaseFirestore db = firestore.FirebaseFirestore.instance;
+      final snapshot = await db.collection("users").doc(serverAccount).collection("stores").where("storeName", isEqualTo: storeName).get();
+      final documentId = snapshot.docs.first.id;
+      final productsRef = db.collection("users").doc(serverAccount).collection("stores").doc(documentId).collection("products");
+      final productJson = product.toJson();
+      productJson["POS"] = Utils().getPOS();
+      productJson["type"] = "PRODUCT";
+      await productsRef.add(productJson);
+    } on firestore.FirebaseException catch(e) {
+      Fluttertoast.showToast(msg: e.message!);
+    }
+  }
+
+  void addProduct() async {
     if (!formKey.currentState!.validate()) return;
 
     Product newProduct = Product(
@@ -77,9 +96,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
     newProduct.expirationDates.add(newExpirationDate);
     objectBox.productBox.put(newProduct);
+    if (Utils().getServerAccount() != "" && Utils().getStore() != "" && Utils().getPOS() != "") await saveProductInServer(newProduct);
     Fluttertoast.showToast(msg: "Successfully created new product");
-
-    Navigator.of(context).pop();
+    if (mounted) Navigator.of(context).pop();
   }
 
   void _editExpirationDate() async {
