@@ -11,10 +11,10 @@ import 'package:intl/intl.dart';
 class TimeInTimeOutScreen extends StatefulWidget {
   const TimeInTimeOutScreen({
     Key? key,
-    required this.tabController,
+    this.tabController,
   }) : super(key: key);
 
-  final TabController tabController;
+  final TabController? tabController;
 
   @override
   State<TimeInTimeOutScreen> createState() => _TimeInTimeOutScreenState();
@@ -68,7 +68,10 @@ class _TimeInTimeOutScreenState extends State<TimeInTimeOutScreen> {
     newAttendance.user.target = curr as Account;
     attendanceBox.put(newAttendance);
 
-    widget.tabController.index = 0;
+    if (widget.tabController != null) {
+      widget.tabController!.index = 0;
+    }
+    Navigator.of(context).pop();
   }
 
   void timeOut() {
