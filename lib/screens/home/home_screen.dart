@@ -21,7 +21,7 @@ import 'package:mpos/screens/home/tabs/attendance/attendance_screen.dart';
 import 'package:mpos/screens/home/tabs/cashier/cashier_screen.dart';
 import 'package:mpos/screens/home/tabs/dashboard/dashboard_screen.dart';
 import 'package:mpos/screens/home/tabs/inventory/inventory_screen.dart';
-import 'package:mpos/screens/home/tabs/notification_screen.dart';
+// import 'package:mpos/screens/home/tabs/notification_screen.dart';
 import 'package:mpos/screens/home/tabs/settings_screen.dart';
 import 'package:mpos/screens/home/tabs/time_in_time_out_screen.dart';
 import 'package:mpos/screens/home/tabs/transactions/transactions_screen.dart';
@@ -56,8 +56,6 @@ class _HomeScreenState extends State<HomeScreen>
   final Connectivity _connectivity = Connectivity();
   late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
 
-  // Timer? transactionsCSVTimer;
-
   @override
   void initState() {
     super.initState();
@@ -71,7 +69,6 @@ class _HomeScreenState extends State<HomeScreen>
     _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
 
-    // transactionsCSVTimer = Timer.periodic(const Duration(minutes: 10), (Timer t) => uploadTransactions());
     setState(() {});
   }
 
@@ -79,56 +76,7 @@ class _HomeScreenState extends State<HomeScreen>
   void dispose() {
     super.dispose();
     _connectivitySubscription.cancel();
-    // transactionsCSVTimer?.cancel();
   }
-
-  // void uploadTransactions() async {
-  //   try {
-  //     if (_connectionStatus.last == ConnectivityResult.none) return;
-  //     final file = await generateCSVofTransactions();
-  //     final serverAccount = Utils().getServerAccount();
-  //     final store = Utils().getStore();
-  //     final storageRef = FirebaseStorage.instance.ref();
-  //     final transactionsRef = storageRef.child("$serverAccount/$store/transactions.json");
-  //     await transactionsRef.putFile(file);
-  //     Fluttertoast.showToast(msg: "Transactions uploaded to server");
-  //   } on FirebaseException catch(e) {
-  //     Fluttertoast.showToast(msg: e.message!);
-  //     return;
-  //   }
-  // }
-  //
-  // Future<File> generateCSVofTransactions() async {
-  //   final List<List<String>> csvData = [
-  //     ["id", "transactionID", "packagesJson", "productsJson", "paymentMethod", "referenceNumber", "subTotal", "discount", "totalAmount", "payment", "change", "date", "time", "userId"]
-  //   ];
-  //   final transactions = objectBox.transactionBox.getAll();
-  //   for (var transaction in transactions) {
-  //     final List<String> transactionData = [
-  //       transaction.id.toString(),
-  //       transaction.transactionID.toString(),
-  //       transaction.packagesJson,
-  //       transaction.productsJson,
-  //       transaction.paymentMethod,
-  //       transaction.referenceNumber,
-  //       transaction.subTotal.toString(),
-  //       transaction.discount.toString(),
-  //       transaction.totalAmount.toString(),
-  //       transaction.payment.toString(),
-  //       transaction.change.toString(),
-  //       transaction.date.toString(),
-  //       transaction.time.toString(),
-  //       transaction.user.target != null ? transaction.user.target!.id.toString() : "0"
-  //     ];
-  //     csvData.add(transactionData);
-  //   }
-  //   String csv = const ListToCsvConverter().convert(csvData);
-  //   final directory = await getExternalStorageDirectory();
-  //   final filePath = p.join(directory!.path, 'transactions.json');
-  //   final file = File(filePath);
-  //   await file.writeAsString(csv);
-  //   return Future.value(file);
-  // }
 
   void initServerAccount() {
     _serverAccount = Utils().getServerAccount();
@@ -206,44 +154,44 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  Tab _notificationTab() {
-    return Tab(
-      child: Stack(
-        children: <Widget>[
-          const Icon(Icons.notifications, size: 24,),
-          _expiringNotifications.isNotEmpty
-              ? Positioned(
-                  top: 3,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(1),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 12,
-                      minHeight: 12,
-                    ),
-                    child: Text(
-                      '${_expiringNotifications.length}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 8,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                )
-              : Positioned(
-                  top: 3,
-                  right: 0,
-                  child: Container(),
-                ),
-        ],
-      ),
-    );
-  }
+  // Tab _notificationTab() {
+  //   return Tab(
+  //     child: Stack(
+  //       children: <Widget>[
+  //         const Icon(Icons.notifications, size: 24,),
+  //         _expiringNotifications.isNotEmpty
+  //             ? Positioned(
+  //                 top: 3,
+  //                 right: 0,
+  //                 child: Container(
+  //                   padding: const EdgeInsets.all(1),
+  //                   decoration: BoxDecoration(
+  //                     color: Colors.red,
+  //                     borderRadius: BorderRadius.circular(50),
+  //                   ),
+  //                   constraints: const BoxConstraints(
+  //                     minWidth: 12,
+  //                     minHeight: 12,
+  //                   ),
+  //                   child: Text(
+  //                     '${_expiringNotifications.length}',
+  //                     style: const TextStyle(
+  //                       color: Colors.white,
+  //                       fontSize: 8,
+  //                     ),
+  //                     textAlign: TextAlign.center,
+  //                   ),
+  //                 ),
+  //               )
+  //             : Positioned(
+  //                 top: 3,
+  //                 right: 0,
+  //                 child: Container(),
+  //               ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -307,7 +255,7 @@ class _HomeScreenState extends State<HomeScreen>
                       style: TextStyle(color: Colors.black),
                     ),
                   ),
-                  _notificationTab(),
+                  // _notificationTab(),
                 ]
               : [
                   const Tab(
@@ -328,7 +276,7 @@ class _HomeScreenState extends State<HomeScreen>
                       style: TextStyle(color: Colors.black),
                     ),
                   ),
-                  _notificationTab(),
+                  // _notificationTab(),
                 ],
         ) : Container(),
       ),
@@ -347,10 +295,10 @@ class _HomeScreenState extends State<HomeScreen>
                 const TransactionsScreen(),
                 const DashboardScreen(),
                 const SettingsScreen(),
-                NotificationScreen(
-                  expiredNotifications: _expiredNotifications,
-                  expiringNotifications: _expiringNotifications,
-                ),
+                // NotificationScreen(
+                //   expiredNotifications: _expiredNotifications,
+                //   expiringNotifications: _expiringNotifications,
+                // ),
               ]
             : [
                 const CashierScreen(),
@@ -358,10 +306,10 @@ class _HomeScreenState extends State<HomeScreen>
                   tabController: _tabController,
                 ),
                 const SettingsScreen(),
-                NotificationScreen(
-                  expiredNotifications: _expiredNotifications,
-                  expiringNotifications: _expiringNotifications,
-                ),
+                // NotificationScreen(
+                //   expiredNotifications: _expiredNotifications,
+                //   expiringNotifications: _expiringNotifications,
+                // ),
               ],
       ) : Center(
         child: Column(
