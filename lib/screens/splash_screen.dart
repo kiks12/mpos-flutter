@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mpos/components/header_one.dart';
 import 'package:mpos/models/object_box.dart';
-import 'package:mpos/screens/home/home_screen.dart';
+// import 'package:mpos/screens/home/home_screen.dart';
+import 'package:mpos/screens/home/home_screen_two.dart';
 import 'package:mpos/screens/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -35,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
     }
 
     startTimer(
-      const HomeScreen(),
+      const HomeScreenTwo(),
     );
   }
 
