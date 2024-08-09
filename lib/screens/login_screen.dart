@@ -9,7 +9,8 @@ import 'package:mpos/models/object_box.dart';
 import 'package:mpos/objectbox.g.dart';
 import 'package:mpos/screens/admin_registration_screen.dart';
 import 'package:mpos/screens/forgot_password_screen.dart';
-import 'package:mpos/screens/home/home_screen.dart';
+// import 'package:mpos/screens/home/home_screen.dart';
+import 'package:mpos/screens/home/home_screen_two.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key, required this.objectBox}) : super(key: key);
@@ -74,7 +75,8 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const HomeScreen(),
+        // builder: (context) => const HomeScreen(),
+        builder: (context) => const HomeScreenTwo(),
       ),
     );
   }
