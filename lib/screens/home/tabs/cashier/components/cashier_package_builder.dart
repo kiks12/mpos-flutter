@@ -29,6 +29,7 @@ class CashierPackageBuilder extends StatefulWidget {
 
 class _CashierPackageBuilderState extends State<CashierPackageBuilder> {
   late PackagedProduct package;
+  final quantityController = TextEditingController(text: "1");
 
   @override
   void initState() {
@@ -55,7 +56,8 @@ class _CashierPackageBuilderState extends State<CashierPackageBuilder> {
     setState(() {});
   }
 
-  void addProductToPackage(Product product, int quantity) {
+  void addProductToPackage(Product product) {
+    final quantity = int.parse(quantityController.text);
     if (quantity > package.quantity) {
       Fluttertoast.showToast(msg: "Quantity is bigger than number of items allowed in package: ${package.quantity}");
       return;
@@ -135,7 +137,34 @@ class _CashierPackageBuilderState extends State<CashierPackageBuilder> {
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Select ${package.quantity} item: "),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Text("Select ${package.quantity} item: "),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: SizedBox(
+                            height: 40,
+                            width: 100,
+                            child: TextFormField(
+                              maxLines: 1,
+                              minLines: 1,
+                              keyboardType: TextInputType.number,
+                              controller: quantityController,
+                              decoration: InputDecoration(
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                                  labelText: "Quantity",
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(50)
+                                  )
+                              ),
+
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   IconButton(onPressed: close, icon: const Icon(Icons.close)),
                 ],
               ),
@@ -152,7 +181,7 @@ class _CashierPackageBuilderState extends State<CashierPackageBuilder> {
                       shrinkWrap: true,
                       crossAxisCount: 5,
                       children:  [
-                        for (var product in widget.products) CashierGridProductItem(product: product, addToCart: addProductToPackage),
+                        for (var product in widget.products) CashierGridProductItem(quantity: int.parse(quantityController.text),product: product, addToCart: addProductToPackage),
                       ]
                     ),
                   ),
