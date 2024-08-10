@@ -34,7 +34,7 @@ class _CashierGridState extends State<CashierGrid> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    final itemHeight = size.height / 2.7;
+    final itemHeight = size.height / 4.25;
     final itemWidth = size.width / 8;
 
     return Expanded(
@@ -50,18 +50,23 @@ class _CashierGridState extends State<CashierGrid> {
             child: Column(
               children: [
                 Expanded(
-                  child: GridView.count(
-                    childAspectRatio: (itemWidth/itemHeight),
-                    shrinkWrap: true,
-                    crossAxisCount: 5,
-                    children:  [
-                      for (var package in widget.packageList) CashierGridPackageItem(
-                        products: widget.productsList,
-                        package: package,
-                        addPackageToCart: widget.addPackageToCart,
-                      ),
-                      for (var product in widget.productsList) CashierGridProductItem(product: product, addToCart: widget.addToCart),
-                    ]
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                    child: GridView.count(
+                      crossAxisSpacing: 5,
+                      mainAxisSpacing: 5,
+                      childAspectRatio: (itemWidth/itemHeight),
+                      shrinkWrap: true,
+                      crossAxisCount: 5,
+                      children:  [
+                        for (var package in widget.packageList) CashierGridPackageItem(
+                          products: widget.productsList,
+                          package: package,
+                          addPackageToCart: widget.addPackageToCart,
+                        ),
+                        for (var product in widget.productsList) CashierGridProductItem(product: product, addToCart: widget.addToCart),
+                      ]
+                    ),
                   ),
                 ),
               ],

@@ -126,167 +126,181 @@ class _CashierPackageBuilderState extends State<CashierPackageBuilder> {
 
     return StatefulBuilder(builder: (context, setState) {
       return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SimpleDialog(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("Select ${package.quantity} item: "),
-                IconButton(onPressed: close, icon: const Icon(Icons.close)),
-              ],
-            ),
-            children: [
-              SizedBox(
-                width: 610,
-                height: 500,
-                child: GridView.count(
-                    childAspectRatio: (itemWidth/itemHeight),
-                    shrinkWrap: true,
-                    crossAxisCount: 5,
-                    children:  [
-                      for (var product in widget.products) CashierGridProductItem(product: product, addToCart: addProductToPackage),
-                    ]
-                ),
+          Expanded(
+            flex: 2,
+            child: SimpleDialog(
+              insetPadding: const EdgeInsets.all(20),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Select ${package.quantity} item: "),
+                  IconButton(onPressed: close, icon: const Icon(Icons.close)),
+                ],
               ),
-            ],
-          ),
-          SimpleDialog(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("Complete your Package"),
-                IconButton(onPressed: close, icon: const Icon(Icons.close)),
+                SizedBox(
+                  width: 8000,
+                  height: 1000,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: GridView.count(
+                      mainAxisSpacing: 5,
+                      crossAxisSpacing: 5,
+                      childAspectRatio: (itemWidth/itemHeight),
+                      shrinkWrap: true,
+                      crossAxisCount: 5,
+                      children:  [
+                        for (var product in widget.products) CashierGridProductItem(product: product, addToCart: addProductToPackage),
+                      ]
+                    ),
+                  ),
+                ),
               ],
             ),
-            children: [
-              SizedBox(
-                width: 180,
-                height: 500,
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const CartHeader(),
-                      const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
-                      Flexible(
-                        child: Column(
-                          children: [
-                            GestureDetector(
-                              onTap: () {},
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      widget.package.name,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  const Expanded(
-                                    child: Text(""),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      widget.package.quantity.toString(),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      NumberFormat.currency(symbol: '₱')
-                                          .format(widget.package.price),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            ...package.productsList.asMap().entries.map((e) => Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: GestureDetector(
-                                onTap: () async {
-                                  await showRemoveProductDialog(e.value, e.key);
-                                  setState(() {});
-                                },
+          ),
+          Expanded(
+            flex: 1,
+            child: SimpleDialog(
+              insetPadding: const EdgeInsets.all(20),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text("Complete your Package"),
+                  IconButton(onPressed: close, icon: const Icon(Icons.close)),
+                ],
+              ),
+              children: [
+                SizedBox(
+                  width: 1000,
+                  height: 600,
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const CartHeader(),
+                        const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+                        Flexible(
+                          child: Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {},
                                 child: Row(
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        e.value.name,
+                                        widget.package.name,
                                         textAlign: TextAlign.center,
                                       ),
                                     ),
-                                    Expanded(
-                                      child: Text(
-                                        NumberFormat.currency(symbol: "₱").format(e.value.unitPrice),
-                                        textAlign: TextAlign.center,
-                                      ),
+                                    const Expanded(
+                                      child: Text(""),
                                     ),
                                     Expanded(
                                       child: Text(
-                                        e.value.quantity.toString(),
+                                        widget.package.quantity.toString(),
                                         textAlign: TextAlign.center,
                                       ),
                                     ),
                                     Expanded(
                                       child: Text(
                                         NumberFormat.currency(symbol: '₱')
-                                            .format(e.value.totalPrice),
+                                            .format(widget.package.price),
                                         textAlign: TextAlign.center,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                            )),
+                              ...package.productsList.asMap().entries.map((e) => Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    await showRemoveProductDialog(e.value, e.key);
+                                    setState(() {});
+                                  },
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          e.value.name,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          NumberFormat.currency(symbol: "₱").format(e.value.unitPrice),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          e.value.quantity.toString(),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          NumberFormat.currency(symbol: '₱')
+                                              .format(e.value.totalPrice),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )),
+                            ],
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            if (widget.inCart) Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: FilledButton.tonal(onPressed: (){
+                                widget.removePackageFromCart(widget.package, widget.packageIndexInCart);
+                                calculatePackagePrice();
+                                setState((){});
+                              }, child: const Text("Remove")),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: FilledButton.tonal(onPressed: (){
+                                package.clear();
+                                calculatePackagePrice();
+                                setState((){});
+                              }, child: const Text("Clear")),
+                            ),
+                            if (!widget.inCart)
+                              Expanded(
+                                child: FilledButton(onPressed: (){
+                                  final int packageQuantity = package.productsList.fold(0, (previousValue, element) => previousValue + element.quantity);
+                                  if (package.quantity != packageQuantity) {
+                                    Fluttertoast.showToast(msg: "Package product quantity not matching items should be ${package.quantity}");
+                                    return;
+                                  }
+                                  widget.addPackageToCart(package);
+                                  Navigator.of(context).pop();
+                                }, child: const Text("Add to Cart")),
+                              ),
+                            if (widget.inCart)
+                              Expanded(
+                                child: FilledButton(onPressed: (){
+                                  Navigator.of(context).pop();
+                                }, child: const Text("Update")),
+                              ),
                           ],
                         ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          if (widget.inCart) Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: FilledButton.tonal(onPressed: (){
-                              widget.removePackageFromCart(widget.package, widget.packageIndexInCart);
-                              calculatePackagePrice();
-                              setState((){});
-                            }, child: const Text("Remove")),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: FilledButton.tonal(onPressed: (){
-                              package.clear();
-                              calculatePackagePrice();
-                              setState((){});
-                            }, child: const Text("Clear")),
-                          ),
-                          if (!widget.inCart)
-                            Expanded(
-                              child: FilledButton(onPressed: (){
-                                final int packageQuantity = package.productsList.fold(0, (previousValue, element) => previousValue + element.quantity);
-                                if (package.quantity != packageQuantity) {
-                                  Fluttertoast.showToast(msg: "Package product quantity not matching items should be ${package.quantity}");
-                                  return;
-                                }
-                                widget.addPackageToCart(package);
-                                Navigator.of(context).pop();
-                              }, child: const Text("Add to Cart")),
-                            ),
-                          if (widget.inCart)
-                            Expanded(
-                              child: FilledButton(onPressed: (){
-                                Navigator.of(context).pop();
-                              }, child: const Text("Update")),
-                            ),
-                        ],
-                      ),
 
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         ],
       );
