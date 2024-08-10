@@ -12,6 +12,7 @@ import 'package:mpos/models/account.dart';
 import 'package:mpos/screens/home/components/home_screen_card/card_data.dart';
 import 'package:mpos/screens/home/components/home_screen_card/home_screen_card.dart';
 import 'package:mpos/screens/home/tabs/accounts/accounts_screen.dart';
+import 'package:mpos/screens/home/tabs/attendance/attendance_screen.dart';
 import 'package:mpos/screens/home/tabs/cashier/cashier_screen.dart';
 import 'package:mpos/screens/home/tabs/dashboard/dashboard_screen.dart';
 import 'package:mpos/screens/home/tabs/discounts/discounts_screen.dart';
@@ -34,9 +35,19 @@ final cardData = [
   CardData(Icons.money, "Cashier", const CashierScreen()),
   CardData(Icons.inventory, "Inventory", const InventoryScreen()),
   CardData(Icons.discount, "Discounts", const DiscountsScreen()),
-  CardData(Icons.manage_accounts, "Accounts", const AccountsScreen()),
   CardData(Icons.receipt, "Transactions", const TransactionsScreen()),
   CardData(Icons.dashboard, "Dashboard", const DashboardScreen()),
+  CardData(Icons.manage_accounts, "Accounts", const AccountsScreen()),
+  CardData(Icons.supervisor_account, "Attendance", const AttendanceScreen()),
+  CardData(Icons.punch_clock, "Log", const TimeInTimeOutScreen()),
+  CardData(Icons.settings, "Settings", const SettingsScreen()),
+];
+
+final cardDataEmployee = [
+  CardData(Icons.money, "Cashier", const CashierScreen()),
+  CardData(Icons.inventory, "Inventory", const InventoryScreen()),
+  CardData(Icons.discount, "Discounts", const DiscountsScreen()),
+  CardData(Icons.receipt, "Transactions", const TransactionsScreen()),
   CardData(Icons.punch_clock, "Log", const TimeInTimeOutScreen()),
   CardData(Icons.settings, "Settings", const SettingsScreen()),
 ];
@@ -166,13 +177,20 @@ class _HomeScreenTwoState extends State<HomeScreenTwo> with SingleTickerProvider
               Text("${storeName!} MPOS", style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w600),),
               const Padding(padding: EdgeInsets.symmetric(vertical: 12)),
               Expanded(
-                child: GridView.builder(
+                child: (currentAccount!.isAdmin) ? GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5, crossAxisSpacing: 2, mainAxisSpacing: 2),
                   itemBuilder: (context, index) {
                     final data = cardData[index];
                     return HomeScreenCard(cardData: data);
                   },
                   itemCount: cardData.length,
+                ) : GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5, crossAxisSpacing: 2, mainAxisSpacing: 2),
+                  itemBuilder: (context, index) {
+                    final data = cardDataEmployee[index];
+                    return HomeScreenCard(cardData: data);
+                  },
+                  itemCount: cardDataEmployee.length,
                 ),
               ),
             ] : [
