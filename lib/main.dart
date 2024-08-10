@@ -11,7 +11,7 @@ import 'package:mpos/screens/startup_menu_screen.dart';
 import 'package:mpos/screens/store_details_registration_screen.dart';
 
 late ObjectBox objectBox;
-ColorScheme appColors = ColorScheme.fromSeed(seedColor: Colors.pinkAccent);
+ColorScheme appColors = ColorScheme.fromSeed(seedColor: Colors.blue);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
