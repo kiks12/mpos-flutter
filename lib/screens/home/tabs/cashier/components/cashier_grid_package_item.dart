@@ -1,5 +1,5 @@
 
-import 'dart:io';
+// import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:mpos/models/inventory.dart';
@@ -38,46 +38,41 @@ class _CashierGridPackageItemState extends State<CashierGridPackageItem> {
 
   @override
   Widget build(BuildContext context) {
-    final file = File(widget.package.image);
-    final bool fileExists = file.existsSync();
+    // final file = File(widget.package.image);
+    // final bool fileExists = file.existsSync();
 
     return GestureDetector(
       onTap: openPackageBuilder,
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            SizedBox(
-                width: double.infinity,
-                height: 120,
-                child: !fileExists ?
-                Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.black12,
-                    ),
-                    child: const Center(child: Text("No Image"))
-                ) :
-                Image.file(file, width: double.infinity)
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: SizedBox(
-                width: double.infinity,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(child: Text(widget.package.name)),
-                      ],
-                    ),
-                  ],
+      child: Column(
+        children: [
+          SizedBox(
+              width: double.infinity,
+              height: 120,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondaryContainer,
                 ),
-              ),
-            )
-          ],
-        ),
+                child: Center(child: Flexible(child: Text(widget.package.name))),
+              )
+          ),
+          // Padding(
+          //   padding: const EdgeInsets.only(top: 10),
+          //   child: SizedBox(
+          //     width: double.infinity,
+          //     child: Column(
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children: [
+          //         Row(
+          //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //           children: [
+          //             Flexible(child: Text(widget.package.name)),
+          //           ],
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // )
+        ],
       ),
     );
   }

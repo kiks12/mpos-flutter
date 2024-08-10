@@ -1,5 +1,5 @@
 
-import 'dart:io';
+// import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -122,48 +122,29 @@ class _CashierGridProductItemState extends State<CashierGridProductItem> {
 
   @override
   Widget build(BuildContext context) {
-    final file = File(widget.product.image);
-    final bool fileExists = file.existsSync();
+    // final file = File(widget.product.image);
+    // final bool fileExists = file.existsSync();
 
     return GestureDetector(
       onTap: widget.product.quantity == 0 ? showInsufficientStockToast : showQuantityAlertDialog,
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            SizedBox(
-              width: double.infinity,
-              height: 120,
-              child: !fileExists ?
-              Container(
-                decoration: const BoxDecoration(
-                  color: Colors.black12,
-                ),
-                child: const Center(child: Text("No Image"))
-              ) :
-              Image.file(file, width: double.infinity)
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(child: Text(widget.product.name)),
-                    ],
-                  ),
-                  Text(NumberFormat.currency(symbol: "₱").format(widget.product.unitPrice)),
-                  Text(
-                    "Stock: ${widget.product.quantity}",
-                    style: const TextStyle(fontSize: 11),
-                  )
-                ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            height: 120,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.secondaryContainer,
               ),
+              child: Center(child: Flexible(child: Text(widget.product.name))),
             )
-          ],
-        ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Text(NumberFormat.currency(symbol: "₱").format(widget.product.unitPrice)),
+          )
+        ],
       ),
     );
   }
