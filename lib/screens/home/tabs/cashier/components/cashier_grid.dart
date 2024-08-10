@@ -14,15 +14,17 @@ class CashierGrid extends StatefulWidget {
     required this.addPackageToCart,
     required this.setSelectedCategory,
     required this.selectedCategory,
+    required this.quantity,
   }) : super(key: key);
 
-  final void Function(Product, int) addToCart;
+  final void Function(Product) addToCart;
   final void Function(PackagedProduct) addPackageToCart;
   final void Function(String) setSelectedCategory;
   final List<String> categoriesList;
   final List<Product> productsList;
   final List<PackagedProduct> packageList;
   final String selectedCategory;
+  final int quantity;
 
   @override
   State<CashierGrid> createState() => _CashierGridState();
@@ -64,7 +66,7 @@ class _CashierGridState extends State<CashierGrid> {
                           package: package,
                           addPackageToCart: widget.addPackageToCart,
                         ),
-                        for (var product in widget.productsList) CashierGridProductItem(product: product, addToCart: widget.addToCart),
+                        for (var product in widget.productsList) CashierGridProductItem(product: product, addToCart: widget.addToCart, quantity: widget.quantity,),
                       ]
                     ),
                   ),

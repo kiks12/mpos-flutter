@@ -26,7 +26,6 @@ class _CashierScreenState extends State<CashierScreen> {
   List<String> _categoriesList = [];
   String _selectedCategory = "All";
 
-  TextEditingController barcodeController = TextEditingController();
   TextEditingController searchController = TextEditingController();
   TextEditingController quantityController = TextEditingController(text: '1');
 
@@ -433,7 +432,8 @@ class _CashierScreenState extends State<CashierScreen> {
     setState(() {});
   }
 
-  void addToCart(Product product, int quantity) {
+  void addToCart(Product product) {
+    final quantity = int.parse(quantityController.text);
     Product newProduct = Product(
       name: product.name,
       category: product.category,
@@ -487,7 +487,7 @@ class _CashierScreenState extends State<CashierScreen> {
             child: Column(
               children: [
                 CashierControlPanel(
-                  barcodeController: barcodeController,
+                  quantityController: quantityController,
                   searchController: searchController,
                   searchProduct: searchProduct,
                   refresh: refresh,
@@ -497,6 +497,7 @@ class _CashierScreenState extends State<CashierScreen> {
                   packageList: _packageList,
                   categoriesList: _categoriesList,
                   selectedCategory: _selectedCategory,
+                  quantity: int.parse(quantityController.text),
                   addToCart: addToCart,
                   addPackageToCart: addPackageToCart,
                   setSelectedCategory: setSelectedCategory,
