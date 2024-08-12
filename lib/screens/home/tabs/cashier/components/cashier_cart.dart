@@ -268,13 +268,13 @@ class _CartState extends State<Cart> {
               ),
               Expanded(
                 child: Text(
-                  NumberFormat.currency(symbol: "₱").format(product.unitPrice),
+                  product.quantity.toString(),
                   textAlign: TextAlign.center,
                 ),
               ),
               Expanded(
                 child: Text(
-                  product.quantity.toString(),
+                  NumberFormat.currency(symbol: "₱").format(product.unitPrice),
                   textAlign: TextAlign.center,
                 ),
               ),
