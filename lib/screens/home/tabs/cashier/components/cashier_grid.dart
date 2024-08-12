@@ -53,7 +53,7 @@ class _CashierGridState extends State<CashierGrid> {
               children: [
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: GridView.count(
                       crossAxisSpacing: 5,
                       mainAxisSpacing: 5,

@@ -22,7 +22,7 @@ class CartHeader extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              'Price',
+              'QTY',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 15,
@@ -32,7 +32,7 @@ class CartHeader extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              'QTY',
+              'Price',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 15,
