@@ -234,14 +234,14 @@ class _CartState extends State<Cart> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  const Expanded(
-                    child: Text(""),
-                  ),
                   Expanded(
                     child: Text(
                       package.quantity.toString(),
                       textAlign: TextAlign.center,
                     ),
+                  ),
+                  const Expanded(
+                    child: Text(""),
                   ),
                   Expanded(
                     child: Text(
