@@ -202,7 +202,7 @@ class _CartState extends State<Cart> {
       barrierDismissible: false,
       builder: (context) {
         return CashierPackageBuilder(
-          products: widget.products,
+          products: widget.products.where((element) => package.category.toLowerCase().contains(element.name)).toList(),
           package: package,
           addPackageToCart: widget.addPackageToCart,
           removePackageFromCart: widget.removePackageFromCart,

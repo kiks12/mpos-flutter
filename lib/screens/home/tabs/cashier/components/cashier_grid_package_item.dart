@@ -28,7 +28,7 @@ class _CashierGridPackageItemState extends State<CashierGridPackageItem> {
       context: context,
       builder: (BuildContext context) {
         return CashierPackageBuilder(
-          products: widget.products.where((element) => element.category == widget.package.category).toList(),
+          products: widget.products.where((element) => widget.package.category.toLowerCase().contains(element.name)).toList(),
           package: widget.package,
           addPackageToCart: widget.addPackageToCart,
           removePackageFromCart: (package, index) {},
