@@ -90,14 +90,14 @@ class _CartState extends State<Cart> {
             ),
             Expanded(
               child: Text(
-                NumberFormat.currency(symbol: '₱')
-                    .format(product.unitPrice),
+                product.quantity.toString(),
                 textAlign: TextAlign.center,
               ),
             ),
             Expanded(
               child: Text(
-                product.quantity.toString(),
+                NumberFormat.currency(symbol: '₱')
+                    .format(product.unitPrice),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -365,7 +365,8 @@ class _CartState extends State<Cart> {
     }
   }
 
-  Future<void> showCashPaymentDialog() async {
+  Future<void> showCashPaymentDialog(BuildContext context) async {
+    if (context.mounted) Navigator.of(context).pop();
     _paymentMethod = 'Cash';
     referenceController.text = "";
 
@@ -443,7 +444,8 @@ class _CartState extends State<Cart> {
     );
   }
 
-  Future<void> showOtherPaymentDialog(String paymentMethod) async {
+  Future<void> showOtherPaymentDialog(String paymentMethod, BuildContext context) async {
+    if (context.mounted) Navigator.of(context).pop();
     _paymentMethod = paymentMethod;
     cashController.text = "";
 
@@ -529,63 +531,94 @@ class _CartState extends State<Cart> {
           title: const Text('Payment Method'),
           children: [
             SizedBox(
-              height: MediaQuery.of(context).size.height * 0.45,
-              width: MediaQuery.of(context).size.height * 0.5,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical:5, horizontal: 20),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: showCashPaymentDialog,
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text('Cash'),
+              height: MediaQuery.of(context).size.height * 0.5,
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 50),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: double.infinity,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: FilledButton.tonal(
+                            style: FilledButton.styleFrom(
+                                shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(Radius.circular(10))
+                                )
+                            ),
+                            onPressed: () => showCashPaymentDialog(context),
+                            child: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text('Cash', style: TextStyle(fontSize: 24),),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical:5, horizontal: 20),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: () => showOtherPaymentDialog("GCash"),
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text('GCash'),
+                    Expanded(
+                      child: SizedBox(
+                        height: double.infinity,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: FilledButton.tonal(
+                            style: FilledButton.styleFrom(
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(10))
+                              )
+                            ),
+                            onPressed: () => showOtherPaymentDialog("GCash", context),
+                            child: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text('GCash', style: TextStyle(fontSize: 24),),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical:5, horizontal: 20),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: () => showOtherPaymentDialog("Foodpanda"),
-                        child: const Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Text('Foodpanda'),
+                    Expanded(
+                      child: SizedBox(
+                        height: double.infinity,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: FilledButton.tonal(
+                            style: FilledButton.styleFrom(
+                                shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(Radius.circular(10))
+                                )
+                            ),
+                            onPressed: () => showOtherPaymentDialog("Foodpanda", context),
+                            child: const Padding(
+                              padding: EdgeInsets.all(10),
+                              child: Text('Foodpanda', style: TextStyle(fontSize: 24),),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical:5, horizontal: 20),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: () => showOtherPaymentDialog("Grab"),
-                        child: const Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Text('Grab'),
+                    Expanded(
+                      child: SizedBox(
+                        height: double.infinity,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: FilledButton.tonal(
+                            style: FilledButton.styleFrom(
+                                shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(Radius.circular(10))
+                                )
+                            ),
+                            onPressed: () => showOtherPaymentDialog("Grab", context),
+                            child: const Padding(
+                              padding: EdgeInsets.all(10),
+                              child: Text('Grab', style: TextStyle(fontSize: 24),),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             )
           ],
@@ -599,16 +632,6 @@ class _CartState extends State<Cart> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(15, 15, 15, 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text('Transaction ID: $_transactionID'),
-            ],
-          ),
-        ),
         const CartHeader(),
         Expanded(
           child: ListView(
