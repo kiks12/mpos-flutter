@@ -75,8 +75,9 @@ class _CartState extends State<Cart> {
   }
 
   Widget _itemProductBuilder(Product product, int index) {
-    return ListTile(
-      title: GestureDetector(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: GestureDetector(
         onTap: () {
           showRemoveProductDialog(product, index);
         },
@@ -212,8 +213,10 @@ class _CartState extends State<Cart> {
   }
 
   Widget _itemPackageBuilder(PackagedProduct package, int index) {
-    return ListTile(
-      title: Column(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           GestureDetector(
             onTap: () async {
@@ -221,32 +224,39 @@ class _CartState extends State<Cart> {
               widget.calculateTotal();
               setState(() {});
             },
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    package.name,
-                    textAlign: TextAlign.center,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      package.name,
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                ),
-                const Expanded(
-                  child: Text(""),
-                ),
-                Expanded(
-                  child: Text(
-                    package.quantity.toString(),
-                    textAlign: TextAlign.center,
+                  const Expanded(
+                    child: Text(""),
                   ),
-                ),
-                Expanded(
-                  child: Text(
-                    NumberFormat.currency(symbol: '₱')
-                        .format(package.price),
-                    textAlign: TextAlign.center,
+                  Expanded(
+                    child: Text(
+                      package.quantity.toString(),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                ),
-              ],
+                  Expanded(
+                    child: Text(
+                      NumberFormat.currency(symbol: '₱')
+                          .format(package.price),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
             ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 60),
+            child: Icon(Icons.keyboard_arrow_down, size: 18, color: Theme.of(context).colorScheme.primary,),
           ),
           for (var product in package.productsList) Row(
             children: [
