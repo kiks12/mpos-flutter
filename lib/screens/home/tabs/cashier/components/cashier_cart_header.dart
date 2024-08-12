@@ -7,12 +7,12 @@ class CartHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Padding(
-      padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
+      padding: EdgeInsets.only(top: 15),
       child: Row(
         children: <Widget>[
           Expanded(
             child: Text(
-              'Name',
+              'NAME',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 15,
@@ -32,7 +32,7 @@ class CartHeader extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              'Price',
+              'PRICE',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 15,
@@ -42,7 +42,7 @@ class CartHeader extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              'Total',
+              'TOTAL',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 15,
