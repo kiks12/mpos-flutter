@@ -147,7 +147,13 @@ class _CashierGridProductItemState extends State<CashierGridProductItem> {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.secondaryContainer,
               ),
-              child: Center(child: Flexible(child: Text(widget.product.name))),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(child: Text(widget.product.name)),
+                ],
+              ),
             )
           ),
           Padding(

@@ -52,7 +52,13 @@ class _CashierGridPackageItemState extends State<CashierGridPackageItem> {
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.secondaryContainer,
                 ),
-                child: Center(child: Flexible(child: Text(widget.package.name))),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(child: Text(widget.package.name)),
+                  ],
+                ),
               )
           ),
           // Padding(
