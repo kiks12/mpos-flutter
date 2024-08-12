@@ -50,6 +50,7 @@ class _CashierScreenState extends State<CashierScreen> {
   void refresh() {
     initializeCategories();
     _selectedCategory = "All";
+    quantityController.text = "1";
     initializeDiscounts();
     initializeProductStream("All");
     initializePackageStream("All");
@@ -434,6 +435,12 @@ class _CashierScreenState extends State<CashierScreen> {
 
   void addToCart(Product product) {
     final quantity = int.parse(quantityController.text);
+
+    if (quantity == 0) {
+      Fluttertoast.showToast(msg: "Invalid quantity of 0");
+      return;
+    }
+
     Product newProduct = Product(
       name: product.name,
       category: product.category,
@@ -482,7 +489,7 @@ class _CashierScreenState extends State<CashierScreen> {
       body: Row(
         children: <Widget>[
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.59,
+            width: MediaQuery.of(context).size.width * 0.57,
             height: MediaQuery.of(context).size.height,
             child: Column(
               children: [
@@ -497,7 +504,7 @@ class _CashierScreenState extends State<CashierScreen> {
                   packageList: _packageList,
                   categoriesList: _categoriesList,
                   selectedCategory: _selectedCategory,
-                  quantity: int.parse(quantityController.text),
+                  quantity: quantityController.text != "" ? int.parse(quantityController.text) : 0,
                   addToCart: addToCart,
                   addPackageToCart: addPackageToCart,
                   setSelectedCategory: setSelectedCategory,
@@ -512,7 +519,7 @@ class _CashierScreenState extends State<CashierScreen> {
               ),
             ),
             child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.4,
+              width: MediaQuery.of(context).size.width * 0.428,
               height: MediaQuery.of(context).size.height,
               child: Cart(
                 products: _productList,
