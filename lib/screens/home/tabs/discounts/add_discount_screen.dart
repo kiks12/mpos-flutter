@@ -155,6 +155,7 @@ class _AddDiscountScreenState extends State<AddDiscountScreen> with TickerProvid
                       child: Column(
                         children: [
                           TabBar(
+                            isScrollable: true,
                             controller: _categoriesTabController,
                             tabs: _categories.map((e) => Padding(
                               padding: const EdgeInsets.symmetric(vertical:10),
