@@ -34,6 +34,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final TextEditingController quantityTextController =
       TextEditingController(text: '0');
 
+  bool _withVariant = false;
   int _totalPrice = 0;
   final List<DateTime> _expirationDates = [];
   final TextEditingController categoryTextController = TextEditingController();
@@ -54,6 +55,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     quantityTextController.text = widget.product.quantity.toString();
     _selectedCategory = widget.product.category;
     _totalPrice = widget.product.totalPrice;
+    _withVariant = widget.product.withVariant;
     _categories = _getCategories();
     _categories.add("Other");
     _imageFile = File(widget.product.image);
@@ -76,12 +78,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
     productToUpdate.totalPrice = _totalPrice;
     productToUpdate.category = (_selectedCategory == "Other") ? categoryTextController.text : _selectedCategory;
     productToUpdate.image = _imageFile != null ? _imageFile!.path : "";
+    productToUpdate.withVariant = _withVariant;
 
     objectBox.productBox.put(productToUpdate);
     Fluttertoast.showToast(msg: "Successfully updated product information");
 
-    Navigator.of(context).pop();
-    Navigator.of(context).pop();
+    if (context.mounted){
+      Navigator.of(context).pop();
+      Navigator.of(context).pop();
+    }
   }
 
   void _calculateTotalPrice() {
@@ -146,6 +151,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
   }
 
+  void withVariantOnChange() {
+    _withVariant = !_withVariant;
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -194,6 +204,19 @@ class _EditProductScreenState extends State<EditProductScreen> {
                             vertical: 20, horizontal: 20),
                         isPassword: false,
                       ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: GestureDetector(
+                          onTap: withVariantOnChange,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Checkbox(value: _withVariant, onChanged: (e) => withVariantOnChange()),
+                              const Text("Product with Variants")
+                            ],
+                          ),
+                        ),
+                      )
                     ],
                   ),
                 ),
