@@ -93,7 +93,7 @@
     },
     {
       "id": "3:7609166071377999527",
-      "lastPropertyId": "7:2731617400575477411",
+      "lastPropertyId": "8:3221987078862332840",
       "name": "ExpirationDate",
       "properties": [
         {
@@ -137,6 +137,14 @@
           "id": "7:2731617400575477411",
           "name": "expired",
           "type": 6
+        },
+        {
+          "id": "8:3221987078862332840",
+          "name": "productVariantExpId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "13:960577631701037221",
+          "relationTarget": "ProductVariant"
         }
       ],
       "relations": []
@@ -178,7 +186,7 @@
     },
     {
       "id": "5:2830015116701122859",
-      "lastPropertyId": "11:7533005177132522246",
+      "lastPropertyId": "12:4137858244303070840",
       "name": "Product",
       "properties": [
         {
@@ -216,6 +224,11 @@
           "id": "11:7533005177132522246",
           "name": "image",
           "type": 9
+        },
+        {
+          "id": "12:4137858244303070840",
+          "name": "withVariant",
+          "type": 1
         }
       ],
       "relations": []
@@ -437,10 +450,49 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "14:6355443207001429547",
+      "lastPropertyId": "6:1552759330685171672",
+      "name": "ProductVariant",
+      "properties": [
+        {
+          "id": "1:5832032162813296282",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:2933516018572328192",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "3:7008105982253631671",
+          "name": "unitPrice",
+          "type": 6
+        },
+        {
+          "id": "4:4932520030648744015",
+          "name": "quantity",
+          "type": 6
+        },
+        {
+          "id": "5:4373595512668159438",
+          "name": "totalPrice",
+          "type": 6
+        },
+        {
+          "id": "6:1552759330685171672",
+          "name": "image",
+          "type": 9
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "13:8023086937475326880",
-  "lastIndexId": "12:3382676662649577342",
+  "lastEntityId": "14:6355443207001429547",
+  "lastIndexId": "13:960577631701037221",
   "lastRelationId": "5:4855441743212386096",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
