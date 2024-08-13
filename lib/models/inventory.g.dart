@@ -17,6 +17,26 @@ Map<String, dynamic> _$ImageProductToJson(ImageProduct instance) =>
       'path': instance.path,
     };
 
+ProductVariant _$ProductVariantFromJson(Map<String, dynamic> json) =>
+    ProductVariant(
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      name: json['name'] as String,
+      unitPrice: (json['unitPrice'] as num).toInt(),
+      quantity: (json['quantity'] as num).toInt(),
+      totalPrice: (json['totalPrice'] as num).toInt(),
+      image: json['image'] as String,
+    );
+
+Map<String, dynamic> _$ProductVariantToJson(ProductVariant instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'unitPrice': instance.unitPrice,
+      'quantity': instance.quantity,
+      'totalPrice': instance.totalPrice,
+      'image': instance.image,
+    };
+
 Product _$ProductFromJson(Map<String, dynamic> json) => Product(
       id: (json['id'] as num?)?.toInt() ?? 0,
       name: json['name'] as String,
@@ -25,6 +45,7 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
       quantity: (json['quantity'] as num).toInt(),
       totalPrice: (json['totalPrice'] as num).toInt(),
       image: json['image'] as String,
+      withVariant: json['withVariant'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
@@ -33,6 +54,7 @@ Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
       'category': instance.category,
       'unitPrice': instance.unitPrice,
       'quantity': instance.quantity,
+      'withVariant': instance.withVariant,
       'totalPrice': instance.totalPrice,
       'image': instance.image,
     };

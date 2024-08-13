@@ -29,12 +29,32 @@ class ImageProduct {
 
 @Entity()
 @JsonSerializable()
+class ProductVariant {
+  int id = 0;
+  String name;
+  int unitPrice;
+  int quantity;
+  int totalPrice;
+  String image;
+
+  @Backlink('productVariantExp')
+  final expirationDates = ToMany<ExpirationDate>();
+
+  factory ProductVariant.fromJson(Map<String, dynamic> json) => _$ProductVariantFromJson(json);
+  Map<String, dynamic> toJson() => _$ProductVariantToJson(this);
+
+  ProductVariant({this.id = 0, required this.name, required this.unitPrice, required this.quantity, required this.totalPrice, required this.image});
+}
+
+@Entity()
+@JsonSerializable()
 class Product {
   int id = 0;
   String name;
   String category;
   int unitPrice;
   int quantity;
+  bool withVariant;
   int totalPrice;
   String image;
 
@@ -49,6 +69,7 @@ class Product {
     'name': name,
     'image': image,
     'category': category,
+    'withVariant': withVariant,
     'unitPrice': unitPrice,
     'quantity': quantity,
     'totalPrice': totalPrice
@@ -62,6 +83,7 @@ class Product {
     quantity: json['quantity'],
     totalPrice: json['totalPrice'],
     image: json['image'],
+    withVariant: json['withVariant'],
   );
 
   factory Product.fromJsonSerial(Map<String, dynamic> json) => _$ProductFromJson(json);
@@ -75,6 +97,7 @@ class Product {
     required this.quantity,
     required this.totalPrice,
     required this.image,
+    this.withVariant = false,
   });
 
   @override
