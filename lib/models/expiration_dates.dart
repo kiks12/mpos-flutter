@@ -13,6 +13,7 @@ class ExpirationDate {
   int id = 0;
 
   final productExp = ToOne<Product>();
+  final productVariantExp = ToOne<ProductVariant>();
   final ingredient = ToOne<Ingredient>();
 
   DateTime date;
