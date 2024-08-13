@@ -20,6 +20,7 @@ class ObjectBox {
   late final Box<Discount> discountBox;
   late final Box<PackagedProduct> packagedProductBox;
   late final Box<ImageProduct> imageBox;
+  late final Box<ProductVariant> productVariantBox;
 
   ObjectBox._create(this.store) {
     accountBox = store.box<Account>();
@@ -32,6 +33,7 @@ class ObjectBox {
     discountBox = store.box<Discount>();
     packagedProductBox = store.box<PackagedProduct>();
     imageBox = store.box<ImageProduct>();
+    productVariantBox = store.box<ProductVariant>();
   }
 
   static Future<ObjectBox> create() async {

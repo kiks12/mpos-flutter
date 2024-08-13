@@ -37,6 +37,8 @@ class ProductVariant {
   int totalPrice;
   String image;
 
+  final product = ToOne<Product>();
+
   @Backlink('productVariantExp')
   final expirationDates = ToMany<ExpirationDate>();
 
@@ -57,6 +59,9 @@ class Product {
   bool withVariant;
   int totalPrice;
   String image;
+
+  @Backlink('product')
+  final variants = ToMany<ProductVariant>();
 
   @Backlink('product')
   final ingredients = ToMany<Ingredient>();

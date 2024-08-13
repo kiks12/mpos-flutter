@@ -453,7 +453,7 @@
     },
     {
       "id": "14:6355443207001429547",
-      "lastPropertyId": "6:1552759330685171672",
+      "lastPropertyId": "7:9070112768618690542",
       "name": "ProductVariant",
       "properties": [
         {
@@ -486,13 +486,21 @@
           "id": "6:1552759330685171672",
           "name": "image",
           "type": 9
+        },
+        {
+          "id": "7:9070112768618690542",
+          "name": "productId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "14:2668517202695705059",
+          "relationTarget": "Product"
         }
       ],
       "relations": []
     }
   ],
   "lastEntityId": "14:6355443207001429547",
-  "lastIndexId": "13:960577631701037221",
+  "lastIndexId": "14:2668517202695705059",
   "lastRelationId": "5:4855441743212386096",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
