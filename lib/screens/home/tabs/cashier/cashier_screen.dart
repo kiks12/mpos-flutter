@@ -460,7 +460,7 @@ class _CashierScreenState extends State<CashierScreen> {
 
     try {
       int prodIdx = _cartList.indexOf(
-          _cartList.firstWhere((element) => element.id == newProduct.id));
+          _cartList.firstWhere((element) => element.name == newProduct.name));
       _cartList[prodIdx].quantity += quantity;
       _cartList[prodIdx].totalPrice =
           _cartList[prodIdx].quantity * newProduct.unitPrice;
@@ -475,7 +475,12 @@ class _CashierScreenState extends State<CashierScreen> {
   }
 
   void removeProductFromCart(Product product, int index) {
+    final variantName = product.name.split("---").last;
     final removedProduct = _productList.firstWhere((element) => element.id == product.id);
+    if (removedProduct.withVariant) {
+      final removedVariant = removedProduct.variants.firstWhere((element) => element.name == variantName);
+      removedVariant.quantity += product.quantity;
+    }
     removedProduct.quantity += product.quantity;
     _cartList.removeAt(index);
     calculateSubTotal();
