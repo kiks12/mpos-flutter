@@ -85,8 +85,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
       name: nameTextController.text,
       category: (_selectedCategory == "Other") ? categoryTextController.text : _selectedCategory,
       unitPrice: int.parse(unitPriceTextController.text),
-      quantity: int.parse(quantityTextController.text),
-      totalPrice: _totalPrice,
+      quantity: _withVariant ? _variants.fold(0, (prev, curr) => prev + int.parse(curr.quantityController.text)) : int.parse(quantityTextController.text),
+      totalPrice: _withVariant ? _variants.fold(0, (prev, curr) => prev + int.parse(curr.totalPriceController.text)): _totalPrice,
       image: _imageFile != null ? _imageFile!.path : "",
       withVariant: _withVariant,
     );

@@ -121,8 +121,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
         objectBox.productBox.get(widget.product.id) as Product;
 
     productToUpdate.name = nameTextController.text;
+    productToUpdate.quantity = _withVariant ? _variants.fold(0, (prev, curr) => prev + int.parse(curr.quantityController.text)): int.parse(quantityTextController.text);
     productToUpdate.unitPrice = int.parse(unitPriceTextController.text);
-    productToUpdate.totalPrice = _totalPrice;
+    productToUpdate.totalPrice = _withVariant ? _variants.fold(0, (prev, curr) => prev + int.parse(curr.totalPriceController.text)): _totalPrice;
     productToUpdate.category = (_selectedCategory == "Other") ? categoryTextController.text : _selectedCategory;
     productToUpdate.image = _imageFile != null ? _imageFile!.path : "";
     productToUpdate.withVariant = _withVariant;
@@ -350,7 +351,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           isNumber: true,
                         ),
                         TextFormFieldWithLabel(
-                          readOnly: true,
+                          readOnly: false,
                           label: 'Quantity',
                           controller: quantityTextController,
                           padding: const EdgeInsets.symmetric(
