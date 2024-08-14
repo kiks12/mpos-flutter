@@ -19,7 +19,7 @@ class TransactionsScreen extends StatefulWidget {
 }
 
 class _TransactionsScreenState extends State<TransactionsScreen> {
-  late Stream<Query<Transaction>> attendanceStream;
+  late Stream<Query<Transaction>> transactionsStream;
   List<Transaction> _transactionList = [];
   List<Transaction> _backupTransactionList = [];
 
