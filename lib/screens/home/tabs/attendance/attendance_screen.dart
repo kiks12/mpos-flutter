@@ -28,7 +28,9 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   @override
   void initState() {
     super.initState();
+    _selectedDate = DateTime.now();
     initializeAttendanceStream();
+    _filter();
   }
 
   @override
@@ -59,7 +61,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   void refresh() {
     _listController = StreamController(sync: true);
     initializeAttendanceStream();
-    _selectedDate = null;
+    _selectedDate = DateTime.now();
+    _filter();
     setState(() {});
   }
 
