@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:mpos/models/inventory.dart';
+import 'package:mpos/screens/home/tabs/cashier/components/cashier_variant_selector.dart';
 
 class CashierGridProductItem extends StatefulWidget {
   const CashierGridProductItem({Key? key, required this.product, required this.addToCart, required this.quantity}) : super(key: key);
@@ -130,13 +131,24 @@ class _CashierGridProductItemState extends State<CashierGridProductItem> {
     return;
   }
 
+  void productItemOnTap() {
+    if (!widget.product.withVariant) return addToCart();
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return CashierVariantSelector(product: widget.product, addToCart: widget.addToCart, quantity: widget.quantity,);
+      }
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // final file = File(widget.product.image);
     // final bool fileExists = file.existsSync();
 
     return GestureDetector(
-      onTap: widget.product.quantity == 0 ? showInsufficientStockToast : addToCart,
+      onTap: widget.product.quantity == 0 ? showInsufficientStockToast : productItemOnTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
