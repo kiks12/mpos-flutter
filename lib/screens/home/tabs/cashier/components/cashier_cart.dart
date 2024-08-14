@@ -307,6 +307,7 @@ class _CartState extends State<Cart> {
   }
 
   void calculateChange(String str) {
+    if (cashController.text.isEmpty) return;
     _change = int.parse(cashController.text) - (widget.total - widget.discount.toInt());
     setState(() {});
   }
@@ -336,6 +337,13 @@ class _CartState extends State<Cart> {
     newTransaction.user.target = widget.currentAccount as Account;
     for (var product in widget.cartList) {
       Product updateProduct = objectBox.productBox.get(product.id) as Product;
+      if (updateProduct.withVariant) {
+        final variantName = product.name.split("---").last;
+        ProductVariant updateVariant = updateProduct.variants.firstWhere((element) => element.name == variantName);
+        updateVariant.quantity = updateVariant.quantity - product.quantity;
+        updateVariant.totalPrice = updateVariant.quantity * updateVariant.unitPrice;
+        objectBox.productVariantBox.put(updateVariant);
+      }
       updateProduct.quantity = updateProduct.quantity - product.quantity;
       updateProduct.totalPrice = updateProduct.quantity * product.unitPrice;
       objectBox.productBox.put(updateProduct);
