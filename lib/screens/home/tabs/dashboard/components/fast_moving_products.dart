@@ -130,7 +130,7 @@ class _FastMovingProductsState extends State<FastMovingProducts> {
           child: Container(
             constraints: BoxConstraints(
               minHeight: MediaQuery.of(context).size.height * 0.90,
-              maxHeight: MediaQuery.of(context).size.height * 0.90,
+              maxHeight: MediaQuery.of(context).size.height * 1,
             ),
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
