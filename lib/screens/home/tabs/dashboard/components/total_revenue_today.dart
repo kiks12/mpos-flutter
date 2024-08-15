@@ -23,6 +23,9 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
   double _salesGrowth = 0;
   final NumberFormat currencyFormatter = NumberFormat.currency(symbol: "₱");
   final NumberFormat percentFormatter = NumberFormat.percentPattern();
+  List<String> items = ["Now", "Specific"];
+  String _dropdownValue = "Now";
+  DateTime _selectedDate = DateTime.now();
 
   List<Sales> threeDaySpanDataSource = [];
 
@@ -31,12 +34,12 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
     super.initState();
     initializeRevenueData();
     initializeSalesGrowthData();
-    initializeRevenues();
+    initializeThreeDayData();
   }
 
   void initializeRevenueData() {
     final transactionQueryBuilder = objectBox.transactionBox.query(Transaction_.date
-        .equals(DateTime.parse(DateFormat('yyyy-MM-dd').format(DateTime.now()))
+        .equals(DateTime.parse(DateFormat('yyyy-MM-dd').format(_selectedDate))
             .millisecondsSinceEpoch));
     final transactionQuery = transactionQueryBuilder.build();
     final transactions = transactionQuery.find();
@@ -52,8 +55,8 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
   void initializeSalesGrowthData() {
     final transactionYesterdayQueryBuilder = objectBox.transactionBox.query(
         Transaction_.date.equals(DateTime.parse(DateFormat('yyyy-MM-dd').format(
-                DateTime(DateTime.now().year, DateTime.now().month,
-                    DateTime.now().day - 1)))
+                DateTime(_selectedDate.year, _selectedDate.month,
+                    _selectedDate.day - 1)))
             .millisecondsSinceEpoch));
     final transactionYesterdayQuery = transactionYesterdayQueryBuilder.build();
 
@@ -66,34 +69,67 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
     setState(() {});
   }
 
-  void initializeRevenues() {
+  void initializeThreeDayData() {
+    threeDaySpanDataSource = [];
     final transactionLastTwoDaysAgoQueryBuilder = objectBox.transactionBox.query(
         Transaction_.date.equals(DateTime.parse(DateFormat('yyyy-MM-dd').format(
-                DateTime(DateTime.now().year, DateTime.now().month,
-                    DateTime.now().day - 2)))
+                DateTime(_selectedDate.year, _selectedDate.month,
+                    _selectedDate.day - 2)))
             .millisecondsSinceEpoch));
     final transactionLastTwoDaysAgoQuery =
         transactionLastTwoDaysAgoQueryBuilder.build();
     final revenueLastTwoDaysAgo =
         transactionLastTwoDaysAgoQuery.property(Transaction_.totalAmount).sum();
-    final now = DateTime.now();
+    final selectedDate = _selectedDate;
 
     threeDaySpanDataSource.add(
       Sales(
           DateFormat('yyyy-MM-dd')
-              .format(DateTime(now.year, now.month, now.day - 2)),
+              .format(DateTime(selectedDate.year, selectedDate.month, selectedDate.day - 2)),
           revenueLastTwoDaysAgo),
     );
     threeDaySpanDataSource.add(
       Sales(
           DateFormat('yyyy-MM-dd')
-              .format(DateTime(now.year, now.month, now.day - 1)),
+              .format(DateTime(selectedDate.year, selectedDate.month, selectedDate.day - 1)),
           _totalRevenueYesterday),
     );
     threeDaySpanDataSource.add(
-      Sales(DateFormat('yyyy-MM-dd').format(now), _totalRevenueToday),
+      Sales(DateFormat('yyyy-MM-dd').format(selectedDate), _totalRevenueToday),
     );
     setState(() {});
+  }
+
+  void dropdownOnChange(String newValue) {
+    _dropdownValue = newValue;
+    setState(() {});
+
+    if (newValue == "Now") {
+      _selectedDate = DateTime.now();
+      initializeRevenueData();
+      initializeSalesGrowthData();
+      initializeThreeDayData();
+      setState(() {});
+      return;
+    }
+  }
+
+  _selectDate(BuildContext context) async {
+    final DateTime? selected = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2010),
+      lastDate: DateTime(2025),
+    );
+
+    if (selected != null && selected != _selectedDate) {
+      _selectedDate = selected;
+      setState(() {});
+    }
+
+    initializeRevenueData();
+    initializeSalesGrowthData();
+    initializeThreeDayData();
   }
 
   @override
@@ -104,6 +140,67 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
         width: MediaQuery.of(context).size.width * 0.45,
         child: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: Container(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height * 0.05,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.white,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text("Date Type"),
+                                SizedBox(
+                                  width: 150,
+                                  child: DropdownButton<String>(
+                                    isExpanded: true,
+                                    value: _dropdownValue,
+                                    onChanged: (String? newValue) {
+                                      dropdownOnChange(newValue as String);
+                                    },
+                                    items: items.map<DropdownMenuItem<String>>((String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(_selectedDate.toString()),
+                                FilledButton.tonalIcon(
+                                  icon: const Icon(Icons.date_range),
+                                  onPressed: (_dropdownValue == "Specific") ? () => _selectDate(context) : null,
+                                  label: const Text('Select Date'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
             Row(
               children: [
                 Expanded(
