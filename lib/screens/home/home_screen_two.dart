@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mpos/components/copyright.dart';
 import 'package:mpos/components/header_one.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/account.dart';
@@ -193,13 +194,17 @@ class _HomeScreenTwoState extends State<HomeScreenTwo> with SingleTickerProvider
                   itemCount: cardDataEmployee.length,
                 ),
               ),
+              const Padding(padding: EdgeInsets.symmetric(vertical: 12)),
+              const Copyright(),
             ] : [
               const HeaderOne(padding: EdgeInsets.zero, text: "Internet not Available"),
               Text("Connection Result: $_connectionStatus"),
               Text("Server Account: $_serverAccount"),
               const Text("Logout your server account to continue without internet connection"),
               const Padding(padding: EdgeInsets.symmetric(vertical: 15)),
-              FilledButton(onPressed: logoutServerAccount, child: const Text("Logout"))
+              FilledButton(onPressed: logoutServerAccount, child: const Text("Logout")),
+              const Padding(padding: EdgeInsets.symmetric(vertical: 12)),
+              const Copyright(),
             ],
           ),
         ),

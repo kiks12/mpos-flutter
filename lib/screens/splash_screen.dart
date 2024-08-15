@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:mpos/components/copyright.dart';
 import 'package:mpos/components/header_one.dart';
 import 'package:mpos/models/object_box.dart';
-// import 'package:mpos/screens/home/home_screen.dart';
 import 'package:mpos/screens/home/home_screen_two.dart';
 import 'package:mpos/screens/login_screen.dart';
 
@@ -59,9 +59,23 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: SafeArea(
         child: Center(
-          child: HeaderOne(
-            padding: const EdgeInsets.all(0),
-            text: '${widget.storeName} MPOS',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                flex: 3,
+                child: Center(
+                  child: HeaderOne(
+                    padding: const EdgeInsets.all(0),
+                    text: '${widget.storeName} MPOS',
+                  ),
+                ),
+              ),
+              // const Padding(padding: EdgeInsets.symmetric(vertical: 100)),
+              const Copyright(),
+              const Padding(padding: EdgeInsets.symmetric(vertical: 20)),
+            ],
           ),
         ),
       ),
