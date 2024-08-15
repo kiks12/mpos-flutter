@@ -207,7 +207,7 @@ class _RevenueChartState extends State<RevenueChart> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
       child: Container(
         padding: const EdgeInsets.all(15),
         constraints: BoxConstraints(
@@ -217,13 +217,13 @@ class _RevenueChartState extends State<RevenueChart> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: Colors.white,
-          boxShadow: const <BoxShadow>[
-            BoxShadow(
-              blurRadius: 7,
-              color: Color.fromARGB(255, 216, 216, 216),
-              offset: Offset(0, 10),
-            )
-          ],
+          // boxShadow: const <BoxShadow>[
+          //   BoxShadow(
+          //     blurRadius: 7,
+          //     color: Color.fromARGB(255, 216, 216, 216),
+          //     offset: Offset(0, 10),
+          //   )
+          // ],
         ),
         child: Column(
           children: [

@@ -27,16 +27,16 @@ class _RevenueSplitFiguresState extends State<RevenueSplitFigures> {
               border: Border(
                 left: BorderSide(
                   width: 5, color: Theme.of(context).colorScheme.primary
-                )
+                ),
               ),
               borderRadius: BorderRadius.circular(10),
-              boxShadow: const <BoxShadow>[
-                BoxShadow(
-                  blurRadius: 7,
-                  color: Color.fromARGB(255, 216, 216, 216),
-                  offset: Offset(0, 10),
-                )
-              ],
+              // boxShadow: const <BoxShadow>[
+              //   BoxShadow(
+              //     blurRadius: 7,
+              //     color: Color.fromARGB(255, 216, 216, 216),
+              //     offset: Offset(0, 10),
+              //   )
+              // ],
             ),
             padding: const EdgeInsets.all(10),
             child: Row(
@@ -48,7 +48,7 @@ class _RevenueSplitFiguresState extends State<RevenueSplitFigures> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5),
+            padding: const EdgeInsets.symmetric(vertical: 10),
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -59,13 +59,13 @@ class _RevenueSplitFiguresState extends State<RevenueSplitFigures> {
                     )
                 ),
                 borderRadius: BorderRadius.circular(10),
-                boxShadow: const <BoxShadow>[
-                  BoxShadow(
-                    blurRadius: 7,
-                    color: Color.fromARGB(255, 216, 216, 216),
-                    offset: Offset(0, 10),
-                  )
-                ],
+                // boxShadow: const <BoxShadow>[
+                //   BoxShadow(
+                //     blurRadius: 7,
+                //     color: Color.fromARGB(255, 216, 216, 216),
+                //     offset: Offset(0, 10),
+                //   )
+                // ],
               ),
               padding: const EdgeInsets.all(10),
               child: Row(
@@ -87,13 +87,13 @@ class _RevenueSplitFiguresState extends State<RevenueSplitFigures> {
                   )
               ),
               borderRadius: BorderRadius.circular(10),
-              boxShadow: const <BoxShadow>[
-                BoxShadow(
-                  blurRadius: 7,
-                  color: Color.fromARGB(255, 216, 216, 216),
-                  offset: Offset(0, 10),
-                )
-              ],
+              // boxShadow: const <BoxShadow>[
+              //   BoxShadow(
+              //     blurRadius: 7,
+              //     color: Color.fromARGB(255, 216, 216, 216),
+              //     offset: Offset(0, 10),
+              //   )
+              // ],
             ),
             padding: const EdgeInsets.all(10),
             child: Row(
@@ -105,7 +105,7 @@ class _RevenueSplitFiguresState extends State<RevenueSplitFigures> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5),
+            padding: const EdgeInsets.symmetric(vertical: 10),
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -116,13 +116,13 @@ class _RevenueSplitFiguresState extends State<RevenueSplitFigures> {
                     )
                 ),
                 borderRadius: BorderRadius.circular(10),
-                boxShadow: const <BoxShadow>[
-                  BoxShadow(
-                    blurRadius: 7,
-                    color: Color.fromARGB(255, 216, 216, 216),
-                    offset: Offset(0, 10),
-                  )
-                ],
+                // boxShadow: const <BoxShadow>[
+                //   BoxShadow(
+                //     blurRadius: 7,
+                //     color: Color.fromARGB(255, 216, 216, 216),
+                //     offset: Offset(0, 10),
+                //   )
+                // ],
               ),
               padding: const EdgeInsets.all(10),
               child: Row(

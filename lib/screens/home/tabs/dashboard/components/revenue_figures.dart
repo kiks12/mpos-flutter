@@ -108,12 +108,12 @@ class _RevenueFiguresState extends State<RevenueFigures> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(5, 10, 5, 0),
+      padding: const EdgeInsets.fromLTRB(10, 20, 10, 0),
       child: Row(
         children: [
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(right: 5),
+              padding: const EdgeInsets.only(right: 10),
               child: Container(
                 padding: const EdgeInsets.all(15),
                 constraints: BoxConstraints(
@@ -122,13 +122,13 @@ class _RevenueFiguresState extends State<RevenueFigures> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   color: Colors.white,
-                  boxShadow: const <BoxShadow>[
-                    BoxShadow(
-                      blurRadius: 7,
-                      color: Color.fromARGB(255, 216, 216, 216),
-                      offset: Offset(0, 10),
-                    )
-                  ],
+                  // boxShadow: const <BoxShadow>[
+                  //   BoxShadow(
+                  //     blurRadius: 7,
+                  //     color: Color.fromARGB(255, 216, 216, 216),
+                  //     offset: Offset(0, 10),
+                  //   )
+                  // ],
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -149,7 +149,7 @@ class _RevenueFiguresState extends State<RevenueFigures> {
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Container(
                 padding: const EdgeInsets.all(15),
                 constraints: BoxConstraints(
@@ -158,13 +158,13 @@ class _RevenueFiguresState extends State<RevenueFigures> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   color: Colors.white,
-                  boxShadow: const <BoxShadow>[
-                    BoxShadow(
-                      blurRadius: 7,
-                      color: Color.fromARGB(255, 216, 216, 216),
-                      offset: Offset(0, 10),
-                    )
-                  ],
+                  // boxShadow: const <BoxShadow>[
+                  //   BoxShadow(
+                  //     blurRadius: 7,
+                  //     color: Color.fromARGB(255, 216, 216, 216),
+                  //     offset: Offset(0, 10),
+                  //   )
+                  // ],
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -185,7 +185,7 @@ class _RevenueFiguresState extends State<RevenueFigures> {
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(left: 5),
+              padding: const EdgeInsets.only(left: 10),
               child: Container(
                 padding: const EdgeInsets.all(15),
                 constraints: BoxConstraints(
@@ -194,13 +194,13 @@ class _RevenueFiguresState extends State<RevenueFigures> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   color: Colors.white,
-                  boxShadow: const <BoxShadow>[
-                    BoxShadow(
-                      blurRadius: 7,
-                      color: Color.fromARGB(255, 216, 216, 216),
-                      offset: Offset(0, 10),
-                    )
-                  ],
+                  // boxShadow: const <BoxShadow>[
+                  //   BoxShadow(
+                  //     blurRadius: 7,
+                  //     color: Color.fromARGB(255, 216, 216, 216),
+                  //     offset: Offset(0, 10),
+                  //   )
+                  // ],
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,

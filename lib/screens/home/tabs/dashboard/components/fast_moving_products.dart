@@ -126,7 +126,7 @@ class _FastMovingProductsState extends State<FastMovingProducts> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Container(
             constraints: BoxConstraints(
               minHeight: MediaQuery.of(context).size.height * 0.90,
@@ -136,13 +136,13 @@ class _FastMovingProductsState extends State<FastMovingProducts> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               color: Colors.white,
-              boxShadow: const <BoxShadow>[
-                BoxShadow(
-                  blurRadius: 7,
-                  color: Color.fromARGB(255, 216, 216, 216),
-                  offset: Offset(0, 10),
-                )
-              ],
+              // boxShadow: const <BoxShadow>[
+              //   BoxShadow(
+              //     blurRadius: 7,
+              //     color: Color.fromARGB(255, 216, 216, 216),
+              //     offset: Offset(0, 10),
+              //   )
+              // ],
             ),
             child: Column(
               children: [

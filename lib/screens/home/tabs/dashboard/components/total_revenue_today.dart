@@ -99,7 +99,7 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: SizedBox(
         width: MediaQuery.of(context).size.width * 0.45,
         child: Column(
@@ -108,7 +108,7 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
               children: [
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(right: 5),
+                    padding: const EdgeInsets.only(right: 10),
                     child: Container(
                       constraints: BoxConstraints(
                         minHeight: MediaQuery.of(context).size.height * 0.18,
@@ -116,13 +116,13 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         color: Colors.white,
-                        boxShadow: const <BoxShadow>[
-                          BoxShadow(
-                            blurRadius: 7,
-                            color: Color.fromARGB(255, 216, 216, 216),
-                            offset: Offset(0, 10),
-                          )
-                        ],
+                        // boxShadow: const <BoxShadow>[
+                        //   BoxShadow(
+                        //     blurRadius: 7,
+                        //     color: Color.fromARGB(255, 216, 216, 216),
+                        //     offset: Offset(0, 10),
+                        //   )
+                        // ],
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(15),
@@ -145,7 +145,7 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
                 ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 5),
+                    padding: const EdgeInsets.only(left: 10),
                     child: Container(
                       constraints: BoxConstraints(
                         minHeight: MediaQuery.of(context).size.height * 0.18,
@@ -153,13 +153,13 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         color: Colors.white,
-                        boxShadow: const <BoxShadow>[
-                          BoxShadow(
-                            blurRadius: 7,
-                            color: Color.fromARGB(255, 216, 216, 216),
-                            offset: Offset(0, 10),
-                          )
-                        ],
+                        // boxShadow: const <BoxShadow>[
+                        //   BoxShadow(
+                        //     blurRadius: 7,
+                        //     color: Color.fromARGB(255, 216, 216, 216),
+                        //     offset: Offset(0, 10),
+                        //   )
+                        // ],
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(15),
@@ -206,12 +206,12 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
               ],
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 10),
+              padding: const EdgeInsets.only(top: 20),
               child: Row(
                 children: [
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(right: 5),
+                      padding: const EdgeInsets.only(right: 10),
                       child: Container(
                         constraints: BoxConstraints(
                           minHeight: MediaQuery.of(context).size.height * 0.10,
@@ -225,13 +225,13 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
                           ),
                           borderRadius: BorderRadius.circular(10),
                           color: Colors.white,
-                          boxShadow: const <BoxShadow>[
-                            BoxShadow(
-                              blurRadius: 7,
-                              color: Color.fromARGB(255, 216, 216, 216),
-                              offset: Offset(0, 10),
-                            )
-                          ],
+                          // boxShadow: const <BoxShadow>[
+                          //   BoxShadow(
+                          //     blurRadius: 7,
+                          //     color: Color.fromARGB(255, 216, 216, 216),
+                          //     offset: Offset(0, 10),
+                          //   )
+                          // ],
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(15),
@@ -253,7 +253,7 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
                   ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Container(
                         constraints: BoxConstraints(
                           minHeight: MediaQuery.of(context).size.height * 0.10,
@@ -267,13 +267,13 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
                           ),
                           borderRadius: BorderRadius.circular(10),
                           color: Colors.white,
-                          boxShadow: const <BoxShadow>[
-                            BoxShadow(
-                              blurRadius: 7,
-                              color: Color.fromARGB(255, 216, 216, 216),
-                              offset: Offset(0, 10),
-                            )
-                          ],
+                          // boxShadow: const <BoxShadow>[
+                          //   BoxShadow(
+                          //     blurRadius: 7,
+                          //     color: Color.fromARGB(255, 216, 216, 216),
+                          //     offset: Offset(0, 10),
+                          //   )
+                          // ],
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(15),
@@ -295,7 +295,7 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
                   ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Container(
                         constraints: BoxConstraints(
                           minHeight: MediaQuery.of(context).size.height * 0.10,
@@ -309,13 +309,13 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
                           ),
                           borderRadius: BorderRadius.circular(10),
                           color: Colors.white,
-                          boxShadow: const <BoxShadow>[
-                            BoxShadow(
-                              blurRadius: 7,
-                              color: Color.fromARGB(255, 216, 216, 216),
-                              offset: Offset(0, 10),
-                            )
-                          ],
+                          // boxShadow: const <BoxShadow>[
+                          //   BoxShadow(
+                          //     blurRadius: 7,
+                          //     color: Color.fromARGB(255, 216, 216, 216),
+                          //     offset: Offset(0, 10),
+                          //   )
+                          // ],
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(15),
@@ -337,7 +337,7 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
                   ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 5),
+                      padding: const EdgeInsets.only(left: 10),
                       child: Container(
                         constraints: BoxConstraints(
                           minHeight: MediaQuery.of(context).size.height * 0.10,
@@ -351,13 +351,13 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
                           ),
                           borderRadius: BorderRadius.circular(10),
                           color: Colors.white,
-                          boxShadow: const <BoxShadow>[
-                            BoxShadow(
-                              blurRadius: 7,
-                              color: Color.fromARGB(255, 216, 216, 216),
-                              offset: Offset(0, 10),
-                            )
-                          ],
+                          // boxShadow: const <BoxShadow>[
+                          //   BoxShadow(
+                          //     blurRadius: 7,
+                          //     color: Color.fromARGB(255, 216, 216, 216),
+                          //     offset: Offset(0, 10),
+                          //   )
+                          // ],
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(15),
@@ -382,18 +382,18 @@ class _TotalRevenueTodayState extends State<TotalRevenueToday> {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(top: 10),
+                padding: const EdgeInsets.only(top: 20),
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     color: Colors.white,
-                    boxShadow: const <BoxShadow>[
-                      BoxShadow(
-                        blurRadius: 7,
-                        color: Color.fromARGB(255, 216, 216, 216),
-                        offset: Offset(0, 10),
-                      )
-                    ],
+                    // boxShadow: const <BoxShadow>[
+                    //   BoxShadow(
+                    //     blurRadius: 7,
+                    //     color: Color.fromARGB(255, 216, 216, 216),
+                    //     offset: Offset(0, 10),
+                    //   )
+                    // ],
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(15),
