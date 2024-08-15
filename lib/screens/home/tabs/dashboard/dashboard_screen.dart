@@ -25,7 +25,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Container(
                 constraints: BoxConstraints(
                   minHeight: MediaQuery.of(context).size.height * 0.75,
-                  maxHeight: MediaQuery.of(context).size.height * 0.90,
+                  maxHeight: MediaQuery.of(context).size.height * 1,
                 ),
                 child: const Column(
                   children: [
