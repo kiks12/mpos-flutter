@@ -32,7 +32,33 @@ class HomeScreenTwo extends StatefulWidget {
   State<HomeScreenTwo> createState() => _HomeScreenTwoState();
 }
 
-final cardData = [
+final cardDataFreeTrial = [
+  CardData(Icons.money, "Cashier", const CashierScreen()),
+  CardData(Icons.inventory, "Inventory", const InventoryScreen()),
+  CardData(Icons.receipt, "Transactions", const TransactionsScreen()),
+  CardData(Icons.settings, "Settings", const SettingsScreen()),
+];
+
+final cardDataBasic = [
+  CardData(Icons.money, "Cashier", const CashierScreen()),
+  CardData(Icons.inventory, "Inventory", const InventoryScreen()),
+  CardData(Icons.discount, "Discounts", const DiscountsScreen()),
+  CardData(Icons.receipt, "Transactions", const TransactionsScreen()),
+  CardData(Icons.settings, "Settings", const SettingsScreen()),
+];
+
+final cardDataPro = [
+  CardData(Icons.money, "Cashier", const CashierScreen()),
+  CardData(Icons.inventory, "Inventory", const InventoryScreen()),
+  CardData(Icons.discount, "Discounts", const DiscountsScreen()),
+  CardData(Icons.receipt, "Transactions", const TransactionsScreen()),
+  CardData(Icons.manage_accounts, "Accounts", const AccountsScreen()),
+  CardData(Icons.supervisor_account, "Attendance", const AttendanceScreen()),
+  CardData(Icons.punch_clock, "Log", const TimeInTimeOutScreen()),
+  CardData(Icons.settings, "Settings", const SettingsScreen()),
+];
+
+final cardDataPremium = [
   CardData(Icons.money, "Cashier", const CashierScreen()),
   CardData(Icons.inventory, "Inventory", const InventoryScreen()),
   CardData(Icons.discount, "Discounts", const DiscountsScreen()),
@@ -44,14 +70,19 @@ final cardData = [
   CardData(Icons.settings, "Settings", const SettingsScreen()),
 ];
 
-final cardDataEmployee = [
-  CardData(Icons.money, "Cashier", const CashierScreen()),
-  CardData(Icons.inventory, "Inventory", const InventoryScreen()),
-  CardData(Icons.discount, "Discounts", const DiscountsScreen()),
-  CardData(Icons.receipt, "Transactions", const TransactionsScreen()),
-  CardData(Icons.punch_clock, "Log", const TimeInTimeOutScreen()),
-  CardData(Icons.settings, "Settings", const SettingsScreen()),
-];
+class CardDataMap {
+  List<CardData> data;
+  int length;
+
+  CardDataMap(this.data, this.length);
+}
+
+final Map<String, CardDataMap> cardDataMap = {
+  "FREE_TRIAL": CardDataMap(cardDataFreeTrial, cardDataFreeTrial.length),
+  "BASIC": CardDataMap(cardDataBasic, cardDataBasic.length),
+  "PRO": CardDataMap(cardDataPro, cardDataPro.length),
+  "PREMIUM": CardDataMap(cardDataPremium, cardDataPremium.length),
+};
 
 class _HomeScreenTwoState extends State<HomeScreenTwo> with SingleTickerProviderStateMixin {
   Account? currentAccount;
@@ -168,6 +199,8 @@ class _HomeScreenTwoState extends State<HomeScreenTwo> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    final dataMap = cardDataMap[posTier];
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -178,21 +211,15 @@ class _HomeScreenTwoState extends State<HomeScreenTwo> with SingleTickerProvider
               Text("${storeName!} MPOS", style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w600),),
               const Padding(padding: EdgeInsets.symmetric(vertical: 12)),
               Expanded(
-                child: (currentAccount!.isAdmin) ? GridView.builder(
+                child: GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5, crossAxisSpacing: 2, mainAxisSpacing: 2),
                   itemBuilder: (context, index) {
-                    final data = cardData[index];
-                    return HomeScreenCard(cardData: data);
+                    final data = dataMap?.data;
+                    final indexedData = data?[index];
+                    return HomeScreenCard(cardData: indexedData!);
                   },
-                  itemCount: cardData.length,
-                ) : GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5, crossAxisSpacing: 2, mainAxisSpacing: 2),
-                  itemBuilder: (context, index) {
-                    final data = cardDataEmployee[index];
-                    return HomeScreenCard(cardData: data);
-                  },
-                  itemCount: cardDataEmployee.length,
-                ),
+                  itemCount: dataMap?.length,
+                )
               ),
               const Padding(padding: EdgeInsets.symmetric(vertical: 12)),
               const Copyright(),
