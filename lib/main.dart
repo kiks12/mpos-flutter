@@ -18,6 +18,10 @@ import 'package:permission_handler/permission_handler.dart';
 
 late ObjectBox objectBox;
 ColorScheme appColors = ColorScheme.fromSeed(seedColor: Colors.blue);
+const posTier = "FREE_TRIAL";
+// const posTier = "BASIC";
+// const posTier = "PRO";
+// const posTier = "PREMIUM";
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
