@@ -173,43 +173,58 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
           title: const Text('Choose what to add:'),
           children: [
             SizedBox(
-              height: MediaQuery.of(context).size.height * 0.5,
-              width: MediaQuery.of(context).size.height * 0.5,
-              child: Column(
+              height: MediaQuery.of(context).size.height * 0.40,
+              width: MediaQuery.of(context).size.height * 0.75,
+              child: Row(
                 children: [
                   Expanded(
                     child: Container(
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                              color: Color.fromARGB(255, 231, 231, 231),
-                              width: 0.7),
-                        ),
-                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                       child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.35,
-                        child: TextButton(
+                        height: double.infinity,
+                        child: FilledButton.tonal(
+                          style: FilledButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)
+                            ),
+                          ),
                           onPressed: navigateToAddProductScreen,
                           child: const Text(
                             'Product\n\n(Donuts, Cakes, etc.)',
                             textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 18
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                  Expanded(
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.35,
-                      child: TextButton(
-                        onPressed: navigateToAddPackageScreen,
-                        child: const Text(
-                          'Packaged Products\n\n(Box of 3 Donuts)',
-                          textAlign: TextAlign.center,
+                  if (posTier != "FREE_TRIAL" && posTier != "BASIC") ...[
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                        child: SizedBox(
+                          height: double.infinity,
+                          child: FilledButton.tonal(
+                            onPressed: navigateToAddPackageScreen,
+                            style: FilledButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)
+                              ),
+                            ),
+                            child: const Text(
+                              'Packaged Products\n\n(Box of 3 Donuts)',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 18
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ]
                 ],
               ),
             )
