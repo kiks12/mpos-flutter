@@ -22,6 +22,10 @@ const posTier = "FREE_TRIAL";
 // const posTier = "BASIC";
 // const posTier = "PRO";
 // const posTier = "PREMIUM";
+const freeTrialInventoryLimit = 5;
+const basicInventoryLimit = 15;
+const proInventoryLimit = 30;
+const premiumInventoryLimit = 1000;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
