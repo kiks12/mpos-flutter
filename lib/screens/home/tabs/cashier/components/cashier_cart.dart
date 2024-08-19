@@ -734,27 +734,35 @@ class _CartState extends State<Cart> {
                 Row(
                     children: [
                       Expanded(
-                        child: FilledButton(
-                          style: FilledButton.styleFrom(
-                            foregroundColor: Colors.red, backgroundColor: const Color.fromRGBO(255, 230, 230, 1),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: FilledButton(
+                            style: FilledButton.styleFrom(
+                              foregroundColor: Colors.red, backgroundColor: const Color.fromRGBO(255, 230, 230, 1),
+                            ),
+                            onPressed: widget.voidCart,
+                            child: const Text('Void'),
                           ),
-                          onPressed: widget.voidCart,
-                          child: const Text('Void'),
                         ),
                       ),
+                      if (posTier != "FREE_TRIAL") ...[
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                            child: FilledButton.tonal(
+                                onPressed: widget.showDiscountsDialog,
+                                child: const Text("Discounts")
+                            ),
+                          ),
+                        ),
+                      ],
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: FilledButton.tonal(
-                              onPressed: widget.showDiscountsDialog,
-                              child: const Text("Discounts")
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: FilledButton(
+                            onPressed: showPaymentMethodDialog,
+                            child: const Text('Pay'),
                           ),
-                        ),
-                      ),
-                      Expanded(
-                        child: FilledButton(
-                          onPressed: showPaymentMethodDialog,
-                          child: const Text('Pay'),
                         ),
                       ),
                     ]
