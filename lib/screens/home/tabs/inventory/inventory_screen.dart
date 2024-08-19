@@ -61,7 +61,7 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
 
   void refresh() {
     initializeProductStream();
-    initializePackageStream();
+    if (posTier != "FREE_TRIAL" && posTier != "BASIC") initializePackageStream();
     calculateInventoryValue();
   }
 
@@ -262,17 +262,19 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
                     padding: EdgeInsets.symmetric(vertical: 12),
                     child: Text("Products"),
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Text("Packages"),
-                  ),
+                  if (posTier != "FREE_TRIAL" && posTier != "BASIC") ...[
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Text("Packages"),
+                    ),
+                  ]
                 ]
               ),
               Expanded(
                 child: TabBarView(
                   children: [
                     ProductTable(productList: _productList),
-                    PackageTable(packageList: _packageList),
+                    if (posTier != "FREE_TRIAL" && posTier != "BASIC") PackageTable(packageList: _packageList),
                   ],
                 )
               )
