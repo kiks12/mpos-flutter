@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/inventory.dart';
@@ -234,7 +235,14 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
     );
   }
 
+  bool productsFull(String tier, int limit) => posTier == tier && _productList.length >= limit;
+
   void navigateToAddProductScreen() {
+    if (productsFull("FREE_TRIAL", freeTrialInventoryLimit) || productsFull("BASIC", basicInventoryLimit)
+        || productsFull("PRO", proInventoryLimit) || productsFull("PREMIUM", premiumInventoryLimit)) {
+      Fluttertoast.showToast(msg: "Inventory at full capacity. Please upgrade your plan to create more product.");
+      return;
+    }
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -243,7 +251,14 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
     );
   }
 
+  bool packagesFull(String tier, int limit) => posTier == tier && _packageList.length >= limit;
+
   void navigateToAddPackageScreen() {
+    if (packagesFull("FREE_TRIAL", freeTrialInventoryLimit) || packagesFull("BASIC", basicInventoryLimit)
+        || packagesFull("PRO", proInventoryLimit) || packagesFull("PREMIUM", premiumInventoryLimit)) {
+      Fluttertoast.showToast(msg: "Inventory at full capacity. Please upgrade your plan to create more product.");
+      return;
+    }
     Navigator.push(
       context,
       MaterialPageRoute(
