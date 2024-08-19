@@ -256,16 +256,16 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
                 deleteAll: showDeleteAllConfirmationDialog,
                 addProduct: showAddOptionDialog,
               ),
-              const TabBar(
+              TabBar(
                 tabs: [
                   Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Text("Products"),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Text("Products (${_productList.length})"),
                   ),
                   if (posTier != "FREE_TRIAL" && posTier != "BASIC") ...[
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Text("Packages"),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Text("Packages (${_packageList.length})"),
                     ),
                   ]
                 ]
