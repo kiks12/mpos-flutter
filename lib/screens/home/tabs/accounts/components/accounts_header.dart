@@ -9,10 +9,14 @@ class AccountsScreenControlPanel extends StatefulWidget {
     Key? key,
     required this.refresh,
     required this.searchCallback,
+    required this.adminsCount,
+    required this.employeesCount
   }) : super(key: key);
 
   final void Function() refresh;
   final void Function(String) searchCallback;
+  final int adminsCount;
+  final int employeesCount;
 
   @override
   State<AccountsScreenControlPanel> createState() =>
@@ -23,7 +27,14 @@ class _AccountsScreenControlPnaelState
     extends State<AccountsScreenControlPanel> {
   final TextEditingController searchController = TextEditingController();
 
+  bool accountsOnLimit(String tier, int limit) => tier == posTier && widget.adminsCount + widget.employeesCount == limit;
+
   void navigateToAddAccountScreen() {
+    if (accountsOnLimit("FREE_TRIAL", freeTrialInventoryLimit) || accountsOnLimit("BASIC", basicInventoryLimit)
+        || accountsOnLimit("PRO", proInventoryLimit) || accountsOnLimit("PREMIUM", premiumInventoryLimit)) {
+      Fluttertoast.showToast(msg: "Accounts at full capacity. Please upgrade your system to create more accounts");
+      return;
+    }
     Navigator.push(
       context,
       MaterialPageRoute(
