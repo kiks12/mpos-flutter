@@ -107,10 +107,15 @@ class _AccountsScreenState extends State<AccountsScreen> {
           child: Column(
             children: [
               AccountsScreenControlPanel(
+                adminsCount: _adminList.length,
+                employeesCount: _employeeList.length,
                 refresh: refresh,
                 searchCallback: searchAccount,
               ),
-              const AccountsScreenTabBar(),
+              AccountsScreenTabBar(
+                adminsCount: _adminList.length,
+                employeesCount: _employeeList.length,
+              ),
               Expanded(
                 child: TabBarView(
                   children: [
