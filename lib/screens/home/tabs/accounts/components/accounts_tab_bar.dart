@@ -21,7 +21,7 @@ class _AccountsScreenTabBarState extends State<AccountsScreenTabBar> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Text(
-              'Employees ${widget.employeesCount}',
+              'Employees (${widget.employeesCount})',
               style: const TextStyle(
                 color: Colors.black,
               ),
@@ -30,7 +30,7 @@ class _AccountsScreenTabBarState extends State<AccountsScreenTabBar> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Text(
-              'Admins ${widget.adminsCount}',
+              'Admins (${widget.adminsCount})',
               style: const TextStyle(
                 color: Colors.black,
               ),
