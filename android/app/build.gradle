@@ -37,10 +37,10 @@ if (flutterVersionName == null) {
 
 
 ext {
-    compileSdkVersion = 28
+    compileSdkVersion = 34
 //    minSdkVersion = 24
     minSdkVersion = 23
-    kotlin_version = '1.8.0'
+    kotlin_version = '2.2.0'
 }
 
 android {
@@ -76,6 +76,7 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+    namespace 'com.example.mpos'
 }
 
 flutter {
