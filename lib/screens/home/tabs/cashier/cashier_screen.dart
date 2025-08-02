@@ -11,7 +11,6 @@ import 'package:mpos/objectbox.g.dart';
 import 'package:mpos/screens/home/tabs/cashier/components/cashier_cart.dart';
 import 'package:mpos/screens/home/tabs/cashier/components/cashier_grid.dart';
 import 'package:mpos/screens/home/tabs/cashier/components/cashier_control_panel.dart';
-import 'package:mpos/utils/utils.dart';
 
 class CashierScreen extends StatefulWidget {
   const CashierScreen({Key? key}) : super(key: key);
@@ -43,7 +42,7 @@ class _CashierScreenState extends State<CashierScreen> {
   @override
   void initState() {
     super.initState();
-    getCurrentAccount();
+    // getCurrentAccount();
     refresh();
   }
 
@@ -56,11 +55,11 @@ class _CashierScreenState extends State<CashierScreen> {
     initializePackageStream("All");
   }
 
-  void getCurrentAccount() {
-    setState(() {
-      currentAccount = Utils().getCurrentAccount(objectBox);
-    });
-  }
+  // void getCurrentAccount() {
+  //   setState(() {
+  //     currentAccount = Utils().getCurrentAccount(objectBox);
+  //   });
+  // }
 
   void initializeCategories() {
     _categoriesList = [];
@@ -203,33 +202,6 @@ class _CashierScreenState extends State<CashierScreen> {
     setState(() {});
   }
 
-  // void calculateDiscount(Discount discount) {
-  //   if (discount.type == "TOTAL" && discount.operation == "FIXED") {
-  //     _discount += discount.value;
-  //     setState(() {});
-  //   }
-  //   if (discount.type == "TOTAL" && discount.operation == "PERCENTAGE") {
-  //     _discount += _total * (discount.value / 100);
-  //   }
-  //   if (discount.type == "SPECIFIC" && discount.operation == "FIXED") {
-  //     for (var element in _cartPackageList) {
-  //       if (discount.products.contains(element.name)) _discount += discount.value;
-  //     }
-  //     for (var element in _cartList) {
-  //       if (discount.products.contains(element.name)) _discount += (discount.value * element.quantity);
-  //     }
-  //   }
-  //   if (discount.type == "SPECIFIC" && discount.operation == "PERCENTAGE") {
-  //     for (var element in _cartPackageList) {
-  //       if (discount.products.contains(element.name)) _discount += element.price * (discount.value / 100);
-  //     }
-  //     for (var element in _cartList) {
-  //       if (discount.products.contains(element.name)) _discount += element.totalPrice * (discount.value / 100);
-  //     }
-  //   }
-  //   setState(() {});
-  // }
-
   void calculateDiscountSubtract(Discount discount) {
     if (discount.type == "TOTAL" && discount.operation == "FIXED") {
       _discount -= discount.value;
@@ -262,33 +234,6 @@ class _CashierScreenState extends State<CashierScreen> {
     }
     setState(() {});
   }
-
-  // void calculateDiscountSubtract(Discount discount) {
-  //   if (discount.type == "TOTAL" && discount.operation == "FIXED") {
-  //     _discount -= discount.value;
-  //     setState(() {});
-  //   }
-  //   if (discount.type == "TOTAL" && discount.operation == "PERCENTAGE") {
-  //     _discount -= _total * (discount.value / 100);
-  //   }
-  //   if (discount.type == "SPECIFIC" && discount.operation == "FIXED") {
-  //     for (var element in _cartPackageList) {
-  //       if (discount.products.contains(element.name)) _discount -= discount.value;
-  //     }
-  //     for (var element in _cartList) {
-  //       if (discount.products.contains(element.name)) _discount -= (discount.value * element.quantity);
-  //     }
-  //   }
-  //   if (discount.type == "SPECIFIC" && discount.operation == "PERCENTAGE") {
-  //     for (var element in _cartPackageList) {
-  //       if (discount.products.contains(element.name)) _discount -= element.price * (discount.value / 100);
-  //     }
-  //     for (var element in _cartList) {
-  //       if (discount.products.contains(element.name)) _discount -= element.totalPrice * (discount.value / 100);
-  //     }
-  //   }
-  //   setState(() {});
-  // }
 
   void clearAppliedDiscounts() {
     _appliedDiscountList = [];
@@ -491,62 +436,64 @@ class _CashierScreenState extends State<CashierScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
-        children: <Widget>[
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.57,
-            height: MediaQuery.of(context).size.height,
-            child: Column(
-              children: [
-                CashierControlPanel(
-                  quantityController: quantityController,
-                  searchController: searchController,
-                  searchProduct: searchProduct,
-                  refresh: refresh,
-                ),
-                CashierGrid(
-                  productsList: _productList,
-                  packageList: _packageList,
-                  categoriesList: _categoriesList,
-                  selectedCategory: _selectedCategory,
-                  quantity: quantityController.text != "" ? int.parse(quantityController.text) : 0,
-                  addToCart: addToCart,
-                  addPackageToCart: addPackageToCart,
-                  setSelectedCategory: setSelectedCategory,
-                )
-              ],
-            ),
-          ),
-          Container(
-            decoration: const BoxDecoration(
-              border: Border(
-                left: BorderSide(color: Colors.blueGrey, width: 0.2),
-              ),
-            ),
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.428,
+      body: SafeArea(
+        child: Row(
+          children: <Widget>[
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.57,
               height: MediaQuery.of(context).size.height,
-              child: Cart(
-                products: _productList,
-                calculateTotal: calculateSubTotal,
-                addPackageToCart: addPackageToCart,
-                removePackageFromCart: removePackageFromCart,
-                removeProductFromCart: removeProductFromCart,
-                showDiscountsDialog: showDiscountsDialog,
-                discountList: _discountList,
-                selectedDiscount: _selectedDiscount,
-                appliedDiscountList: _appliedDiscountList,
-                cartList: _cartList,
-                cartPackageList: _cartPackageList,
-                total: _total,
-                discount: _discount,
-                voidCart: showVoidCartConfirmationDialog,
-                currentAccount: currentAccount,
-                clearCart: clearCart,
+              child: Column(
+                children: [
+                  CashierControlPanel(
+                    quantityController: quantityController,
+                    searchController: searchController,
+                    searchProduct: searchProduct,
+                    refresh: refresh,
+                  ),
+                  CashierGrid(
+                    productsList: _productList,
+                    packageList: _packageList,
+                    categoriesList: _categoriesList,
+                    selectedCategory: _selectedCategory,
+                    quantity: quantityController.text != "" ? int.parse(quantityController.text) : 0,
+                    addToCart: addToCart,
+                    addPackageToCart: addPackageToCart,
+                    setSelectedCategory: setSelectedCategory,
+                  )
+                ],
               ),
             ),
-          ),
-        ],
+            Container(
+              decoration: const BoxDecoration(
+                border: Border(
+                  left: BorderSide(color: Colors.blueGrey, width: 0.2),
+                ),
+              ),
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.428,
+                height: MediaQuery.of(context).size.height,
+                child: Cart(
+                  products: _productList,
+                  calculateTotal: calculateSubTotal,
+                  addPackageToCart: addPackageToCart,
+                  removePackageFromCart: removePackageFromCart,
+                  removeProductFromCart: removeProductFromCart,
+                  showDiscountsDialog: showDiscountsDialog,
+                  discountList: _discountList,
+                  selectedDiscount: _selectedDiscount,
+                  appliedDiscountList: _appliedDiscountList,
+                  cartList: _cartList,
+                  cartPackageList: _cartPackageList,
+                  total: _total,
+                  discount: _discount,
+                  voidCart: showVoidCartConfirmationDialog,
+                  currentAccount: currentAccount,
+                  clearCart: clearCart,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
