@@ -13,8 +13,11 @@ import 'package:mpos/objectbox.g.dart';
 import 'package:mpos/screens/splash_screen.dart';
 import 'package:mpos/screens/startup_menu_screen.dart';
 import 'package:mpos/screens/store_details_registration_screen.dart';
+import 'package:mpos/screens/supabase_login_screen.dart';
 // import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 late ObjectBox objectBox;
 ColorScheme appColors = ColorScheme.fromSeed(seedColor: Colors.blue);
@@ -28,6 +31,11 @@ const proInventoryLimit = 30;
 const premiumInventoryLimit = 1000;
 
 Future<void> main() async {
+  await dotenv.load(fileName: ".env");
+  await Supabase.initialize(
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+  );
   WidgetsFlutterBinding.ensureInitialized();
 
   objectBox = await ObjectBox.create();
@@ -112,24 +120,25 @@ class _MyAppState extends State<MyApp> {
   }
 
   dynamic screenToShow() {
-    if (noAdminAccount()) {
-      return const StartUpMenuScreen();
-    }
+    return const SupabaseLoginScreen();
+    // if (noAdminAccount()) {
+    //   return const StartUpMenuScreen();
+    // }
 
-    if (noStoreDetails()) {
-      return StoreDetailsRegistrationScreen(
-        storeDetailsBox: objectBox.storeDetailsBox,
-      );
-    }
+    // if (noStoreDetails()) {
+    //   return StoreDetailsRegistrationScreen(
+    //     storeDetailsBox: objectBox.storeDetailsBox,
+    //   );
+    // }
 
-    setState(() {
-      _storeName = objectBox.storeDetailsBox.getAll()[0].name;
-    });
+    // setState(() {
+    //   _storeName = objectBox.storeDetailsBox.getAll()[0].name;
+    // });
 
-    return SplashScreen(
-      storeName: _storeName,
-      objectBox: objectBox,
-    );
+    // return SplashScreen(
+    //   storeName: _storeName,
+    //   objectBox: objectBox,
+    // );
   }
 
   @override

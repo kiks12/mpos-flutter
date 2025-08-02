@@ -11,6 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  supabase_flutter: ^2.0.0
   objectbox: ^4.0.1
   objectbox_flutter_libs: any
 
@@ -37,6 +38,9 @@ dependencies:
   firebase_storage: ^13.0.0
   connectivity_plus: ^6.0.3
   permission_handler: ^12.0.1
+  flutter_dotenv: ^5.2.1
+  shared_preferences: ^2.5.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -50,6 +54,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - .env
     - assets/discounts.json
     - assets/expiration-dates.json
     - assets/packages.json
