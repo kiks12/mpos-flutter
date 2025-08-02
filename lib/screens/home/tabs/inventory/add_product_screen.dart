@@ -1,11 +1,9 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:mpos/components/header_two.dart';
-import 'package:mpos/components/text_form_field_with_label.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/expiration_dates.dart';
 import 'package:mpos/models/inventory.dart';
@@ -27,39 +25,51 @@ class AddProductScreen extends StatefulWidget {
 
 class _AddProductScreenState extends State<AddProductScreen> {
   final formKey = GlobalKey<FormState>();
-
   final TextEditingController nameTextController = TextEditingController();
   final TextEditingController barcodeTextController = TextEditingController();
-  final TextEditingController unitPriceTextController =
-      TextEditingController(text: '0');
-  final TextEditingController quantityTextController =
-      TextEditingController(text: '0');
-
+  final TextEditingController unitPriceTextController = TextEditingController(text: '0.00');
+  final TextEditingController quantityTextController = TextEditingController(text: '0');
   final TextEditingController categoryTextController = TextEditingController();
 
-  int _totalPrice = 0;
-  final DateTime _expirationDates = DateTime.now();
-  // DateTime? _selectedDate;
+  double _totalPrice = 0.0;
+  DateTime _expirationDate = DateTime.now();
   List<String> _categories = [];
   String _selectedCategory = "";
-
   File? _imageFile;
-
   final List<ProductVariantControllers> _variants = [];
   bool _withVariant = false;
 
   @override
   void initState() {
     super.initState();
-    _categories = _getCategories();
-    _categories.add("Other");
-    _selectedCategory = _categories[0];
-    setState(() {});
+    _initializeCategories();
+    unitPriceTextController.addListener(_calculateTotalPrice);
+    quantityTextController.addListener(_calculateTotalPrice);
   }
 
-  // double _expirationDateListViewHeight() {
-  //   return MediaQuery.of(context).size.height * 0.09 * 1;
-  // }
+  @override
+  void dispose() {
+    nameTextController.dispose();
+    barcodeTextController.dispose();
+    unitPriceTextController.removeListener(_calculateTotalPrice);
+    unitPriceTextController.dispose();
+    quantityTextController.removeListener(_calculateTotalPrice);
+    quantityTextController.dispose();
+    categoryTextController.dispose();
+    for (var variant in _variants) {
+      variant.dispose();
+    }
+    super.dispose();
+  }
+
+  void _initializeCategories() {
+    _categories = _getCategories();
+    if (!_categories.contains("Other")) {
+      _categories.add("Other");
+    }
+    _selectedCategory = _categories.isNotEmpty ? _categories[0] : "Other";
+    setState(() {});
+  }
 
   Future<void> saveProductInServer(Product product) async {
     try {
@@ -73,7 +83,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       productJson["POS"] = Utils().getPOS();
       productJson["type"] = "PRODUCT";
       await productsRef.add(productJson);
-    } on firestore.FirebaseException catch(e) {
+    } on firestore.FirebaseException catch (e) {
       Fluttertoast.showToast(msg: e.message!);
     }
   }
@@ -81,391 +91,602 @@ class _AddProductScreenState extends State<AddProductScreen> {
   void addProduct() async {
     if (!formKey.currentState!.validate()) return;
 
+    double finalUnitPrice;
+    int finalQuantity;
+    double finalTotalPrice;
+
+    if (_withVariant) {
+      if (_variants.isEmpty) {
+        Fluttertoast.showToast(msg: "Please add at least one variant.");
+        return;
+      }
+      for (var variant in _variants) {
+        if (!variant.nameController.text.isNotEmpty ||
+            (int.tryParse(variant.quantityController.text) ?? 0) <= 0 ||
+            (double.tryParse(variant.unitPriceController.text) ?? 0.0) <= 0) {
+          Fluttertoast.showToast(msg: "Please fill all variant fields correctly.");
+          return;
+        }
+      }
+      finalUnitPrice = _variants.map((v) => double.parse(v.unitPriceController.text)).reduce((a, b) => a < b ? a : b);
+      finalQuantity = _variants.fold(0, (prev, curr) => prev + (int.tryParse(curr.quantityController.text) ?? 0));
+      finalTotalPrice = _variants.fold(0.0, (prev, curr) => prev + (double.tryParse(curr.totalPriceController.text) ?? 0.0));
+    } else {
+      finalUnitPrice = double.tryParse(unitPriceTextController.text) ?? 0.0;
+      finalQuantity = int.tryParse(quantityTextController.text) ?? 0;
+      finalTotalPrice = _totalPrice;
+      if (finalUnitPrice <= 0 || finalQuantity <= 0) {
+        Fluttertoast.showToast(msg: "Unit Price and Quantity must be greater than 0.");
+        return;
+      }
+    }
+
     Product newProduct = Product(
       name: nameTextController.text,
       category: (_selectedCategory == "Other") ? categoryTextController.text : _selectedCategory,
-      unitPrice: _withVariant ? int.parse(_variants.reduce((a, b) => int.parse(a.unitPriceController.text) < int.parse(b.unitPriceController.text) ? a : b).unitPriceController.text) : int.parse(unitPriceTextController.text),
-      quantity: _withVariant ? _variants.fold(0, (prev, curr) => prev + int.parse(curr.quantityController.text)) : int.parse(quantityTextController.text),
-      totalPrice: _withVariant ? _variants.fold(0, (prev, curr) => prev + int.parse(curr.totalPriceController.text)): _totalPrice,
-      image: _imageFile != null ? _imageFile!.path : "",
+      unitPrice: finalUnitPrice.toInt(),
+      quantity: finalQuantity,
+      totalPrice: finalTotalPrice.toInt(),
+      image: _imageFile?.path ?? "",
       withVariant: _withVariant,
     );
 
-    ExpirationDate newExpirationDate = ExpirationDate(
-      date: _expirationDates,
-      quantity: int.parse(quantityTextController.text),
-      expired: 0,
-      sold: 0,
-    );
+    if (!_withVariant) {
+      ExpirationDate newExpirationDate = ExpirationDate(
+        date: _expirationDate,
+        quantity: finalQuantity,
+        expired: 0,
+        sold: 0,
+      );
+      newProduct.expirationDates.add(newExpirationDate);
+    }
 
-    for (var variant in _variants) {
+    for (var variantController in _variants) {
       final productVariant = ProductVariant(
-          name: variant.nameController.text,
-          unitPrice: int.parse(variant.unitPriceController.text),
-          quantity: int.parse(variant.quantityController.text),
-          totalPrice: int.parse(variant.totalPriceController.text),
-          image: ""
+        name: variantController.nameController.text,
+        unitPrice: int.parse(variantController.unitPriceController.text),
+        quantity: int.parse(variantController.quantityController.text),
+        totalPrice: int.parse(variantController.totalPriceController.text),
+        image: "", // Assuming variant images are not supported yet
       );
       newProduct.variants.add(productVariant);
     }
 
-    newProduct.expirationDates.add(newExpirationDate);
     objectBox.productBox.put(newProduct);
-    if (Utils().getServerAccount() != "" && Utils().getStore() != "" && Utils().getPOS() != "") await saveProductInServer(newProduct);
+    if (Utils().getServerAccount() != "" && Utils().getStore() != "" && Utils().getPOS() != "") {
+      await saveProductInServer(newProduct);
+    }
     Fluttertoast.showToast(msg: "Successfully created new product");
     if (mounted) Navigator.of(context).pop();
   }
 
-  // void _editExpirationDate() async {
-  //   setState(() {
-  //     _selectedDate = _expirationDates;
-  //   });
-  //   final DateTime? selected = await showDatePicker(
-  //     context: context,
-  //     initialDate: _selectedDate ?? DateTime.now(),
-  //     firstDate: DateTime(2010),
-  //     lastDate: DateTime(2025),
-  //   );
-  //   if (selected != null && selected != _selectedDate) {
-  //     setState(() {
-  //       _selectedDate = selected;
-  //       _expirationDates = _selectedDate as DateTime;
-  //     });
-  //   }
-  // }
-
   void _calculateTotalPrice() {
     setState(() {
-      _totalPrice = int.parse(unitPriceTextController.text) *
-          int.parse(quantityTextController.text);
+      final unitPrice = double.tryParse(unitPriceTextController.text) ?? 0.0;
+      final quantity = int.tryParse(quantityTextController.text) ?? 0;
+      _totalPrice = unitPrice * quantity;
     });
   }
 
   List<String> _getCategories() {
-    final query = objectBox.productBox.query().build();
-    PropertyQuery<String> pq = query.property(Product_.category);
-    pq.distinct = true;
-    return pq.find();
+    try {
+      final query = objectBox.productBox.query().build();
+      PropertyQuery<String> pq = query.property(Product_.category);
+      pq.distinct = true;
+      return pq.find();
+    } catch (e) {
+      print("Error fetching categories: $e");
+      return [];
+    }
   }
 
-  // Padding _expirationDateBuilder(BuildContext context) {
-  //   return Padding(
-  //     padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 20),
-  //     child: Container(
-  //       decoration: BoxDecoration(
-  //         border: Border.all(
-  //           color: const Color.fromARGB(255, 213, 213, 213),
-  //           width: 0.7,
-  //         ),
-  //         borderRadius: BorderRadius.circular(40),
-  //       ),
-  //       child: ListTile(
-  //         title: Row(
-  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //           children: [
-  //             Text(
-  //               DateFormat('yyyy-MM-dd').format(_expirationDates as DateTime),
-  //             ),
-  //             TextButton(
-  //               onPressed: () => _editExpirationDate(),
-  //               child: const Text('change'),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
+  Future<void> _selectExpirationDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _expirationDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null && picked != _expirationDate) {
+      setState(() {
+        _expirationDate = picked;
+      });
+    }
+  }
 
   Future<void> pickAndSaveImage() async {
     try {
       final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-
       if (pickedFile != null) {
         final File imageFile = File(pickedFile.path);
         final directory = await getApplicationDocumentsDirectory();
-        final imagePath = path.join(directory.path, '${DateTime.now()}.png');
-
+        final imagePath = path.join(directory.path, '${DateTime.now().millisecondsSinceEpoch}.png');
         final savedImage = await imageFile.copy(imagePath);
-        _imageFile = savedImage;
-        setState(() {});
+        setState(() {
+          _imageFile = savedImage;
+        });
       } else {
         Fluttertoast.showToast(msg: "No image selected");
-        return;
       }
     } catch (e) {
       Fluttertoast.showToast(msg: 'Error picking and saving image: $e');
-      return;
     }
   }
 
-  void withVariantOnChange() {
-    _withVariant = !_withVariant;
-    setState(() {});
+  void withVariantOnChange(bool? value) {
+    setState(() {
+      _withVariant = value ?? false;
+      if (!_withVariant) {
+        for (var variant in _variants) {
+          variant.dispose();
+        }
+        _variants.clear();
+      }
+    });
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey[800],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextFormField({
+    required TextEditingController controller,
+    required String label,
+    String? hintText,
+    bool isNumber = false,
+    bool readOnly = false,
+    ValueChanged<String>? onChanged,
+    String? Function(String?)? validator,
+    TextInputAction textInputAction = TextInputAction.next,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: TextFormField(
+        controller: controller,
+        readOnly: readOnly,
+        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+        inputFormatters: isNumber ? [FilteringTextInputFormatter.digitsOnly] : null,
+        onChanged: onChanged,
+        validator: validator ?? (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter $label';
+          }
+          if (isNumber && (double.tryParse(value) ?? 0) <= 0 && label != 'Quantity') {
+            return '$label must be greater than 0';
+          }
+          return null;
+        },
+        textInputAction: textInputAction,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hintText,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey[300]!),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              color: Theme.of(context).primaryColor,
+              width: 2,
+            ),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryDropdown() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Category',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[700],
+            ),
+          ),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(
+            value: _selectedCategory,
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: Theme.of(context).primaryColor,
+                  width: 2,
+                ),
+              ),
+              filled: true,
+              fillColor: Colors.white,
+            ),
+            items: _categories.map((String category) {
+              return DropdownMenuItem<String>(
+                value: category,
+                child: Text(category),
+              );
+            }).toList(),
+            onChanged: (String? newValue) {
+              setState(() {
+                _selectedCategory = newValue!;
+              });
+            },
+          ),
+          if (_selectedCategory == "Other")
+            _buildTextFormField(
+              controller: categoryTextController,
+              label: 'New Category Name',
+              hintText: 'e.g., Beverages',
+              textInputAction: TextInputAction.done,
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVariantInputRow(ProductVariantControllers variantController, int index) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Expanded(
+            flex: 3,
+            child: _buildTextFormField(
+              controller: variantController.nameController,
+              label: 'Variant Name',
+              textInputAction: TextInputAction.next,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 2,
+            child: _buildTextFormField(
+              controller: variantController.quantityController,
+              label: 'Qty',
+              isNumber: true,
+              textInputAction: TextInputAction.next,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 2,
+            child: _buildTextFormField(
+              controller: variantController.unitPriceController,
+              label: 'Unit Price',
+              isNumber: true,
+              textInputAction: TextInputAction.next,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 2,
+            child: _buildTextFormField(
+              controller: variantController.totalPriceController,
+              label: 'Total',
+              readOnly: true,
+              isNumber: true,
+              textInputAction: TextInputAction.done,
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.red),
+            onPressed: () {
+              setState(() {
+                variantController.dispose();
+                _variants.removeAt(index);
+              });
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Add Product'),
+        title: const Text('Add New Product'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        foregroundColor: Colors.grey[800],
+        centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Form(
-            key: formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.60,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      const HeaderTwo(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        text: 'Product Identifiers',
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          _imageFile != null ?
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20)
-                              ),
-                              child: Image.file(_imageFile!, width: 150,),
-                            ) : Container(),
-                          FilledButton.tonalIcon(
-                            onPressed: pickAndSaveImage,
-                            icon: const Icon(Icons.image),
-                            label: const Text("Select Image"),
-                          ),
-                        ],
-                      ),
-                      TextFormFieldWithLabel(
-                        label: 'Product Name',
-                        controller: nameTextController,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 20, horizontal: 20),
-                        isPassword: false,
-                      ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.60,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const HeaderTwo(
-                              padding:
-                              EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                              text: 'Category',
-                            ),
-                            DropdownButton(
-                                isExpanded: true,
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                                value: _selectedCategory,
-                                items: _categories.map((String e) {
-                                  return DropdownMenuItem<String>(value: e, child: Text(e));
-                                }).toList(),
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    _selectedCategory = newValue!;
-                                  });
-                                }
-                            ),
-                            if (_selectedCategory == "Other")
-                              TextFormFieldWithLabel(
-                                label: 'Category',
-                                controller: categoryTextController,
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 20, horizontal: 20),
-                                isPassword: false,
-                              ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: GestureDetector(
-                          onTap: withVariantOnChange,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Checkbox(value: _withVariant, onChanged: (e) => withVariantOnChange()),
-                              const Text("Product with Variants")
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (!_withVariant) ...[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 30),
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.60,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800), // Max width for the form
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Product Identifiers Section
+                  _buildSectionHeader('Product Identifiers'),
+                  Card(
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          const HeaderTwo(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            text: 'Pricing and Stock',
-                          ),
-                          TextFormFieldWithLabel(
-                            onChanged: (String str) =>
-                                str.isNotEmpty ? _calculateTotalPrice() : () {},
-                            label: 'Unit Price',
-                            controller: unitPriceTextController,
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 20, horizontal: 20),
-                            isPassword: false,
-                            isNumber: true,
-                          ),
-                          TextFormFieldWithLabel(
-                            onChanged: (String str) =>
-                                str.isNotEmpty ? _calculateTotalPrice() : () {},
-                            label: 'Quantity',
-                            controller: quantityTextController,
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 20, horizontal: 20),
-                            isPassword: false,
-                            isNumber: true,
-                          ),
-                          Container(
-                            padding: const EdgeInsets.fromLTRB(20, 7, 20, 50),
-                            child: HeaderTwo(
-                              padding: const EdgeInsets.all(0),
-                              text:
-                                  'Total Price: ${NumberFormat.currency(symbol: '₱').format(_totalPrice)}',
+                        children: [
+                          // Image Picker
+                          Center(
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: 120,
+                                  height: 120,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: Colors.grey[300]!),
+                                  ),
+                                  child: _imageFile != null
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(12),
+                                          child: Image.file(
+                                            _imageFile!,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )
+                                      : Icon(
+                                          Icons.image_outlined,
+                                          size: 60,
+                                          color: Colors.grey[400],
+                                        ),
+                                ),
+                                const SizedBox(height: 12),
+                                ElevatedButton.icon(
+                                  onPressed: pickAndSaveImage,
+                                  icon: const Icon(Icons.photo_library),
+                                  label: const Text("Select Image"),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Theme.of(context).primaryColor,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
+                          ),
+                          const SizedBox(height: 20),
+                          _buildTextFormField(
+                            controller: nameTextController,
+                            label: 'Product Name',
+                            hintText: 'e.g., Glazed Donut',
+                          ),
+                          _buildTextFormField(
+                            controller: barcodeTextController,
+                            label: 'Barcode (Optional)',
+                            hintText: 'Scan or enter barcode',
+                            textInputAction: TextInputAction.next,
+                          ),
+                          _buildCategoryDropdown(),
+                          const SizedBox(height: 16),
+                          // With Variant Checkbox
+                          Row(
+                            children: [
+                              Checkbox(
+                                value: _withVariant,
+                                onChanged: withVariantOnChange,
+                                activeColor: Theme.of(context).primaryColor,
+                              ),
+                              GestureDetector(
+                                onTap: () => withVariantOnChange(!_withVariant),
+                                child: const Text(
+                                  "Product has Variants (e.g., Small, Medium, Large)",
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
                   ),
-                ] else ...[
-                  const HeaderTwo(padding: EdgeInsets.fromLTRB(10, 30, 10, 10), text: "Variants"),
-                  for (var productVariantController in _variants) ...[
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.60,
+
+                  const SizedBox(height: 24),
+
+                  // Pricing and Stock Section (Conditional)
+                  if (!_withVariant) ...[
+                    _buildSectionHeader('Pricing and Stock'),
+                    Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Row(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
                           children: [
-                            Expanded(
-                              child: TextFormFieldWithLabel(
-                                readOnly: false,
-                                label: 'Name',
-                                controller: productVariantController.nameController,
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 10),
-                                isPassword: false,
-                                isNumber: false,
+                            _buildTextFormField(
+                              controller: unitPriceTextController,
+                              label: 'Unit Price',
+                              isNumber: true,
+                              onChanged: (str) => _calculateTotalPrice(),
+                            ),
+                            _buildTextFormField(
+                              controller: quantityTextController,
+                              label: 'Quantity',
+                              isNumber: true,
+                              onChanged: (str) => _calculateTotalPrice(),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter quantity';
+                                }
+                                if ((int.tryParse(value) ?? 0) < 0) {
+                                  return 'Quantity cannot be negative';
+                                }
+                                return null;
+                              },
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Total Price:',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                  Text(
+                                    NumberFormat.currency(symbol: '₱').format(_totalPrice),
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            Expanded(
-                              child: TextFormFieldWithLabel(
-                                readOnly: false,
-                                label: 'Quantity',
-                                controller: productVariantController.quantityController,
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 10),
-                                isPassword: false,
-                                isNumber: true,
+                            const SizedBox(height: 16),
+                            // Expiration Date
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Expiration Date',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  InkWell(
+                                    onTap: () => _selectExpirationDate(context),
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.grey[300]!),
+                                        borderRadius: BorderRadius.circular(12),
+                                        color: Colors.white,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            DateFormat('yyyy-MM-dd').format(_expirationDate),
+                                            style: const TextStyle(fontSize: 16),
+                                          ),
+                                          Icon(
+                                            Icons.calendar_today,
+                                            color: Theme.of(context).primaryColor,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            Expanded(
-                              child: TextFormFieldWithLabel(
-                                readOnly: false,
-                                label: 'UnitPrice',
-                                controller: productVariantController.unitPriceController,
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 10),
-                                isPassword: false,
-                                isNumber: true,
-                              ),
-                            ),
-                            Expanded(
-                              child: TextFormFieldWithLabel(
-                                readOnly: true,
-                                label: 'TotalPrice',
-                                controller: productVariantController.totalPriceController,
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 10),
-                                isPassword: false,
-                                isNumber: true,
-                              ),
-                            ),
-                            IconButton(icon: const Icon(Icons.delete), onPressed: () {
-                              _variants.removeWhere((variant) => variant.index == productVariantController.index);
-                              setState((){});
-                            },),
                           ],
                         ),
                       ),
                     ),
                   ],
-                  SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.60,
+                  // Variants Section (Conditional)
+                  if (_withVariant) ...[
+                    _buildSectionHeader('Product Variants'),
+                    Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: OutlinedButton(
-                            onPressed: () {
-                              final nameController = TextEditingController();
-                              final quantityController = TextEditingController();
-                              final unitPriceController = TextEditingController();
-                              final totalPriceController = TextEditingController();
-                              _variants.add(ProductVariantControllers(
-                                  index: _variants.length + 1,
-                                  nameController: nameController,
-                                  quantityController: quantityController,
-                                  unitPriceController: unitPriceController,
-                                  totalPriceController: totalPriceController
-                              ));
-                              setState(() {});
-                            },
-                            child: const Text("Add Variant")
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            if (_variants.isEmpty)
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Text(
+                                  'No variants added yet. Click "Add Variant" to start.',
+                                  style: TextStyle(color: Colors.grey[600]),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ..._variants.asMap().entries.map((entry) {
+                              return _buildVariantInputRow(entry.value, entry.key);
+                            }).toList(),
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton.icon(
+                                onPressed: () {
+                                  setState(() {
+                                    _variants.add(ProductVariantControllers(
+                                      index: _variants.length + 1,
+                                      nameController: TextEditingController(),
+                                      quantityController: TextEditingController(text: '0'),
+                                      unitPriceController: TextEditingController(text: '0.00'),
+                                      totalPriceController: TextEditingController(text: '0.00'),
+                                    ));
+                                  });
+                                },
+                                icon: const Icon(Icons.add),
+                                label: const Text("Add Variant"),
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      )
-                  )
-                ],
-                // Padding(
-                //   padding: const EdgeInsets.symmetric(vertical: 30),
-                //   child: SizedBox(
-                //     width: MediaQuery.of(context).size.width * 0.45,
-                //     child: Column(
-                //       mainAxisAlignment: MainAxisAlignment.start,
-                //       crossAxisAlignment: CrossAxisAlignment.start,
-                //       children: <Widget>[
-                //         const HeaderTwo(
-                //           padding: EdgeInsets.symmetric(
-                //               horizontal: 20, vertical: 10),
-                //           text: 'Expiration Date',
-                //         ),
-                //         SizedBox(
-                //           height: _expirationDateListViewHeight(),
-                //           child: Column(
-                //             children: [
-                //               Expanded(
-                //                 child: _expirationDateBuilder(context),
-                //               ),
-                //             ],
-                //           ),
-                //         ),
-                //       ],
-                //     ),
-                //   ),
-                // ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.60,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(height: 32),
+
+                  // Action Buttons
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -473,25 +694,32 @@ class _AddProductScreenState extends State<AddProductScreen> {
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 25, vertical: 15),
-                            child: Text('Back'),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                           ),
+                          child: const Text('Cancel'),
                         ),
-                        FilledButton(
+                        const SizedBox(width: 16),
+                        ElevatedButton.icon(
                           onPressed: addProduct,
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 25, vertical: 15),
-                            child: Text('Add Product'),
+                          icon: const Icon(Icons.save),
+                          label: const Text('Save Product'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).primaryColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 2,
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
           ),
         ),

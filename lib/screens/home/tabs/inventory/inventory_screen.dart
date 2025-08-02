@@ -8,6 +8,7 @@ import 'package:mpos/models/inventory.dart';
 import 'package:mpos/objectbox.g.dart';
 import 'package:mpos/screens/home/tabs/inventory/add_package_screen.dart';
 import 'package:mpos/screens/home/tabs/inventory/add_product_screen.dart';
+import 'package:mpos/screens/home/tabs/inventory/components/add_option_dialog.dart';
 import 'package:mpos/screens/home/tabs/inventory/components/inventory_header.dart';
 import 'package:mpos/screens/home/tabs/inventory/components/package_table.dart';
 import 'package:mpos/screens/home/tabs/inventory/components/product_table.dart';
@@ -165,71 +166,18 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
     );
   }
 
-  Future<void> showAddOptionDialog() async {
+  Future<void> showAddOptionDialog({
+    required BuildContext context,
+    required VoidCallback navigateToAddProductScreen,
+    required VoidCallback navigateToAddPackageScreen,
+  }) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
-        return SimpleDialog(
-          title: const Text('Choose what to add:'),
-          children: [
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.40,
-              width: MediaQuery.of(context).size.height * 0.75,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                      child: SizedBox(
-                        height: double.infinity,
-                        child: FilledButton.tonal(
-                          style: FilledButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)
-                            ),
-                          ),
-                          onPressed: navigateToAddProductScreen,
-                          child: const Text(
-                            'Product\n\n(Donuts, Cakes, etc.)',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                fontSize: 18
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (posTier != "FREE_TRIAL" && posTier != "BASIC") ...[
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                        child: SizedBox(
-                          height: double.infinity,
-                          child: FilledButton.tonal(
-                            onPressed: navigateToAddPackageScreen,
-                            style: FilledButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)
-                              ),
-                            ),
-                            child: const Text(
-                              'Packaged Products\n\n(Box of 3 Donuts)',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 18
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ]
-                ],
-              ),
-            )
-          ],
+        return AddOptionDialog(
+          navigateToAddProductScreen: navigateToAddProductScreen,
+          navigateToAddPackageScreen: navigateToAddPackageScreen,
         );
       },
     );
@@ -284,7 +232,7 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
                 onPressed: search,
                 refresh: refresh,
                 deleteAll: showDeleteAllConfirmationDialog,
-                addProduct: showAddOptionDialog,
+                addProduct: () => showAddOptionDialog(context: context, navigateToAddPackageScreen: navigateToAddPackageScreen, navigateToAddProductScreen: navigateToAddProductScreen),
               ),
               TabBar(
                 tabs: [

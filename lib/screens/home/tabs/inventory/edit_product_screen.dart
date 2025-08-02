@@ -27,6 +27,10 @@ class ProductVariantControllers {
     totalPriceController.text = (int.parse(quantity) * int.parse(unitPrice)).toString();
   }
 
+  void dispose() {
+    
+  }
+
   ProductVariantControllers({
     this.id = 0,
     required this.index,
