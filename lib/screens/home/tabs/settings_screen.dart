@@ -14,6 +14,7 @@ import 'package:mpos/screens/home/tabs/accounts/edit_account_screen.dart';
 import 'package:mpos/screens/login_server_account_screen.dart';
 import 'package:mpos/utils/utils.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../restore_data_screen_local.dart';
 
@@ -56,7 +57,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
 
 
-  void logout() {
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.clear();
     GetStorage().remove('id');
     GetStorage().remove('email');
 

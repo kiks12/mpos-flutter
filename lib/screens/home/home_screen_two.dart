@@ -8,8 +8,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mpos/components/copyright.dart';
 import 'package:mpos/components/header_one.dart';
 import 'package:mpos/main.dart';
-import 'package:mpos/models/account.dart';
-// import 'package:mpos/objectbox.g.dart';
 import 'package:mpos/screens/home/components/home_screen_card/card_data.dart';
 import 'package:mpos/screens/home/components/home_screen_card/home_screen_card.dart';
 import 'package:mpos/screens/home/tabs/accounts/accounts_screen.dart';
@@ -22,8 +20,7 @@ import 'package:mpos/screens/home/tabs/settings_screen.dart';
 import 'package:mpos/screens/home/tabs/time_in_time_out_screen.dart';
 import 'package:mpos/screens/home/tabs/transactions/transactions_screen.dart';
 import 'package:mpos/utils/utils.dart';
-
-// import '../../models/expiration_dates.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreenTwo extends StatefulWidget {
   const HomeScreenTwo({Key? key}) : super(key: key);
@@ -85,7 +82,8 @@ final Map<String, CardDataMap> cardDataMap = {
 };
 
 class _HomeScreenTwoState extends State<HomeScreenTwo> with SingleTickerProviderStateMixin {
-  Account? currentAccount;
+  String? posDeviceName;
+  // Account? currentAccount;
   String? storeName;
 
   // static final now = DateTime.now();
@@ -101,7 +99,7 @@ class _HomeScreenTwoState extends State<HomeScreenTwo> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
-    currentAccount = Utils().getCurrentAccount(objectBox);
+    // currentAccount = Utils().getCurrentAccount(objectBox);
     storeName = objectBox.storeDetailsBox.getAll()[0].name;
     // _tabController = TabController(length: currentAccount!.isAdmin ? 10 : 4, vsync: this);
     // getExpiringNotifications();
@@ -112,6 +110,7 @@ class _HomeScreenTwoState extends State<HomeScreenTwo> with SingleTickerProvider
     _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
 
+    getSharedPreferencesValues();
     setState(() {});
   }
 
@@ -119,6 +118,12 @@ class _HomeScreenTwoState extends State<HomeScreenTwo> with SingleTickerProvider
   void dispose() {
     super.dispose();
     _connectivitySubscription.cancel();
+  }
+
+  Future<void> getSharedPreferencesValues() async {
+    final prefs = await SharedPreferences.getInstance();
+    posDeviceName = prefs.get("device_name") as String;
+    setState(() {});
   }
 
   void initServerAccount() {
@@ -207,8 +212,8 @@ class _HomeScreenTwoState extends State<HomeScreenTwo> with SingleTickerProvider
           padding: const EdgeInsets.all(80),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: ((_serverAccount != "" && _connectionStatus.last != ConnectivityResult.none) || _serverAccount == "") ? [
-              Text("${storeName!} MPOS", style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w600),),
+            children: ((_connectionStatus.last != ConnectivityResult.none)) ? [
+              Text("${posDeviceName ?? "No Device Name"} MPOS", style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w600),),
               const Padding(padding: EdgeInsets.symmetric(vertical: 12)),
               Expanded(
                 child: GridView.builder(

@@ -1,30 +1,19 @@
-import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mpos/firebase_options.dart';
-import 'package:mpos/models/account.dart';
 import 'package:mpos/models/object_box.dart';
-import 'package:mpos/models/store_details.dart';
-import 'package:mpos/objectbox.g.dart';
 import 'package:mpos/routes/routes.dart';
-import 'package:mpos/screens/home/home_screen.dart';
 import 'package:mpos/screens/home/home_screen_two.dart';
 import 'package:mpos/screens/pos_device_selection_screen.dart';
 import 'package:mpos/screens/splash_screen.dart';
-import 'package:mpos/screens/startup_menu_screen.dart';
-import 'package:mpos/screens/store_details_registration_screen.dart';
 import 'package:mpos/screens/supabase_login_screen.dart';
-// import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 late ObjectBox objectBox;
-ColorScheme appColors = ColorScheme.fromSeed(seedColor: Colors.blue);
+ColorScheme appColors = ColorScheme.fromSeed(seedColor: Colors.black87);
 // const posTier = "FREE_TRIAL";
 // const posTier = "BASIC";
 // const posTier = "PRO";
@@ -60,90 +49,55 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _storeName = '';
 
   @override
   void initState() {
-    deleteApkFiles();
+    // deleteApkFiles();
     super.initState();
   }
 
-  static const platform = MethodChannel('com.example.mpos/downloads');
+  // static const platform = MethodChannel('com.example.mpos/downloads');
 
-  Future<String?> getDownloadsPath() async {
-    try {
-      final String? path = await platform.invokeMethod('getDownloadsDir');
-      return path;
-    } on PlatformException catch (e) {
-      Fluttertoast.showToast(msg: "Failed to get downloads directory: '${e.message}'.");
-      return null;
-    }
-  }
+  // Future<String?> getDownloadsPath() async {
+  //   try {
+  //     final String? path = await platform.invokeMethod('getDownloadsDir');
+  //     return path;
+  //   } on PlatformException catch (e) {
+  //     Fluttertoast.showToast(msg: "Failed to get downloads directory: '${e.message}'.");
+  //     return null;
+  //   }
+  // }
 
-  Future<void> deleteApkFiles() async {
-    final storageGranted = await Permission.storage.request().isGranted;
-    if (!storageGranted) {
-      Fluttertoast.showToast(msg: "Storage permission not granted");
-      return;
-    }
+  // Future<void> deleteApkFiles() async {
+  //   final storageGranted = await Permission.storage.request().isGranted;
+  //   if (!storageGranted) {
+  //     Fluttertoast.showToast(msg: "Storage permission not granted");
+  //     return;
+  //   }
 
-    try {
-      String? downloadsDirPath = await getDownloadsPath();
+  //   try {
+  //     String? downloadsDirPath = await getDownloadsPath();
 
-      if (downloadsDirPath == null) {
-        Fluttertoast.showToast(msg: "Cannot access downloads directory");
-        return;
-      }
+  //     if (downloadsDirPath == null) {
+  //       Fluttertoast.showToast(msg: "Cannot access downloads directory");
+  //       return;
+  //     }
 
-      final downloadsDir = Directory(downloadsDirPath);
-      List<FileSystemEntity> files = downloadsDir.listSync();
-      for (FileSystemEntity file in files) {
-        if (file is File && file.path.endsWith('.apk')) {
-          try {
-            await file.delete();
-          } catch (e) {
-            Fluttertoast.showToast(msg: "Error deleting file");
-          }
-        }
-      }
-    } catch (e) {
-      Fluttertoast.showToast(msg: "Error accessing the Downloads directory");
-    }
-  }
-
-  bool noAdminAccount() {
-    Query<Account> adminQuery =
-        objectBox.accountBox.query(Account_.isAdmin.equals(true)).build();
-    List<Account> admin = adminQuery.find();
-    return admin.isEmpty;
-  }
-
-  bool noStoreDetails() {
-    List<StoreDetails> storeDetailsQuery = objectBox.storeDetailsBox.getAll();
-    return storeDetailsQuery.isEmpty;
-  }
-
-  dynamic screenToShow() {
-    return const SupabaseLoginScreen();
-    // if (noAdminAccount()) {
-    //   return const StartUpMenuScreen();
-    // }
-
-    // if (noStoreDetails()) {
-    //   return StoreDetailsRegistrationScreen(
-    //     storeDetailsBox: objectBox.storeDetailsBox,
-    //   );
-    // }
-
-    // setState(() {
-    //   _storeName = objectBox.storeDetailsBox.getAll()[0].name;
-    // });
-
-    // return SplashScreen(
-    //   storeName: _storeName,
-    //   objectBox: objectBox,
-    // );
-  }
+  //     final downloadsDir = Directory(downloadsDirPath);
+  //     List<FileSystemEntity> files = downloadsDir.listSync();
+  //     for (FileSystemEntity file in files) {
+  //       if (file is File && file.path.endsWith('.apk')) {
+  //         try {
+  //           await file.delete();
+  //         } catch (e) {
+  //           Fluttertoast.showToast(msg: "Error deleting file");
+  //         }
+  //       }
+  //     }
+  //   } catch (e) {
+  //     Fluttertoast.showToast(msg: "Error accessing the Downloads directory");
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -153,8 +107,9 @@ class _MyAppState extends State<MyApp> {
         colorScheme: appColors,
         useMaterial3: true,
       ),
-      initialRoute: supabaseLoginScreenRoute,
+      initialRoute: splashScreenRoute,
       routes: {
+        splashScreenRoute: (context) => SplashScreen(),
         supabaseLoginScreenRoute: (context) => SupabaseLoginScreen(),
         posDeviceSelectionScreenRoute: (context) => PosDeviceSelectionScreen(), 
         homeScreenRoute: (context) => HomeScreenTwo()

@@ -1,22 +1,12 @@
-import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:mpos/components/copyright.dart';
 import 'package:mpos/components/header_one.dart';
-import 'package:mpos/models/object_box.dart';
-import 'package:mpos/screens/home/home_screen_two.dart';
-import 'package:mpos/screens/login_screen.dart';
+import 'package:mpos/routes/routes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({
-    Key? key,
-    required this.storeName,
-    required this.objectBox,
-  }) : super(key: key);
-
-  final String storeName;
-  final ObjectBox objectBox;
+  const SplashScreen({Key? key}) : super(key: key);
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -28,30 +18,27 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    if (GetStorage().read('email') == null) {
-      startTimer(
-        LoginScreen(objectBox: widget.objectBox),
-      );
-      return;
+    Future.delayed(Duration(seconds: 2), () {
+      checkNextScreen();
+    });
+  }
+
+  Future<void> checkNextScreen() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.get("user_id");
+    final deviceId = prefs.get("device_id");
+
+    if (userId == null) {
+      if (mounted) Navigator.of(context).pushNamed(supabaseLoginScreenRoute);
     }
 
-    startTimer(
-      const HomeScreenTwo(),
-    );
-  }
+    if (userId != null && deviceId == null) {
+      if (mounted) Navigator.of(context).pushNamed(posDeviceSelectionScreenRoute);
+    }
 
-  void startTimer(dynamic nextScreen) {
-    Duration duration = const Duration(seconds: 3);
-    Timer(duration, () => navigateToNextScreen(nextScreen));
-  }
-
-  void navigateToNextScreen(dynamic nextScreen) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => nextScreen,
-      ),
-    );
+    if (userId != null && deviceId != null) {
+      if (mounted) Navigator.of(context).pushNamed(homeScreenRoute);
+    }
   }
 
   @override
@@ -68,7 +55,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 child: Center(
                   child: HeaderOne(
                     padding: const EdgeInsets.all(0),
-                    text: '${widget.storeName} MPOS',
+                    text: 'LOGO',
                   ),
                 ),
               ),

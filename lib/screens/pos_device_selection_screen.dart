@@ -56,6 +56,13 @@ class _PosDeviceSelectionScreenState extends State<PosDeviceSelectionScreen> {
     }
   }
 
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.clear();
+
+    if (mounted) Navigator.of(context).popAndPushNamed(splashScreenRoute);
+  }
+
   void _showSnackBar(String message, {bool isError = false}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -231,6 +238,7 @@ class _PosDeviceSelectionScreenState extends State<PosDeviceSelectionScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
+        leading: IconButton(onPressed: logout, icon: Icon(Icons.logout)),
         title: const Text('Select POS Device'),
         backgroundColor: Colors.transparent,
         elevation: 0,
