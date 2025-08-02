@@ -10,6 +10,10 @@ import 'package:mpos/models/account.dart';
 import 'package:mpos/models/object_box.dart';
 import 'package:mpos/models/store_details.dart';
 import 'package:mpos/objectbox.g.dart';
+import 'package:mpos/routes/routes.dart';
+import 'package:mpos/screens/home/home_screen.dart';
+import 'package:mpos/screens/home/home_screen_two.dart';
+import 'package:mpos/screens/pos_device_selection_screen.dart';
 import 'package:mpos/screens/splash_screen.dart';
 import 'package:mpos/screens/startup_menu_screen.dart';
 import 'package:mpos/screens/store_details_registration_screen.dart';
@@ -149,7 +153,12 @@ class _MyAppState extends State<MyApp> {
         colorScheme: appColors,
         useMaterial3: true,
       ),
-      home: screenToShow(),
+      initialRoute: supabaseLoginScreenRoute,
+      routes: {
+        supabaseLoginScreenRoute: (context) => SupabaseLoginScreen(),
+        posDeviceSelectionScreenRoute: (context) => PosDeviceSelectionScreen(), 
+        homeScreenRoute: (context) => HomeScreenTwo()
+      },
     );
   }
 }
