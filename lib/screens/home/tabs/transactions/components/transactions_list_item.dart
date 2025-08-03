@@ -1,17 +1,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mpos/models/transaction.dart';
-import 'package:mpos/screens/home/tabs/transactions/transaction_screen.dart';
+import 'package:mpos/models/sale.dart';
 
 class TransactionListTile extends StatefulWidget {
   const TransactionListTile({
     Key? key,
     required this.index,
-    required this.transaction,
+    required this.sale,
   }) : super(key: key);
 
-  final Transaction transaction;
+  final Sale sale;
   final int index;
 
   @override
@@ -21,12 +20,12 @@ class TransactionListTile extends StatefulWidget {
 class _TransactionListTileState extends State<TransactionListTile> {
 
   void navigateToTransactionScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => TransactionScreen(transaction: widget.transaction),
-      ),
-    );
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => TransactionScreen(transaction: widget.transaction),
+    //   ),
+    // );
   }
 
   @override
@@ -51,22 +50,14 @@ class _TransactionListTileState extends State<TransactionListTile> {
             children: [
               Expanded(
                 child: Center(
-                  child: Text(widget.transaction.transactionID.toString()),
+                  child: Text(widget.sale.transactionID.toString()),
                 ),
               ),
               Expanded(
                 child: Center(
                   child: Text(
                     NumberFormat.currency(symbol: '₱')
-                        .format(widget.transaction.subTotal),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Center(
-                  child: Text(
-                    NumberFormat.currency(symbol: '₱')
-                        .format(widget.transaction.discount),
+                        .format(widget.sale.subTotal),
                   ),
                 ),
               ),
@@ -74,7 +65,7 @@ class _TransactionListTileState extends State<TransactionListTile> {
                 child: Center(
                   child: Text(
                     NumberFormat.currency(symbol: '₱')
-                        .format(widget.transaction.totalAmount),
+                        .format(widget.sale.discount),
                   ),
                 ),
               ),
@@ -82,7 +73,7 @@ class _TransactionListTileState extends State<TransactionListTile> {
                 child: Center(
                   child: Text(
                     NumberFormat.currency(symbol: '₱')
-                        .format(widget.transaction.payment),
+                        .format(widget.sale.totalAmount),
                   ),
                 ),
               ),
@@ -90,33 +81,41 @@ class _TransactionListTileState extends State<TransactionListTile> {
                 child: Center(
                   child: Text(
                     NumberFormat.currency(symbol: '₱')
-                        .format(widget.transaction.change),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Center(
-                  child: Text(widget.transaction.paymentMethod),
-                ),
-              ),
-              Expanded(
-                child: Center(
-                  child: Text(
-                    widget.transaction.user.target != null ? '${widget.transaction.user.target?.lastName}, ${widget.transaction.user.target?.firstName}' : "NOT FOUND",
+                        .format(widget.sale.payment),
                   ),
                 ),
               ),
               Expanded(
                 child: Center(
                   child: Text(
-                    DateFormat('yyyy-MM-dd').format(widget.transaction.date),
+                    NumberFormat.currency(symbol: '₱')
+                        .format(widget.sale.change),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: Text(widget.sale.paymentMethod),
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: Text(
+                    widget.sale.employeeName,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: Text(
+                    DateFormat('yyyy-MM-dd').format(widget.sale.date),
                   ),
                 ),
               ),
               Expanded(
                 child: Center(
                   child:
-                  Text(DateFormat('HH:mm a').format(widget.transaction.time)),
+                  Text(DateFormat('HH:mm a').format(widget.sale.time)),
                 ),
               ),
             ],

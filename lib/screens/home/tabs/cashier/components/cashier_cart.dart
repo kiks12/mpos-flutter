@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
-import 'package:mpos/components/header_one.dart';
-import 'package:mpos/components/text_form_field_with_label.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/account.dart';
 import 'package:mpos/models/discounts.dart';
@@ -14,7 +12,6 @@ import 'package:mpos/objectbox.g.dart';
 import 'package:mpos/screens/home/tabs/cashier/components/dialogs/cash_payment_dialog.dart';
 import 'package:mpos/screens/home/tabs/cashier/components/dialogs/other_payment_dialog.dart';
 import 'package:mpos/screens/home/tabs/cashier/components/dialogs/transaction_complete_dialog.dart';
-import 'package:mpos/utils/receipt_printer.dart';
 
 class Cart extends StatefulWidget {
   const Cart({

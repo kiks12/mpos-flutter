@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/inventory.dart';
+import 'package:mpos/models/sale.dart';
 import 'package:mpos/models/transaction.dart';
 import 'package:mpos/objectbox.g.dart';
 import 'package:mpos/screens/home/tabs/transactions/components/transactions_header.dart';
@@ -20,8 +21,8 @@ class TransactionsScreen extends StatefulWidget {
 
 class _TransactionsScreenState extends State<TransactionsScreen> {
   late Stream<Query<Transaction>> transactionsStream;
-  List<Transaction> _transactionList = [];
-  List<Transaction> _backupTransactionList = [];
+  List<Sale> saleList = [];
+  List<Sale> _backupTransactionList = [];
 
   final TextEditingController searchController = TextEditingController();
   DateTime? _selectedDate;
@@ -48,8 +49,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     _dropdownOnChange('Today');
   }
 
-  TransactionListTile transactionListItemBuilder(int index, Transaction transaction) {
-    return TransactionListTile(transaction: transaction, index: index);
+  TransactionListTile transactionListItemBuilder(int index, Sale sale) {
+    return TransactionListTile(sale: sale, index: index);
   }
 
   void refresh() {
@@ -61,17 +62,17 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
   void search() {
     String strToSearch = searchController.text;
-    final transactionQueryBuilder = objectBox.transactionBox.query(
-      Transaction_.referenceNumber.contains(strToSearch, caseSensitive: false)
-        .or(Transaction_.productsJson.contains(strToSearch, caseSensitive: false))
-        .or(Transaction_.packagesJson.contains(strToSearch, caseSensitive: false))
+    final saleQueryBuilder = objectBox.saleBox.query(
+      Sale_.referenceNumber.contains(strToSearch, caseSensitive: false)
+        .or(Sale_.productsJson.contains(strToSearch, caseSensitive: false))
+        .or(Sale_.packagesJson.contains(strToSearch, caseSensitive: false))
     );
-    final transactionQuery = transactionQueryBuilder.watch(triggerImmediately: true);
-    setTransactionListData(transactionQuery);
+    final saleQuery = saleQueryBuilder.watch(triggerImmediately: true);
+    setSaleListData(saleQuery);
   }
 
   void calculateTotalRevenue() {
-    _totalRevenue = _transactionList.fold(0, (previousValue, element) => previousValue + element.totalAmount);
+    _totalRevenue = saleList.fold(0, (previousValue, element) => previousValue + element.totalAmount);
     setState(() {});
   }
 
@@ -79,8 +80,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     final DateTime? selected = await showDatePicker(
       context: context,
       initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime(2010),
-      lastDate: DateTime(2025),
+      firstDate: DateTime(2025),
+      lastDate: DateTime(2035),
     );
     if (selected != null && selected != _selectedDate) {
       setState(() {
@@ -92,17 +93,17 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   }
 
   void _filter() {
-    final transactionQueryBuilder = objectBox.transactionBox.query(
-      Transaction_.date.equals(DateTime.parse(
+    final saleQueryBuilder = objectBox.saleBox.query(
+      Sale_.date.equals(DateTime.parse(
         DateFormat('yyyy-MM-dd').format(_selectedDate as DateTime),
       ).millisecondsSinceEpoch),
     )..order(
-        Transaction_.date,
+        Sale_.date,
         flags: Order.descending,
       );
-    final transactionQuery =
-        transactionQueryBuilder.watch(triggerImmediately: true);
-    setTransactionListData(transactionQuery);
+    final saleQuery =
+        saleQueryBuilder.watch(triggerImmediately: true);
+    setSaleListData(saleQuery);
   }
 
   void addQuantityToProduct(Product product) {
@@ -116,7 +117,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   }
 
   void deleteAll() {
-    final transactions = objectBox.transactionBox.getAll();
+    final transactions = objectBox.saleBox.getAll();
     for (var transaction in transactions) {
       for (var package in transaction.packages) {
         for (var product in package.productsList) {
@@ -127,7 +128,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         addQuantityToProduct(product);
       }
     }
-    objectBox.transactionBox.removeAll();
+    objectBox.saleBox.removeAll();
     Fluttertoast.showToast(msg: "Successfully deleted all transactions");
   }
 
@@ -164,37 +165,37 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   }
 
   void _filterForToday() {
-    final transactionQueryBuilder = objectBox.transactionBox.query(Transaction_
+    final transactionQueryBuilder = objectBox.saleBox.query(Sale_
         .date
         .equals(DateTime.parse(DateFormat('yyyy-MM-dd').format(DateTime.now()))
             .millisecondsSinceEpoch));
     final transactionQuery =
         transactionQueryBuilder.watch(triggerImmediately: true);
-    setTransactionListData(transactionQuery);
+    setSaleListData(transactionQuery);
   }
 
   void _filterForLast7Days() {
     final dateToday = DateTime.now();
     final dateSevenDaysAgo =
         DateTime(dateToday.year, dateToday.month, dateToday.day - 7);
-    final transactionQueryBuilder = objectBox.transactionBox.query(
-        Transaction_.date.between(dateToday.millisecondsSinceEpoch,
+    final saleQueryBuilder = objectBox.saleBox.query(
+        Sale_.date.between(dateToday.millisecondsSinceEpoch,
             dateSevenDaysAgo.millisecondsSinceEpoch));
-    final transactionQuery =
-        transactionQueryBuilder.watch(triggerImmediately: true);
-    setTransactionListData(transactionQuery);
+    final saleQuery =
+        saleQueryBuilder.watch(triggerImmediately: true);
+    setSaleListData(saleQuery);
   }
 
   void _filterForLast30Days() {
     final dateToday = DateTime.now();
     final dateSevenDaysAgo =
         DateTime(dateToday.year, dateToday.month - 1, dateToday.day);
-    final transactionQueryBuilder = objectBox.transactionBox.query(
-        Transaction_.date.between(dateToday.millisecondsSinceEpoch,
+    final saleQueryBuilder = objectBox.saleBox.query(
+        Sale_.date.between(dateToday.millisecondsSinceEpoch,
             dateSevenDaysAgo.millisecondsSinceEpoch));
-    final transactionQuery =
-        transactionQueryBuilder.watch(triggerImmediately: true);
-    setTransactionListData(transactionQuery);
+    final saleQuery =
+        saleQueryBuilder.watch(triggerImmediately: true);
+    setSaleListData(saleQuery);
   }
 
   void _onQuarterChange(String newValue) {
@@ -210,45 +211,45 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       case 'First Quarter':
         final firstDate = DateTime(now.year, 1, 1);
         final secondDate = DateTime(now.year, 3, 31);
-        final transactionQueryBuilder = objectBox.transactionBox.query(
-            Transaction_.date.between(firstDate.millisecondsSinceEpoch,
+        final saleQueryBuilder = objectBox.saleBox.query(
+            Sale_.date.between(firstDate.millisecondsSinceEpoch,
                 secondDate.millisecondsSinceEpoch));
-        final transactionQuery =
-            transactionQueryBuilder.watch(triggerImmediately: true);
-        setTransactionListData(transactionQuery);
+        final saleQuery =
+            saleQueryBuilder.watch(triggerImmediately: true);
+        setSaleListData(saleQuery);
         break;
 
       case 'Second Quarter':
         final firstDate = DateTime(now.year, 4, 1);
         final secondDate = DateTime(now.year, 6, 30);
-        final transactionQueryBuilder = objectBox.transactionBox.query(
-            Transaction_.date.between(firstDate.millisecondsSinceEpoch,
+        final transactionQueryBuilder = objectBox.saleBox.query(
+            Sale_.date.between(firstDate.millisecondsSinceEpoch,
                 secondDate.millisecondsSinceEpoch));
         final transactionQuery =
             transactionQueryBuilder.watch(triggerImmediately: true);
-        setTransactionListData(transactionQuery);
+        setSaleListData(transactionQuery);
         break;
 
       case 'Third Quarter':
         final firstDate = DateTime(now.year, 7, 1);
         final secondDate = DateTime(now.year, 9, 30);
-        final transactionQueryBuilder = objectBox.transactionBox.query(
-            Transaction_.date.between(firstDate.millisecondsSinceEpoch,
+        final transactionQueryBuilder = objectBox.saleBox.query(
+            Sale_.date.between(firstDate.millisecondsSinceEpoch,
                 secondDate.millisecondsSinceEpoch));
         final transactionQuery =
             transactionQueryBuilder.watch(triggerImmediately: true);
-        setTransactionListData(transactionQuery);
+        setSaleListData(transactionQuery);
         break;
 
       case 'Fourth Quarter':
         final firstDate = DateTime(now.year, 10, 1);
         final secondDate = DateTime(now.year, 12, 31);
-        final transactionQueryBuilder = objectBox.transactionBox.query(
-            Transaction_.date.between(firstDate.millisecondsSinceEpoch,
+        final transactionQueryBuilder = objectBox.saleBox.query(
+            Sale_.date.between(firstDate.millisecondsSinceEpoch,
                 secondDate.millisecondsSinceEpoch));
         final transactionQuery =
             transactionQueryBuilder.watch(triggerImmediately: true);
-        setTransactionListData(transactionQuery);
+        setSaleListData(transactionQuery);
         break;
     }
   }
@@ -266,23 +267,23 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       case 'First Half':
         final firstDate = DateTime(now.year, 1, 1);
         final secondDate = DateTime(now.year, 6, 30);
-        final transactionQueryBuilder = objectBox.transactionBox.query(
-            Transaction_.date.between(firstDate.millisecondsSinceEpoch,
+        final transactionQueryBuilder = objectBox.saleBox.query(
+            Sale_.date.between(firstDate.millisecondsSinceEpoch,
                 secondDate.millisecondsSinceEpoch));
         final transactionQuery =
             transactionQueryBuilder.watch(triggerImmediately: true);
-        setTransactionListData(transactionQuery);
+        setSaleListData(transactionQuery);
         break;
 
       case 'Second Half':
         final firstDate = DateTime(now.year, 7, 1);
         final secondDate = DateTime(now.year, 12, 31);
-        final transactionQueryBuilder = objectBox.transactionBox.query(
-            Transaction_.date.between(firstDate.millisecondsSinceEpoch,
+        final transactionQueryBuilder = objectBox.saleBox.query(
+            Sale_.date.between(firstDate.millisecondsSinceEpoch,
                 secondDate.millisecondsSinceEpoch));
         final transactionQuery =
             transactionQueryBuilder.watch(triggerImmediately: true);
-        setTransactionListData(transactionQuery);
+        setSaleListData(transactionQuery);
         break;
     }
   }
@@ -296,29 +297,29 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   void _filterForAnnually(int year) {
     final firstDate = DateTime(year, 1, 1);
     final secondDate = DateTime(year, 12, 31);
-    final transactionQueryBuilder = objectBox.transactionBox.query(
-        Transaction_.date.between(firstDate.millisecondsSinceEpoch,
+    final transactionQueryBuilder = objectBox.saleBox.query(
+        Sale_.date.between(firstDate.millisecondsSinceEpoch,
             secondDate.millisecondsSinceEpoch));
     final transactionQuery =
         transactionQueryBuilder.watch(triggerImmediately: true);
-    setTransactionListData(transactionQuery);
+    setSaleListData(transactionQuery);
   }
 
-  void setTransactionListData(Stream<Query<Transaction>> transactionQuery) {
+  void setSaleListData(Stream<Query<Sale>> transactionQuery) {
     transactionQuery.listen((event) {
-      _transactionList = event.find();
-      _backupTransactionList = _transactionList;
+      saleList = event.find();
+      _backupTransactionList = saleList;
       calculateTotalRevenue();
       setState(() {});
     });
   }
 
   void _fetchAllTransactions() {
-    final transactionQueryBuilder = objectBox.transactionBox.query();
+    final transactionQueryBuilder = objectBox.saleBox.query();
     final transactionQuery =
         transactionQueryBuilder.watch(triggerImmediately: true);
 
-    setTransactionListData(transactionQuery);
+    setSaleListData(transactionQuery);
   }
 
   void _dropdownOnChange(String newValue) {
@@ -360,12 +361,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   void onPaymentMethodValueChange(String str) {
     _paymentMethodValue = str;
     if (str != "All") {
-      _transactionList = _backupTransactionList.where((element) => element.paymentMethod == str).toList();
+      saleList = _backupTransactionList.where((element) => element.paymentMethod == str).toList();
       calculateTotalRevenue();
       setState(() {});
       return;
     }
-    _transactionList = _backupTransactionList;
+    saleList = _backupTransactionList;
     calculateTotalRevenue();
     setState(() {});
   }
@@ -399,9 +400,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
             Expanded(
               child:
                 ListView.builder(
-                  itemBuilder: (context, index) => transactionListItemBuilder(index, _transactionList[index]),
+                  itemBuilder: (context, index) => transactionListItemBuilder(index, saleList[index]),
                   shrinkWrap: true,
-                  itemCount: _transactionList.length,
+                  itemCount: saleList.length,
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                 ),
             ),

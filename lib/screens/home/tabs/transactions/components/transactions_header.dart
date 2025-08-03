@@ -1,7 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mpos/components/header_one.dart';
+
 
 class TransactionScreenHeader extends StatefulWidget {
   const TransactionScreenHeader({
@@ -22,7 +21,7 @@ class TransactionScreenHeader extends StatefulWidget {
     required this.onYearChange,
     required this.totalRevenue,
     required this.paymentMethodValue,
-    required this.onPaymentMethodValueChange
+    required this.onPaymentMethodValueChange,
   }) : super(key: key);
 
   final int totalRevenue;
@@ -44,12 +43,11 @@ class TransactionScreenHeader extends StatefulWidget {
   final void Function(String str) onPaymentMethodValueChange;
 
   @override
-  State<TransactionScreenHeader> createState() =>
-      _TransactionScreenHeaderState();
+  State<TransactionScreenHeader> createState() => _TransactionScreenHeaderState();
 }
 
 class _TransactionScreenHeaderState extends State<TransactionScreenHeader> {
-  static const items = [
+  static const List<String> _dateRangeItems = [
     'Today',
     'Last 7 Days',
     'Last 30 Days',
@@ -59,253 +57,418 @@ class _TransactionScreenHeaderState extends State<TransactionScreenHeader> {
     'Specific Date',
     'All',
   ];
-
-  static const quarters = [
+  static const List<String> _quarters = [
     'First Quarter',
     'Second Quarter',
     'Third Quarter',
     'Fourth Quarter',
   ];
-
-  static const halves = [
+  static const List<String> _halves = [
     'First Half',
     'Second Half',
   ];
-
-  static const years = [
-    '2020',
-    '2021',
-    '2022',
-    '2023',
-    '2024',
-    '2025',
-    '2026',
-    '2027',
-    '2028',
-    '2029',
-    '2030',
+  static const List<String> _years = [
+    '2025', '2026', '2027', '2028', '2029', '2030', '2031', '2032', '2033', '2034', '2035',
   ];
-
-  static const paymentMethods = [
+  static const List<String> _paymentMethods = [
     "All",
     "Cash",
     "GCash",
     "Grab",
-    "Foodpanda"
+    "Foodpanda",
   ];
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
+  Widget _buildSearchAndActions(double maxWidth) {
+    return Row(
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(15,15,15,5),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              HeaderOne(
-                  padding: const EdgeInsets.all(0), text: 'Transactions  |  ${NumberFormat.currency(symbol: "₱").format(widget.totalRevenue)}'),
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.3,
-                      height: MediaQuery.of(context).size.height * 0.06,
-                      child: TextFormField(
-                        maxLines: 1,
-                        minLines: 1,
-                        decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-                            labelText: "Search",
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(50)
-                            )
-                        ),
-                        controller: widget.searchController,
-                      ),
-                    ),
+        Expanded(
+          child: Container(
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: TextFormField(
+              controller: widget.searchController,
+              maxLines: 1,
+              minLines: 1,
+              textInputAction: TextInputAction.search,
+              onFieldSubmitted: (_) => widget.onPressed(),
+              decoration: InputDecoration(
+                hintText: "Search sales...",
+                prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.grey[50],
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).primaryColor,
+                    width: 2,
                   ),
-                  FilledButton.tonalIcon(
-                    icon: const Icon(Icons.search),
-                    onPressed: widget.onPressed,
-                    label: const Text('Search'),
-                  ),
-                  IconButton.filledTonal(
-                    icon: const Icon(Icons.refresh),
-                    onPressed: widget.refresh,
-                  ),
-                ],
+                ),
               ),
-            ],
+            ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text("Select Range: "),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: DropdownButton<String>(
-                          value: widget.dropdownValue,
-                          onChanged: (String? newValue) {
-                            widget.dropdownOnChange(newValue as String);
-                          },
-                          items:
-                          items.map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ],
-                  ),
-                  widget.dropdownValue == 'Quarterly'
-                      ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("Select Quarter: "),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(15, 1, 10, 1),
-                            child: DropdownButton<String>(
-                            value: widget.whichQuarter,
-                            onChanged: (String? newValue) {
-                              widget.onQuarterChange(newValue as String);
-                            },
-                            items: quarters.map<DropdownMenuItem<String>>(
-                                    (String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                        ],
-                      )
-                      : Container(),
-                  widget.dropdownValue == 'Semi Annually'
-                      ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("Select Half: "),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(15, 1, 10, 1),
-                            child: DropdownButton<String>(
-                            value: widget.whichHalf,
-                            onChanged: (String? newValue) {
-                              widget.onHalfChange(newValue as String);
-                            },
-                            items: halves.map<DropdownMenuItem<String>>(
-                                    (String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                        ],
-                      )
-                      : Container(),
-                  widget.dropdownValue == 'Annually'
-                      ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("Select Year: "),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(15, 1, 10, 1),
-                            child: SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.10,
-                              child: DropdownButton<String>(
-                                isExpanded: true,
-                                value: widget.whichYear,
-                                onChanged: (String? newValue) {
-                                  widget.onYearChange(newValue as String);
-                                },
-                                items: years.map<DropdownMenuItem<String>>(
-                                        (String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(value),
-                                      );
-                                    }).toList(),
-                                  ),
-                              ),
-                            ),
-                        ],
-                      )
-                      : Container(),
-                  widget.dropdownValue == 'Specific Date'
-                      ? FilledButton.tonalIcon(
-                          icon: const Icon(Icons.date_range),
-                          onPressed: () { widget.selectDate(context); },
-                          label: const Text('Select Date')
-                        )
-                      : Container(),
-                  widget.dropdownValue == 'Specific Date'
-                      ? Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Text(
-                      widget.date != null
-                          ? "Selected Date: ${DateFormat('yyyy-MM-dd').format(widget.date as DateTime)}"
-                          : 'Selected Date: No Date Selected',
-                    ),
-                  )
-                      : Container(),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text("Select Payment Method: "),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.15,
-                          child: DropdownButton<String>(
-                            isExpanded: true,
-                            value: widget.paymentMethodValue,
-                            onChanged: (String? newValue) {
-                              widget.onPaymentMethodValueChange(newValue as String);
-                            },
-                            items:
-                            paymentMethods.map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+        const SizedBox(width: 12),
+        SizedBox(
+          height: 48,
+          child: ElevatedButton.icon(
+            onPressed: widget.onPressed,
+            icon: const Icon(Icons.search, size: 20),
+            label: const Text('Search'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-              Row(
-                children: [
-                  FilledButton.icon(
-                    icon: const Icon(Icons.delete),
-                    style: FilledButton.styleFrom(
-                      foregroundColor: Colors.red, backgroundColor: const Color.fromRGBO(255, 230, 230, 1),
-                    ),
-                    onPressed: widget.deleteAll,
-                    label: const Text('Delete All'),
-                  ),
-                ],
+              elevation: 2,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        SizedBox(
+          height: 48,
+          width: 48,
+          child: IconButton(
+            onPressed: widget.refresh,
+            icon: const Icon(Icons.refresh),
+            style: IconButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.grey[700],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-            ],
+              elevation: 2,
+            ),
           ),
         ),
       ],
     );
   }
+
+  Widget _buildFilterDropdown({
+    required String label,
+    required String value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+    double? width,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[700],
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: width,
+            height: 48, // Fixed height for consistency
+            child: DropdownButtonFormField<String>(
+              value: value,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).primaryColor,
+                    width: 2,
+                  ),
+                ),
+                filled: true,
+                fillColor: Colors.white,
+              ),
+              items: items.map((String item) {
+                return DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(item),
+                );
+              }).toList(),
+              onChanged: onChanged,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        SizedBox(
+          height: 48,
+          child: OutlinedButton.icon(
+            onPressed: widget.deleteAll,
+            icon: const Icon(Icons.delete_outline, size: 20),
+            label: const Text('Delete All'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.red,
+              side: const BorderSide(color: Colors.red),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey[200]!,
+            width: 1,
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Inventory Value and Search/Refresh Section
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth > 700) {
+                // Desktop/Tablet layout
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Sales  |  ${NumberFormat.currency(symbol: '₱').format(double.tryParse(widget.totalRevenue.toString()) ?? 0.0)}',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[800],
+                      ),
+                    ),
+                    const Spacer(),
+                    Expanded(
+                      flex: 2,
+                      child: _buildSearchAndActions(constraints.maxWidth),
+                    ),
+                  ],
+                );
+              } else {
+                // Mobile layout
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Sales  |  ${NumberFormat.currency(symbol: '₱').format(double.tryParse(widget.totalRevenue.toString()) ?? 0.0)}',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[800],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildSearchAndActions(constraints.maxWidth),
+                  ],
+                );
+              }
+            },
+          ),
+          const SizedBox(height: 20),
+          // Filters and Action Buttons Section
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth > 700) {
+                // Desktop/Tablet layout
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        _buildFilterDropdown(
+                          label: "Select Range",
+                          value: widget.dropdownValue,
+                          items: _dateRangeItems,
+                          onChanged: (value) {
+                            widget.dropdownOnChange(value ?? "");
+                          },
+                          width: 200
+                        ),
+                        widget.dropdownValue == "Quarterly" ?  
+                          _buildFilterDropdown(
+                            label: "Select Quarter: ",
+                            value: widget.whichQuarter,
+                            items: _quarters,
+                            onChanged: (value) {
+                              widget.onQuarterChange(value ?? "");
+                            },
+                            width: 200
+                          ) : Container(),
+                        widget.dropdownValue == "Semi Annually" ?  
+                          _buildFilterDropdown(
+                            label: "Select Half: ",
+                            value: widget.whichHalf,
+                            items: _halves,
+                            onChanged: (value) {
+                              widget.onHalfChange(value ?? "");
+                            },
+                            width: 200
+                          ) : Container(),
+                        widget.dropdownValue == "Annually" ?  
+                          _buildFilterDropdown(
+                            label: "Select Year: ",
+                            value: widget.whichYear,
+                            items: _years,
+                            onChanged: (value) {
+                              widget.onYearChange(value ?? "");
+                            },
+                            width: 200
+                          ) : Container(),
+                        widget.dropdownValue == "Specific Date" ?  
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10.0),
+                            child: FilledButton.tonalIcon(
+                              onPressed: () {
+                                widget.selectDate(context);
+                              }, 
+                              icon: Icon(Icons.date_range),
+                              label: Text(widget.date != null ? "Selected Date: ${DateFormat('yyyy-MM-dd').format(widget.date as DateTime)}" : "Select Date"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).primaryColor,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 2,
+                              ),
+                            ),
+                          ) : Container(),
+                        _buildFilterDropdown(
+                          label: "Select Payment Method: ",
+                          value: widget.paymentMethodValue,
+                          items: _paymentMethods,
+                          onChanged: (value) {
+                            widget.onPaymentMethodValueChange(value ?? "");
+                          },
+                          width: 200
+                        )
+                      ],
+                    ),
+                    _buildActionButtons(),
+                  ],
+                );
+              } else {
+                // Mobile layout
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        _buildFilterDropdown(
+                          label: "Select Range",
+                          value: widget.dropdownValue,
+                          items: _dateRangeItems,
+                          onChanged: (value) {
+                            widget.dropdownOnChange(value ?? "");
+                          },
+                          width: 200
+                        ),
+                        widget.dropdownValue == "Quarterly" ?  
+                          _buildFilterDropdown(
+                            label: "Select Quarter: ",
+                            value: widget.whichQuarter,
+                            items: _quarters,
+                            onChanged: (value) {
+                              widget.onQuarterChange(value ?? "");
+                            },
+                            width: 200
+                          ) : Container(),
+                        widget.dropdownValue == "Semi Annually" ?  
+                          _buildFilterDropdown(
+                            label: "Select Half: ",
+                            value: widget.whichHalf,
+                            items: _halves,
+                            onChanged: (value) {
+                              widget.onHalfChange(value ?? "");
+                            },
+                            width: 200
+                          ) : Container(),
+                        widget.dropdownValue == "Annually" ?  
+                          _buildFilterDropdown(
+                            label: "Select Year: ",
+                            value: widget.whichYear,
+                            items: _years,
+                            onChanged: (value) {
+                              widget.onYearChange(value ?? "");
+                            },
+                            width: 200
+                          ) : Container(),
+                        widget.dropdownValue == "Specific Date" ?  
+                          FilledButton.tonalIcon(
+                            onPressed: () {
+                              widget.selectDate(context);
+                            }, 
+                            icon: Icon(Icons.date_range),
+                            label: const Text("Select Date")
+                          ) : Container(), 
+                        widget.dropdownValue == "Specific Date" ?  
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Text(
+                              widget.date != null 
+                                ? "Selected Date: ${DateFormat('yyyy-MM-dd').format(widget.date as DateTime)}"
+                                : "No Selected Date"
+                            ),
+                          ) : Container(),
+                        _buildFilterDropdown(
+                          label: "Select Payment Method: ",
+                          value: widget.paymentMethodValue,
+                          items: _paymentMethods,
+                          onChanged: (value) {
+                            widget.onPaymentMethodValueChange(value ?? "");
+                          } 
+                        )
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    _buildActionButtons(),
+                  ],
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
 }
