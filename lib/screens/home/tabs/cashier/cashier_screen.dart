@@ -374,7 +374,6 @@ class _CashierScreenState extends State<CashierScreen> {
     }
     _cartPackageList.removeAt(index);
     calculateSubTotal();
-    Navigator.of(context).pop();
     setState(() {});
   }
 
@@ -429,7 +428,6 @@ class _CashierScreenState extends State<CashierScreen> {
     removedProduct.quantity += product.quantity;
     _cartList.removeAt(index);
     calculateSubTotal();
-    Navigator.of(context).pop();
     setState(() {});
   }
 

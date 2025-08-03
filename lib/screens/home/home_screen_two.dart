@@ -32,7 +32,7 @@ class HomeScreenTwo extends StatefulWidget {
 final cardDataFreeTrial = [
   CardData(Icons.money, "Cashier", const CashierScreen()),
   CardData(Icons.inventory, "Inventory", const InventoryScreen()),
-  CardData(Icons.receipt, "Transactions", const TransactionsScreen()),
+  CardData(Icons.receipt, "Sales", const TransactionsScreen()),
   CardData(Icons.settings, "Settings", const SettingsScreen()),
 ];
 
@@ -40,7 +40,7 @@ final cardDataBasic = [
   CardData(Icons.money, "Cashier", const CashierScreen()),
   CardData(Icons.inventory, "Inventory", const InventoryScreen()),
   CardData(Icons.discount, "Discounts", const DiscountsScreen()),
-  CardData(Icons.receipt, "Transactions", const TransactionsScreen()),
+  CardData(Icons.receipt, "Sales", const TransactionsScreen()),
   CardData(Icons.settings, "Settings", const SettingsScreen()),
 ];
 
@@ -48,7 +48,7 @@ final cardDataPro = [
   CardData(Icons.money, "Cashier", const CashierScreen()),
   CardData(Icons.inventory, "Inventory", const InventoryScreen()),
   CardData(Icons.discount, "Discounts", const DiscountsScreen()),
-  CardData(Icons.receipt, "Transactions", const TransactionsScreen()),
+  CardData(Icons.receipt, "Sales", const TransactionsScreen()),
   CardData(Icons.manage_accounts, "Accounts", const AccountsScreen()),
   CardData(Icons.supervisor_account, "Attendance", const AttendanceScreen()),
   CardData(Icons.punch_clock, "Log", const TimeInTimeOutScreen()),
@@ -59,7 +59,7 @@ final cardDataPremium = [
   CardData(Icons.money, "Cashier", const CashierScreen()),
   CardData(Icons.inventory, "Inventory", const InventoryScreen()),
   CardData(Icons.discount, "Discounts", const DiscountsScreen()),
-  CardData(Icons.receipt, "Transactions", const TransactionsScreen()),
+  CardData(Icons.receipt, "Sales", const TransactionsScreen()),
   CardData(Icons.dashboard, "Dashboard", const DashboardScreen()),
   CardData(Icons.manage_accounts, "Accounts", const AccountsScreen()),
   CardData(Icons.supervisor_account, "Attendance", const AttendanceScreen()),

@@ -1,12 +1,20 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:mpos/components/header_one.dart';
+import 'package:mpos/components/text_form_field_with_label.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/account.dart';
 import 'package:mpos/models/discounts.dart';
 import 'package:mpos/models/inventory.dart';
-import 'package:mpos/models/transaction.dart';
+import 'package:mpos/models/sale.dart';
 import 'package:mpos/objectbox.g.dart';
+import 'package:mpos/screens/home/tabs/cashier/components/dialogs/cash_payment_dialog.dart';
+import 'package:mpos/screens/home/tabs/cashier/components/dialogs/other_payment_dialog.dart';
+import 'package:mpos/screens/home/tabs/cashier/components/dialogs/transaction_complete_dialog.dart';
+import 'package:mpos/utils/receipt_printer.dart';
 
 class Cart extends StatefulWidget {
   const Cart({
@@ -56,7 +64,8 @@ class _CartState extends State<Cart> {
   TextEditingController cashController = TextEditingController();
   TextEditingController referenceController = TextEditingController();
   int _change = 0;
-  Transaction? _createdTransaction;
+  // Transaction? _createdTransaction;
+  late Sale? _createdSale;
 
   @override
   void initState() {
@@ -67,7 +76,8 @@ class _CartState extends State<Cart> {
   Widget _buildProductItem(Product product, int index) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      elevation: 1,
+      elevation: 0,
+      color: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
@@ -155,7 +165,8 @@ class _CartState extends State<Cart> {
   Widget _buildPackageItem(PackagedProduct package, int index) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      elevation: 2,
+      elevation: 0,
+      color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(
@@ -166,9 +177,7 @@ class _CartState extends State<Cart> {
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
         onTap: () async {
-          // await openPackageBuilder(package, index);
-          widget.calculateTotal();
-          setState(() {});
+          showRemovePackageDialog(package, index);
         },
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -449,7 +458,7 @@ class _CartState extends State<Cart> {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.9,
+        width: MediaQuery.of(context).size.width * 0.5,
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -485,25 +494,25 @@ class _CartState extends State<Cart> {
                   'Cash',
                   Icons.money,
                   Colors.green,
-                  () => {},
+                  () => showCashPaymentDialog(context: context),
                 ),
                 _buildPaymentMethodCard(
                   'GCash',
                   Icons.phone_android,
                   Colors.blue,
-                  () => {},
+                  () => showOtherPaymentDialog(paymentMethod: 'GCash', context: context),
                 ),
                 _buildPaymentMethodCard(
                   'Foodpanda',
                   Icons.delivery_dining,
                   Colors.pink,
-                  () => {},
+                  () => showOtherPaymentDialog(paymentMethod: 'Foodpanda', context: context),
                 ),
                 _buildPaymentMethodCard(
                   'Grab',
                   Icons.local_taxi,
                   Colors.green[700]!,
-                  () => {},
+                  () => showOtherPaymentDialog(paymentMethod: 'Grab', context: context),
                 ),
               ],
             ),
@@ -515,7 +524,7 @@ class _CartState extends State<Cart> {
 
   Widget _buildPaymentMethodCard(String title, IconData icon, Color color, VoidCallback onTap) {
     return Card(
-      elevation: 2,
+      elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -525,13 +534,13 @@ class _CartState extends State<Cart> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: color, size: 24),
+              Icon(icon, color: color, size: 30),
               const SizedBox(height: 8),
               Text(
                 title,
                 style: const TextStyle(
                   fontWeight: FontWeight.w600,
-                  fontSize: 14,
+                  fontSize: 16,
                 ),
               ),
             ],
@@ -579,14 +588,150 @@ class _CartState extends State<Cart> {
   void cancelPayment() {
     cashController.text = widget.total.toString();
     calculateChange('');
-    Navigator.of(context).pop();
   }
 
-  // Keep existing payment and dialog methods...
+  Future<void> showCashPaymentDialog({
+    required BuildContext context,
+  }) async {
+
+    if (context.mounted) Navigator.of(context).pop(); // This might pop the wrong dialog if not careful
+
+    setState(() {
+      _paymentMethod = "Cash";
+    });
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext dialogContext) { // Use dialogContext to avoid confusion
+        return CashPaymentDialog(
+          totalAmount: widget.total.toDouble(),
+          discountAmount: widget.discount,
+          onPay: pay,
+          onCancel: cancelPayment,
+          cashController: cashController,
+        );
+      },
+    );
+  }
+
+  // This is your original function, now calling the new dialog widget
+  Future<void> showOtherPaymentDialog({
+    required BuildContext context,
+    required String paymentMethod,
+  }) async {
+    // Ensure context is still valid before popping
+    if (context.mounted)Navigator.of(context).pop(); // This might pop the wrong dialog if not careful
+
+    cashController.text = ""; 
+    setState(() {
+      _paymentMethod = paymentMethod;
+    });
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext dialogContext) { // Use dialogContext to avoid confusion
+        return OtherPaymentDialog(
+          paymentMethod: paymentMethod,
+          totalAmount: widget.total.toDouble(),
+          discountAmount: widget.discount.toDouble(),
+          onPay: pay,
+          onCancel: cancelPayment,
+          referenceController: referenceController,
+        );
+      },
+    );
+  }
+
   Future<void> pay() async {
-    // Keep existing implementation
+    final now = DateTime.now();
+
+    final Sale newSale = Sale(
+      transactionID: _transactionID,
+      employeeId: "", // implement later
+      employeeName: "", // e.g., passed as a string to this widget
+      discount: widget.discount.toInt(),
+      subTotal: widget.total,
+      totalAmount: widget.total - widget.discount.toInt(),
+      date: DateTime.parse(DateFormat('yyyy-MM-dd').format(now)),
+      time: now,
+      payment: _paymentMethod == "Cash"
+          ? int.parse(cashController.text)
+          : widget.total - widget.discount.toInt(),
+      change: _paymentMethod == "Cash" ? _change : 0,
+      paymentMethod: _paymentMethod,
+      referenceNumber: referenceController.text,
+      productsJson: jsonEncode(widget.cartList),
+      packagesJson: jsonEncode(widget.cartPackageList),
+    );
+
+    for (var product in widget.cartList) {
+      final updateProduct = objectBox.productBox.get(product.id);
+      if (updateProduct != null) {
+        if (updateProduct.withVariant) {
+          final variantName = product.name.split("---").last;
+          final updateVariant = updateProduct.variants
+              .firstWhere((v) => v.name == variantName);
+          updateVariant.quantity -= product.quantity;
+          updateVariant.totalPrice = updateVariant.quantity * updateVariant.unitPrice;
+          objectBox.productVariantBox.put(updateVariant);
+        }
+
+        updateProduct.quantity -= product.quantity;
+        updateProduct.totalPrice = updateProduct.quantity * product.unitPrice;
+        objectBox.productBox.put(updateProduct);
+      }
+    }
+
+    for (var package in widget.cartPackageList) {
+      for (var product in package.productsList) {
+        final updateProduct = objectBox.productBox.get(product.id);
+        if (updateProduct != null) {
+          updateProduct.quantity -= product.quantity;
+          updateProduct.totalPrice = updateProduct.quantity * product.unitPrice;
+          objectBox.productBox.put(updateProduct);
+        }
+      }
+    }
+
+    objectBox.saleBox.put(newSale);
+    // _createdTransaction = newSale; // Optional: rename this var to _createdSale
+    _createdSale = newSale;
+
+    if (mounted) Navigator.of(context).pop();
+    showTransactionCompleteDialog(context: context);
+    setState(() {});
   }
 
+  Future<void> showTransactionCompleteDialog({
+    required BuildContext context,
+  }) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // Usually not dismissible by tapping outside for confirmation dialogs
+      builder: (BuildContext dialogContext) {
+        return TransactionCompleteDialog(
+          onPrintReceipt: () async {
+            if (_createdSale != null) {
+              // await printReceipt(_createdSale);
+            } else {
+              Fluttertoast.showToast(msg: "No transaction data available to print receipt.");
+            }
+          },
+          onOkay: () {
+            Navigator.of(dialogContext).pop(); // Use dialogContext to pop this specific dialog
+            widget.clearCart();
+            _createdSale = null; // This state update should be handled by the parent
+            referenceController.text = "";
+            initializeTransactionID();
+            Fluttertoast.showToast(msg: "Transaction Complete"); // This toast might be redundant if the dialog itself is the confirmation
+          },
+        );
+      },
+    );
+  }
+    
   Future<void> showRemoveProductDialog(Product product, int index) async {
     return showDialog(
       context: context,
@@ -614,6 +759,33 @@ class _CartState extends State<Cart> {
     );
   }
 
+  Future<void> showRemovePackageDialog(PackagedProduct package, int index) async {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          title: const Text("Remove from Cart"),
+          content: Text("Are you sure you want to remove ${package.name} from cart?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                widget.removePackageFromCart(package, index);
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: const Text("Remove", style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // Keep other existing methods...
 
   @override
@@ -622,7 +794,7 @@ class _CartState extends State<Cart> {
     
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: Colors.grey[100],
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),

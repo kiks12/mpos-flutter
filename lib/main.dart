@@ -13,7 +13,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 late ObjectBox objectBox;
-ColorScheme appColors = ColorScheme.fromSeed(seedColor: Colors.black87);
+ColorScheme appColors = ColorScheme.fromSeed(seedColor: Colors.blue);
 // const posTier = "FREE_TRIAL";
 // const posTier = "BASIC";
 // const posTier = "PRO";

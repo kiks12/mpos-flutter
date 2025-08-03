@@ -497,9 +497,93 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "15:5438815687901094730",
+      "lastPropertyId": "15:5707554770554412826",
+      "name": "Sale",
+      "properties": [
+        {
+          "id": "1:9050847608968668996",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:1464984456830813471",
+          "name": "transactionID",
+          "type": 6
+        },
+        {
+          "id": "3:8490857874371395608",
+          "name": "employeeId",
+          "type": 9
+        },
+        {
+          "id": "4:4323894142597767826",
+          "name": "employeeName",
+          "type": 9
+        },
+        {
+          "id": "5:5256356226782447784",
+          "name": "packagesJson",
+          "type": 9
+        },
+        {
+          "id": "6:3904310538592215267",
+          "name": "productsJson",
+          "type": 9
+        },
+        {
+          "id": "7:5844414106577135177",
+          "name": "paymentMethod",
+          "type": 9
+        },
+        {
+          "id": "8:961162167333634175",
+          "name": "referenceNumber",
+          "type": 9
+        },
+        {
+          "id": "9:288565054434901362",
+          "name": "subTotal",
+          "type": 6
+        },
+        {
+          "id": "10:4422215991392447182",
+          "name": "discount",
+          "type": 6
+        },
+        {
+          "id": "11:5140953867983768904",
+          "name": "totalAmount",
+          "type": 6
+        },
+        {
+          "id": "12:4900631903063910784",
+          "name": "payment",
+          "type": 6
+        },
+        {
+          "id": "13:5597443175341525156",
+          "name": "change",
+          "type": 6
+        },
+        {
+          "id": "14:1609906764123835924",
+          "name": "date",
+          "type": 10
+        },
+        {
+          "id": "15:5707554770554412826",
+          "name": "time",
+          "type": 10
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "14:6355443207001429547",
+  "lastEntityId": "15:5438815687901094730",
   "lastIndexId": "14:2668517202695705059",
   "lastRelationId": "5:4855441743212386096",
   "lastSequenceId": "0:0",
