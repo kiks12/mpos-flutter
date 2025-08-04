@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:mpos/routes/routes.dart';
+import 'package:mpos/screens/home/home_screen_two.dart';
+import 'package:mpos/screens/splash_screen.dart';
 import 'package:mpos/types/pos_device.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -37,7 +39,7 @@ class _PosDeviceSelectionScreenState extends State<PosDeviceSelectionScreen> {
 
       final devicesResponse = await Supabase.instance.client
           .from("pos_devices")
-          .select("*")
+          .select("*,locations(*)")
           .eq("user_id", userId);
 
       setState(() {
@@ -60,7 +62,7 @@ class _PosDeviceSelectionScreenState extends State<PosDeviceSelectionScreen> {
     final prefs = await SharedPreferences.getInstance();
     prefs.clear();
 
-    if (mounted) Navigator.of(context).popAndPushNamed(splashScreenRoute);
+    if (mounted) Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const SplashScreen()), (Route<dynamic> route) => false);
   }
 
   void _showSnackBar(String message, {bool isError = false}) {
@@ -87,12 +89,14 @@ class _PosDeviceSelectionScreenState extends State<PosDeviceSelectionScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('device_id', selectedPosDevice!.id);
       await prefs.setString('device_name', selectedPosDevice!.name);
+      await prefs.setString('location_name', selectedPosDevice?.location?.name ?? "No Location");
+      await prefs.setString('location_id', selectedPosDevice?.location?.name ?? "No Location");
 
       _showSnackBar("Device selected successfully!");
       
       await Future.delayed(const Duration(seconds: 1));
       if (mounted) {
-        Navigator.of(context).pushNamed(homeScreenRoute);
+        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const HomeScreenTwo()), (Route<dynamic> route) => false);
       }
     } catch (error) {
       _showSnackBar("Failed to select device. Please try again.", isError: true);
@@ -164,6 +168,14 @@ class _PosDeviceSelectionScreenState extends State<PosDeviceSelectionScreen> {
                     const SizedBox(height: 4),
                     Text(
                       'Device ID: ${device.id.substring(0, 8)}...',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Location: ${device.location?.name}',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey[600],

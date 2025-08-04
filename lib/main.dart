@@ -6,6 +6,7 @@ import 'package:mpos/firebase_options.dart';
 import 'package:mpos/models/object_box.dart';
 import 'package:mpos/routes/routes.dart';
 import 'package:mpos/screens/home/home_screen_two.dart';
+import 'package:mpos/screens/home/tabs/settings_screen.dart';
 import 'package:mpos/screens/pos_device_selection_screen.dart';
 import 'package:mpos/screens/splash_screen.dart';
 import 'package:mpos/screens/supabase_login_screen.dart';
@@ -112,8 +113,24 @@ class _MyAppState extends State<MyApp> {
         splashScreenRoute: (context) => SplashScreen(),
         supabaseLoginScreenRoute: (context) => SupabaseLoginScreen(),
         posDeviceSelectionScreenRoute: (context) => PosDeviceSelectionScreen(), 
-        homeScreenRoute: (context) => HomeScreenTwo()
+        homeScreenRoute: (context) => HomeScreenTwo(),
+        settingsScreenRoute: (context) => SettingsScreen()
       },
     );
   }
 }
+
+
+/**
+ * STORED IN PREFS
+ * device_name
+ * device_id
+ * location_id
+ * location_name
+ * user_id
+ * access_token
+ * access_token_expiry
+ * refresh_token
+ * name
+ * business_name
+*/

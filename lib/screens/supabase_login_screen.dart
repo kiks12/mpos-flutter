@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:mpos/routes/routes.dart';
+import 'package:mpos/screens/pos_device_selection_screen.dart';
 import 'package:mpos/types/profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -81,7 +82,7 @@ class _SupabaseLoginScreenState extends State<SupabaseLoginScreen> {
       
       await Future.delayed(const Duration(seconds: 1));
       if (mounted) {
-        Navigator.of(context).pushNamed(posDeviceSelectionScreenRoute);
+        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const PosDeviceSelectionScreen()), (Route<dynamic> route) => false);
       }
     } on AuthApiException catch (error) {
       _showSnackBar(error.message, isError: true);

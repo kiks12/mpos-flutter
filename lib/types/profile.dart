@@ -42,4 +42,9 @@ class Profile {
     'created_at': createdAt.toIso8601String(),
     'updated_at': updatedAt.toIso8601String(),
   };
+
+  @override
+  String toString() {
+    return 'id: $id, userId: $userId, email: $email, fullName: $fullName, businessName: $businessName, createdAt: ${createdAt.toString()}, updatedAt: ${updatedAt.toString()}';
+  }
 }

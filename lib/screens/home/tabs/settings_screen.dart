@@ -4,15 +4,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:mpos/components/header_one.dart';
-import 'package:mpos/components/header_two.dart';
 import 'package:mpos/components/text_form_field_with_label.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/account.dart';
 import 'package:mpos/screens/backup_data_screen_local.dart';
 import 'package:mpos/screens/home/tabs/accounts/edit_account_screen.dart';
 import 'package:mpos/screens/login_server_account_screen.dart';
-import 'package:mpos/utils/utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -36,8 +33,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    currentAccount = Utils().getCurrentAccount(objectBox);
-    serverAccount = Utils().getServerAccount();
+    // currentAccount = Utils().getCurrentAccount(objectBox);
+    // serverAccount = Utils().getServerAccount();
     setState(() {});
   }
 
@@ -60,11 +57,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.clear();
-    GetStorage().remove('id');
-    GetStorage().remove('email');
 
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const MyApp()));
+    if (mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const MyApp()),
+        (Route<dynamic> route) => false, // Remove all routes
+      );
+    }
   }
 
   void navigateToEditAccountScreen() {
@@ -184,93 +184,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const HeaderOne(padding: EdgeInsets.all(0), text: 'Settings'),
-                  SettingsHeader(
-                    currentAccount: currentAccount,
-                  ),
-                  Container(
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                            width: 1, color: Color.fromARGB(255, 228, 228, 228)),
-                      ),
-                    ),
-                    width: MediaQuery.of(context).size.width * 0.5,
-                    child: TextButton(
-                      onPressed: navigateToEditAccountScreen,
-                      child: const Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Text('Edit Account'),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                            width: 1, color: Color.fromARGB(255, 228, 228, 228)),
-                      ),
-                    ),
-                    width: MediaQuery.of(context).size.width * 0.5,
-                    child: TextButton(
-                      onPressed: navigateToLoginServerAccount,
-                      child: const Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Text('Manage Server Account'),
-                      ),
-                    ),
-                  ),
-                  if (currentAccount!.isAdmin)
-                    Container(
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                              width: 1, color: Color.fromARGB(255, 228, 228, 228)),
-                        ),
-                      ),
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      child: TextButton(
-                        onPressed: navigateToBackupScreen,
-                        child: const Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Text('Backup Database'),
-                        ),
-                      ),
-                    ),
-                  if (currentAccount!.isAdmin)
-                    Container(
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                              width: 1, color: Color.fromARGB(255, 228, 228, 228)),
-                        ),
-                      ),
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      child: TextButton(
-                        onPressed: navigateToRestoreDataScreen,
-                        child: const Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Text('Restore Data'),
-                        ),
-                      ),
-                    ),
-                  if (currentAccount!.isAdmin)
-                    Container(
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                              width: 1, color: Color.fromARGB(255, 228, 228, 228)),
-                        ),
-                      ),
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      child: TextButton(
-                        onPressed: _showResetDialog,
-                        child: const Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Text('Reset System'),
-                        ),
-                      ),
-                    ),
                   Container(
                     decoration: const BoxDecoration(
                       border: Border(
@@ -322,19 +235,19 @@ class _SettingsHeaderState extends State<SettingsHeader> {
             children: [
               CircleAvatar(
                 radius: 40,
-                child: Text(widget.currentAccount!.firstName[0].toUpperCase()),
+                child: Text("K"),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    HeaderTwo(
-                      padding: const EdgeInsets.symmetric(vertical: 7),
-                      text:
-                          '${widget.currentAccount!.lastName}, ${widget.currentAccount!.firstName} ${widget.currentAccount!.middleName[0].toUpperCase()}.',
-                    ),
-                    Text(widget.currentAccount!.emailAddress),
+                    // HeaderTwo(
+                    //   padding: const EdgeInsets.symmetric(vertical: 7),
+                    //   text:
+                    //       '${widget.currentAccount!.lastName}, ${widget.currentAccount!.firstName} ${widget.currentAccount!.middleName[0].toUpperCase()}.',
+                    // ),
+                    // Text(widget.currentAccount!.emailAddress),
                   ],
                 ),
               ),
