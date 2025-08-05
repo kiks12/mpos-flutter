@@ -472,6 +472,7 @@ class _CashierScreenState extends State<CashierScreen> {
                 width: MediaQuery.of(context).size.width * 0.428,
                 height: MediaQuery.of(context).size.height,
                 child: Cart(
+                  rootContext: context,
                   products: _productList,
                   calculateTotal: calculateSubTotal,
                   addPackageToCart: addPackageToCart,

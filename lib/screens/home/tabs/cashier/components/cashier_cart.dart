@@ -12,10 +12,12 @@ import 'package:mpos/objectbox.g.dart';
 import 'package:mpos/screens/home/tabs/cashier/components/dialogs/cash_payment_dialog.dart';
 import 'package:mpos/screens/home/tabs/cashier/components/dialogs/other_payment_dialog.dart';
 import 'package:mpos/screens/home/tabs/cashier/components/dialogs/transaction_complete_dialog.dart';
+import 'package:mpos/services/shared_preferences_service.dart';
 
 class Cart extends StatefulWidget {
   const Cart({
     Key? key,
+    required this.rootContext,
     required this.cartList,
     required this.cartPackageList,
     required this.total,
@@ -34,6 +36,7 @@ class Cart extends StatefulWidget {
     required this.products,
   }) : super(key: key);
 
+  final BuildContext rootContext;
   final List<Product> products;
   final List<Product> cartList;
   final List<PackagedProduct> cartPackageList;
@@ -641,13 +644,31 @@ class _CartState extends State<Cart> {
     );
   }
 
+  void _showSnackBar(String message, {bool isError = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(widget.rootContext).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
   Future<void> pay() async {
+    final employeeId = await SharedPreferencesService.get('employee_id');
+    final employeeName = await SharedPreferencesService.get('employee_name');
+    if (employeeName == null || employeeId == null) {
+      _showSnackBar("Cashier not found. Please select a cashier first", isError: true);
+      return;
+    }
     final now = DateTime.now();
 
     final Sale newSale = Sale(
       transactionID: _transactionID,
-      employeeId: "", // implement later
-      employeeName: "", // e.g., passed as a string to this widget
+      employeeId: employeeId, // implement later
+      employeeName: employeeName, // e.g., passed as a string to this widget
       discount: widget.discount.toInt(),
       subTotal: widget.total,
       totalAmount: widget.total - widget.discount.toInt(),
@@ -696,8 +717,10 @@ class _CartState extends State<Cart> {
     // _createdTransaction = newSale; // Optional: rename this var to _createdSale
     _createdSale = newSale;
 
-    if (mounted) Navigator.of(context).pop();
-    showTransactionCompleteDialog(context: context);
+    if (mounted) {
+      Navigator.of(context).pop();
+      showTransactionCompleteDialog(context: context);
+    }
     setState(() {});
   }
 
