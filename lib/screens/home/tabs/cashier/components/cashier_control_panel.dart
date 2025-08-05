@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mpos/screens/home/tabs/cashier/components/dialogs/cashier_selection_dialog.dart';
 
 class CashierControlPanel extends StatefulWidget {
   const CashierControlPanel({
     Key? key,
+    required this.scaffoldContext,
     required this.quantityController,
     required this.searchController,
     required this.searchProduct,
@@ -12,6 +14,7 @@ class CashierControlPanel extends StatefulWidget {
     this.onQuantityChanged,
   }) : super(key: key);
 
+  final BuildContext scaffoldContext;
   final TextEditingController quantityController;
   final TextEditingController searchController;
   final void Function() searchProduct;
@@ -309,6 +312,53 @@ class CashierControlPanelState extends State<CashierControlPanel> {
     );
   }
 
+  Future<void> showCashierSelectionDialog() async {
+    return showDialog(
+      context: context, 
+      barrierDismissible: true,
+      builder: (BuildContext dialogContext) {
+        return CashierSelectionDialog(rootContext: widget.scaffoldContext,);
+      });
+  }
+
+  Widget _buildCashierButton() {
+    return Container(
+      width: 120,
+      height: 48,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: showCashierSelectionDialog,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.person,
+                color: Colors.grey[600],
+                size: 24,
+              ),
+              const SizedBox(width: 2,),
+              Text("Cashier")
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -340,6 +390,8 @@ class CashierControlPanelState extends State<CashierControlPanel> {
                 ),
                 const SizedBox(width: 16),
                 _buildRefreshButton(),
+                const SizedBox(width: 16),
+                _buildCashierButton()
               ],
             );
           } else {
@@ -355,6 +407,8 @@ class CashierControlPanelState extends State<CashierControlPanel> {
                     ),
                     const SizedBox(width: 12),
                     _buildRefreshButton(),
+                    const SizedBox(width: 12),
+                    _buildCashierButton()
                   ],
                 ),
               ],

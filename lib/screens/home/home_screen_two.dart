@@ -11,17 +11,13 @@ import 'package:mpos/main.dart';
 import 'package:mpos/routes/routes.dart';
 import 'package:mpos/screens/home/components/home_screen_card/card_data.dart';
 import 'package:mpos/screens/home/components/home_screen_card/home_screen_card.dart';
-import 'package:mpos/screens/home/tabs/accounts/accounts_screen.dart';
-import 'package:mpos/screens/home/tabs/attendance/attendance_screen.dart';
 import 'package:mpos/screens/home/tabs/cashier/cashier_screen.dart';
 import 'package:mpos/screens/home/tabs/dashboard/dashboard_screen.dart';
 import 'package:mpos/screens/home/tabs/discounts/discounts_screen.dart';
 import 'package:mpos/screens/home/tabs/inventory/inventory_screen.dart';
-import 'package:mpos/screens/home/tabs/settings_screen.dart';
-import 'package:mpos/screens/home/tabs/time_in_time_out_screen.dart';
 import 'package:mpos/screens/home/tabs/transactions/transactions_screen.dart';
+import 'package:mpos/services/shared_preferences_service.dart';
 import 'package:mpos/utils/utils.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreenTwo extends StatefulWidget {
   const HomeScreenTwo({Key? key}) : super(key: key);
@@ -109,10 +105,9 @@ class _HomeScreenTwoState extends State<HomeScreenTwo> with SingleTickerProvider
   }
 
   Future<void> getSharedPreferencesValues() async {
-    final prefs = await SharedPreferences.getInstance();
-    posDeviceName = prefs.get("device_name") as String;
-    location = prefs.get("location_name") as String;
-    businessName = prefs.get("business_name") as String;
+    posDeviceName = await SharedPreferencesService.get("device_name");
+    location = await SharedPreferencesService.get("location_name");
+    businessName = await SharedPreferencesService.get("business_name");
     setState(() {});
   }
 

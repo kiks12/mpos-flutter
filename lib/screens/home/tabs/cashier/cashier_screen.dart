@@ -443,6 +443,7 @@ class _CashierScreenState extends State<CashierScreen> {
               child: Column(
                 children: [
                   CashierControlPanel(
+                    scaffoldContext: context,
                     quantityController: quantityController,
                     searchController: searchController,
                     searchProduct: searchProduct,

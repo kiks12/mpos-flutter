@@ -1,9 +1,8 @@
 
 import 'package:flutter/material.dart';
-import 'package:mpos/routes/routes.dart';
 import 'package:mpos/screens/pos_device_selection_screen.dart';
+import 'package:mpos/services/shared_preferences_service.dart';
 import 'package:mpos/types/profile.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseLoginScreen extends StatefulWidget {
@@ -28,13 +27,12 @@ class _SupabaseLoginScreenState extends State<SupabaseLoginScreen> {
   }
 
   Future<void> setPreferencesValues(AuthResponse res, Profile profile) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user_id', res.user!.id);
-    await prefs.setString('access_token', res.session!.accessToken);
-    await prefs.setString('access_token_expiry', res.session!.expiresAt.toString());
-    await prefs.setString('refresh_token', res.session!.refreshToken.toString());
-    await prefs.setString('name', profile.fullName);
-    await prefs.setString('business_name', profile.businessName);
+    await SharedPreferencesService.save('user_id', res.user!.id);
+    await SharedPreferencesService.save('access_token', res.session!.accessToken);
+    await SharedPreferencesService.save('access_token_expiry', res.session!.expiresAt);
+    await SharedPreferencesService.save('refresh_token', res.session!.refreshToken);
+    await SharedPreferencesService.save('name', profile.fullName);
+    await SharedPreferencesService.save('business_name', profile.businessName);
   }
 
   Future<Profile> fetchUserProfile(String userId) async {

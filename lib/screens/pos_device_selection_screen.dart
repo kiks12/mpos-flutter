@@ -1,10 +1,9 @@
 
 import 'package:flutter/material.dart';
-import 'package:mpos/routes/routes.dart';
 import 'package:mpos/screens/home/home_screen_two.dart';
 import 'package:mpos/screens/splash_screen.dart';
+import 'package:mpos/services/shared_preferences_service.dart';
 import 'package:mpos/types/pos_device.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 
@@ -29,8 +28,7 @@ class _PosDeviceSelectionScreenState extends State<PosDeviceSelectionScreen> {
 
   Future<void> fetchPosDevices() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString("user_id");
+      final userId = await SharedPreferencesService.get("user_id");
       
       if (userId == null) {
         _showSnackBar("User ID not found. Please login again.", isError: true);
@@ -59,8 +57,7 @@ class _PosDeviceSelectionScreenState extends State<PosDeviceSelectionScreen> {
   }
 
   Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.clear();
+    SharedPreferencesService.clear();
 
     if (mounted) Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const SplashScreen()), (Route<dynamic> route) => false);
   }
@@ -86,11 +83,10 @@ class _PosDeviceSelectionScreenState extends State<PosDeviceSelectionScreen> {
     setState(() => isSelecting = true);
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('device_id', selectedPosDevice!.id);
-      await prefs.setString('device_name', selectedPosDevice!.name);
-      await prefs.setString('location_name', selectedPosDevice?.location?.name ?? "No Location");
-      await prefs.setString('location_id', selectedPosDevice?.location?.name ?? "No Location");
+      await SharedPreferencesService.save('device_id', selectedPosDevice!.id);
+      await SharedPreferencesService.save('device_name', selectedPosDevice!.name);
+      await SharedPreferencesService.save('location_name', selectedPosDevice!.location?.name ?? "No Location");
+      await SharedPreferencesService.save('location_id', selectedPosDevice!.location?.id ?? "No Location ID");
 
       _showSnackBar("Device selected successfully!");
       
