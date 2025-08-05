@@ -50,7 +50,7 @@ class _TransactionListTileState extends State<TransactionListTile> {
             children: [
               Expanded(
                 child: Center(
-                  child: Text(widget.sale.transactionID.toString()),
+                  child: Text(widget.sale.transactionID),
                 ),
               ),
               Expanded(
@@ -116,6 +116,12 @@ class _TransactionListTileState extends State<TransactionListTile> {
                 child: Center(
                   child:
                   Text(DateFormat('HH:mm a').format(widget.sale.time)),
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child:
+                  Text(widget.sale.synced.toString()),
                 ),
               ),
             ],

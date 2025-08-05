@@ -1,8 +1,8 @@
 
-import 'package:firebase_core/firebase_core.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:mpos/firebase_options.dart';
 import 'package:mpos/models/object_box.dart';
 import 'package:mpos/routes/routes.dart';
 import 'package:mpos/screens/home/home_screen_two.dart';
@@ -10,6 +10,7 @@ import 'package:mpos/screens/home/tabs/settings_screen.dart';
 import 'package:mpos/screens/pos_device_selection_screen.dart';
 import 'package:mpos/screens/splash_screen.dart';
 import 'package:mpos/screens/supabase_login_screen.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -24,6 +25,15 @@ const basicInventoryLimit = 15;
 const proInventoryLimit = 30;
 const premiumInventoryLimit = 1000;
 
+Future<void> deleteObjectBoxStore() async {
+  final dir = await getApplicationDocumentsDirectory();
+  final storeDir = Directory('${dir.path}/objectbox');
+  if (await storeDir.exists()) {
+    await storeDir.delete(recursive: true);
+    print('✅ ObjectBox store deleted');
+  }
+}
+
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
   await Supabase.initialize(
@@ -34,10 +44,6 @@ Future<void> main() async {
 
   objectBox = await ObjectBox.create();
   await GetStorage.init();
-
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform
-  );
 
   runApp(const MyApp());
 }

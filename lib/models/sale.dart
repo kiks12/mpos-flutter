@@ -10,7 +10,7 @@ part 'sale.g.dart';
 class Sale {
   int id = 0;
 
-  int transactionID;
+  String transactionID;
 
   String employeeId;
   String employeeName; // Instead of linking to Account
@@ -30,6 +30,8 @@ class Sale {
   DateTime date;
   DateTime time;
 
+  bool synced;
+
   Sale({
     required this.transactionID,
     required this.employeeId,
@@ -45,6 +47,7 @@ class Sale {
     this.referenceNumber = "",
     this.packagesJson = "",
     this.productsJson = "",
+    this.synced = false, 
   });
 
   // Deserialize packages
@@ -63,6 +66,6 @@ class Sale {
 
   @override
   String toString() {
-    return 'Sale {$transactionID, $employeeName, $packages, $products, $paymentMethod, $totalAmount, $date, $time}';
+    return 'Sale {$transactionID, $employeeName, $packages, $products, $paymentMethod, $totalAmount, $date, $time , $synced}';
   }
 }

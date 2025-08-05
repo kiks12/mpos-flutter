@@ -7,7 +7,7 @@ part of 'sale.dart';
 // **************************************************************************
 
 Sale _$SaleFromJson(Map<String, dynamic> json) => Sale(
-      transactionID: (json['transactionID'] as num).toInt(),
+      transactionID: json['transactionID'] as String,
       employeeId: json['employeeId'] as String,
       employeeName: json['employeeName'] as String,
       paymentMethod: json['paymentMethod'] as String,
@@ -21,6 +21,7 @@ Sale _$SaleFromJson(Map<String, dynamic> json) => Sale(
       referenceNumber: json['referenceNumber'] as String? ?? "",
       packagesJson: json['packagesJson'] as String? ?? "",
       productsJson: json['productsJson'] as String? ?? "",
+      synced: json['synced'] as bool? ?? false,
     )..id = (json['id'] as num).toInt();
 
 Map<String, dynamic> _$SaleToJson(Sale instance) => <String, dynamic>{
@@ -39,4 +40,5 @@ Map<String, dynamic> _$SaleToJson(Sale instance) => <String, dynamic>{
       'change': instance.change,
       'date': instance.date.toIso8601String(),
       'time': instance.time.toIso8601String(),
+      'synced': instance.synced,
     };

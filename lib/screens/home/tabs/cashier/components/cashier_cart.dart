@@ -656,6 +656,10 @@ class _CartState extends State<Cart> {
     );
   }
 
+  String generateTransactionId() {
+    return DateTime.now().millisecondsSinceEpoch.toString();
+  }
+
   Future<void> pay() async {
     final employeeId = await SharedPreferencesService.get('employee_id');
     final employeeName = await SharedPreferencesService.get('employee_name');
@@ -666,7 +670,7 @@ class _CartState extends State<Cart> {
     final now = DateTime.now();
 
     final Sale newSale = Sale(
-      transactionID: _transactionID,
+      transactionID: generateTransactionId(),
       employeeId: employeeId, // implement later
       employeeName: employeeName, // e.g., passed as a string to this widget
       discount: widget.discount.toInt(),

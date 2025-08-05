@@ -121,6 +121,17 @@ class TransactionsListHeader extends StatelessWidget {
               ),
             ),
           ),
+          Expanded(
+            child: Center(
+              child: Text(
+                'Synced',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
