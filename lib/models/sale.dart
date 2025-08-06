@@ -15,6 +15,9 @@ class Sale {
   String employeeId;
   String employeeName; // Instead of linking to Account
 
+  String locationId;
+  String locationName;
+
   String packagesJson;
   String productsJson;
 
@@ -36,6 +39,8 @@ class Sale {
     required this.transactionID,
     required this.employeeId,
     required this.employeeName,
+    required this.locationId,
+    required this.locationName,
     required this.paymentMethod,
     required this.subTotal,
     required this.discount,

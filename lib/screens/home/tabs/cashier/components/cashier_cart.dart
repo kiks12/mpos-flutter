@@ -8,7 +8,6 @@ import 'package:mpos/models/account.dart';
 import 'package:mpos/models/discounts.dart';
 import 'package:mpos/models/inventory.dart';
 import 'package:mpos/models/sale.dart';
-import 'package:mpos/objectbox.g.dart';
 import 'package:mpos/screens/home/tabs/cashier/components/dialogs/cash_payment_dialog.dart';
 import 'package:mpos/screens/home/tabs/cashier/components/dialogs/other_payment_dialog.dart';
 import 'package:mpos/screens/home/tabs/cashier/components/dialogs/transaction_complete_dialog.dart';
@@ -59,18 +58,15 @@ class Cart extends StatefulWidget {
 }
 
 class _CartState extends State<Cart> {
-  int _transactionID = 0;
   String _paymentMethod = 'Cash';
   TextEditingController cashController = TextEditingController();
   TextEditingController referenceController = TextEditingController();
   int _change = 0;
-  // Transaction? _createdTransaction;
   late Sale? _createdSale;
 
   @override
   void initState() {
     super.initState();
-    initializeTransactionID();
   }
 
   Widget _buildProductItem(Product product, int index) {
@@ -564,21 +560,6 @@ class _CartState extends State<Cart> {
     );
   }
 
-  // Keep all existing methods (initializeTransactionID, calculateChange, etc.)
-  void initializeTransactionID() {
-    final all = objectBox.transactionBox.query()
-      ..order(Transaction_.id, flags: Order.descending);
-    final allBuilder = all.build();
-    allBuilder.limit = 1;
-    setState(() {
-      if (allBuilder.find().isEmpty) {
-        _transactionID = 1;
-        return;
-      }
-      _transactionID = allBuilder.find()[0].transactionID + 1;
-    });
-  }
-
   void calculateChange(String str) {
     if (cashController.text.isEmpty) return;
     _change = int.parse(cashController.text) - (widget.total - widget.discount.toInt());
@@ -663,16 +644,28 @@ class _CartState extends State<Cart> {
   Future<void> pay() async {
     final employeeId = await SharedPreferencesService.get('employee_id');
     final employeeName = await SharedPreferencesService.get('employee_name');
+    
     if (employeeName == null || employeeId == null) {
       _showSnackBar("Cashier not found. Please select a cashier first", isError: true);
       return;
     }
+
+    final locationId = await SharedPreferencesService.get('location_id');
+    final locationName = await SharedPreferencesService.get('location_name');
+
+    if (locationName == null || locationId == null) {
+      _showSnackBar("Location not found. Please try to re-login your account");
+      return;
+    }
+
     final now = DateTime.now();
 
     final Sale newSale = Sale(
       transactionID: generateTransactionId(),
       employeeId: employeeId, // implement later
       employeeName: employeeName, // e.g., passed as a string to this widget
+      locationId: locationId,
+      locationName: locationName,
       discount: widget.discount.toInt(),
       subTotal: widget.total,
       totalAmount: widget.total - widget.discount.toInt(),
@@ -718,7 +711,6 @@ class _CartState extends State<Cart> {
     }
 
     objectBox.saleBox.put(newSale);
-    // _createdTransaction = newSale; // Optional: rename this var to _createdSale
     _createdSale = newSale;
 
     if (mounted) {
@@ -748,7 +740,6 @@ class _CartState extends State<Cart> {
             widget.clearCart();
             _createdSale = null; // This state update should be handled by the parent
             referenceController.text = "";
-            initializeTransactionID();
             Fluttertoast.showToast(msg: "Transaction Complete"); // This toast might be redundant if the dialog itself is the confirmation
           },
         );
