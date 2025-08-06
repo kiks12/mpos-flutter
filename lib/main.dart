@@ -131,6 +131,7 @@ class _MyAppState extends State<MyApp> {
  * STORED IN PREFS
  * device_name
  * device_id
+ * device_token
  * location_id
  * location_name
  * user_id

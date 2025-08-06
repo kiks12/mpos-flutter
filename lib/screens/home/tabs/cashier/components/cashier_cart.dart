@@ -11,7 +11,10 @@ import 'package:mpos/models/sale.dart';
 import 'package:mpos/screens/home/tabs/cashier/components/dialogs/cash_payment_dialog.dart';
 import 'package:mpos/screens/home/tabs/cashier/components/dialogs/other_payment_dialog.dart';
 import 'package:mpos/screens/home/tabs/cashier/components/dialogs/transaction_complete_dialog.dart';
+import 'package:mpos/services/internet_connectivity_service.dart';
+import 'package:mpos/services/sales_ingestion_service.dart';
 import 'package:mpos/services/shared_preferences_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Cart extends StatefulWidget {
   const Cart({
@@ -679,6 +682,7 @@ class _CartState extends State<Cart> {
       referenceNumber: referenceController.text,
       productsJson: jsonEncode(widget.cartList),
       packagesJson: jsonEncode(widget.cartPackageList),
+      synced: false
     );
 
     for (var product in widget.cartList) {
@@ -713,11 +717,21 @@ class _CartState extends State<Cart> {
     objectBox.saleBox.put(newSale);
     _createdSale = newSale;
 
+    final isOnline = await InternetConnectivityService.isConnectedToInternet();
+    if (isOnline) postSaleOnline(newSale);
+
     if (mounted) {
       Navigator.of(context).pop();
       showTransactionCompleteDialog(context: context);
     }
     setState(() {});
+  }
+
+  Future<void> postSaleOnline(Sale sale) async {
+    final saleIngestionResponse = await SalesIngestionService.postSale(sale);
+    if (!saleIngestionResponse) return;
+    sale.synced = true;
+    objectBox.saleBox.put(sale);
   }
 
   Future<void> showTransactionCompleteDialog({

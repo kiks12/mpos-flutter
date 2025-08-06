@@ -85,6 +85,7 @@ class _PosDeviceSelectionScreenState extends State<PosDeviceSelectionScreen> {
     try {
       await SharedPreferencesService.save('device_id', selectedPosDevice!.id);
       await SharedPreferencesService.save('device_name', selectedPosDevice!.name);
+      await SharedPreferencesService.save('device_token', selectedPosDevice!.deviceToken);
       await SharedPreferencesService.save('location_name', selectedPosDevice!.location?.name ?? "No Location");
       await SharedPreferencesService.save('location_id', selectedPosDevice!.location?.id ?? "No Location ID");
 
