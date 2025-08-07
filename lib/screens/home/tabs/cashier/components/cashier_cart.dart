@@ -14,7 +14,6 @@ import 'package:mpos/screens/home/tabs/cashier/components/dialogs/transaction_co
 import 'package:mpos/services/internet_connectivity_service.dart';
 import 'package:mpos/services/sales_ingestion_service.dart';
 import 'package:mpos/services/shared_preferences_service.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Cart extends StatefulWidget {
   const Cart({

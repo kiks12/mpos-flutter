@@ -1,13 +1,11 @@
-
 import 'package:flutter/material.dart';
-import 'package:mpos/components/text_form_field_with_label.dart';
 import 'package:mpos/main.dart';
 import 'package:mpos/models/discounts.dart';
 import 'package:mpos/objectbox.g.dart';
 
 class EditDiscountScreen extends StatefulWidget {
   const EditDiscountScreen({Key? key, required this.discount}) : super(key: key);
-
+  
   final Discount discount;
 
   @override
@@ -16,17 +14,19 @@ class EditDiscountScreen extends StatefulWidget {
 
 class _EditDiscountScreenState extends State<EditDiscountScreen> with TickerProviderStateMixin {
   final formKey = GlobalKey<FormState>();
-
   final TextEditingController titleController = TextEditingController();
   final TextEditingController valueController = TextEditingController();
   late TabController _categoriesTabController;
   final List<String> _categories = [];
   List<String> _products = [];
+  
   static const discountOperations = ['PERCENTAGE', 'FIXED'];
   static const discountTypes = ['SPECIFIC', 'TOTAL'];
+  
   var _selectedOperation = "";
   var _selectedDiscountType = "";
   var _selectedProducts = "";
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -37,6 +37,8 @@ class _EditDiscountScreenState extends State<EditDiscountScreen> with TickerProv
       initializeProductsAndPackages();
     });
     initializeProductsAndPackages();
+    
+    // Initialize with existing discount data
     titleController.text = widget.discount.title;
     valueController.text = widget.discount.value.toString();
     _selectedDiscountType = widget.discount.type;
@@ -59,6 +61,7 @@ class _EditDiscountScreenState extends State<EditDiscountScreen> with TickerProv
     final category = _categories[_categoriesTabController.index];
     final productQuery = objectBox.productBox.query().build();
     final packageQuery = objectBox.packagedProductBox.query().build();
+    
     if (category == "All") {
       packageQuery.find().forEach((package) { _products.add(package.name); });
       productQuery.find().forEach((product) { _products.add(product.name); });
@@ -73,26 +76,60 @@ class _EditDiscountScreenState extends State<EditDiscountScreen> with TickerProv
     Navigator.of(context).pop();
   }
 
-  void updateDiscount() {
+  Future<void> updateDiscount() async {
     if (!formKey.currentState!.validate()) return;
+    
+    setState(() {
+      _isLoading = true;
+    });
 
-    Discount? discountToUpdate = objectBox.discountBox.get(widget.discount.id);
-
-    if (discountToUpdate != null) {
-      discountToUpdate.value = int.parse(valueController.text);
-      discountToUpdate.type = _selectedDiscountType;
-      discountToUpdate.title = titleController.text;
-      discountToUpdate.operation = _selectedOperation;
-      discountToUpdate.products = _selectedProducts;
-
-      objectBox.discountBox.put(discountToUpdate);
-
-      Navigator.of(context).pop();
+    try {
+      Discount? discountToUpdate = objectBox.discountBox.get(widget.discount.id);
+      if (discountToUpdate != null) {
+        discountToUpdate.value = int.parse(valueController.text);
+        discountToUpdate.type = _selectedDiscountType;
+        discountToUpdate.title = titleController.text;
+        discountToUpdate.operation = _selectedOperation;
+        discountToUpdate.products = _selectedProducts;
+        objectBox.discountBox.put(discountToUpdate);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Discount "${titleController.text}" updated successfully!'),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          Navigator.of(context).pop();
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error updating discount: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   void deleteDiscount() {
     objectBox.discountBox.remove(widget.discount.id);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Discount "${widget.discount.title}" deleted successfully!'),
+        backgroundColor: Colors.orange,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
     Navigator.of(context).pop();
     Navigator.of(context).pop();
   }
@@ -100,232 +137,695 @@ class _EditDiscountScreenState extends State<EditDiscountScreen> with TickerProv
   Future<void> showDeleteConfirmationDialog() async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: true, // user must tap button!
+      barrierDismissible: true,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Delete Discount'),
-          content: const SingleChildScrollView(
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 400),
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Colors.white, Colors.red.shade50],
+              ),
+            ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade100,
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: Icon(
+                    Icons.warning_amber_rounded,
+                    color: Colors.red.shade700,
+                    size: 32,
+                  ),
+                ),
+                const SizedBox(height: 20),
                 Text(
-                    'Are you sure you want to delete this discount in the record?')
+                  'Delete Discount',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[800],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Are you sure you want to delete "${widget.discount.title}"? This action cannot be undone.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: deleteDiscount,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text('Delete'),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            FilledButton(
-              onPressed: deleteDiscount,
-              child: const Text('Confirm'),
-            ),
-          ],
         );
       },
+    );
+  }
+
+  Widget _buildSectionHeader(String title, {IconData? icon}) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 32, 0, 16),
+      child: Row(
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 20, color: Theme.of(context).primaryColor),
+            const SizedBox(width: 8),
+          ],
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[800],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextFormField({
+    required String label,
+    required TextEditingController controller,
+    required String? Function(String?) validator,
+    bool isNumber = false,
+    String? helperText,
+    IconData? prefixIcon,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (prefixIcon != null)
+          Row(
+            children: [
+              Icon(prefixIcon, size: 16, color: Colors.grey[600]),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[700],
+                ),
+              ),
+            ],
+          )
+        else
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[700],
+            ),
+          ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+          validator: validator,
+          decoration: InputDecoration(
+            hintText: "Enter $label",
+            helperText: helperText,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Theme.of(context).primaryColor,
+                width: 2,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red, width: 2),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDropdownField({
+    required String label,
+    required String value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+    IconData? icon,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (icon != null)
+          Row(
+            children: [
+              Icon(icon, size: 16, color: Colors.grey[600]),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[700],
+                ),
+              ),
+            ],
+          )
+        else
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[700],
+            ),
+          ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey[300]!),
+            color: Colors.white,
+          ),
+          child: DropdownButtonFormField<String>(
+            value: value,
+            decoration: const InputDecoration(
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              border: InputBorder.none,
+            ),
+            items: items.map((item) {
+              return DropdownMenuItem<String>(
+                value: item,
+                child: Text(
+                  item,
+                  style: const TextStyle(fontSize: 15),
+                ),
+              );
+            }).toList(),
+            onChanged: onChanged,
+            icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey[600]),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProductSelection() {
+    if (_selectedDiscountType != "SPECIFIC") return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader("Select Products & Packages", icon: Icons.inventory_2_outlined),
+        
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[50],
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey[200]!),
+          ),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Select products that apply to this discount",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        TextButton.icon(
+                          onPressed: () {
+                            _selectedProducts = "";
+                            setState(() {});
+                          },
+                          icon: const Icon(Icons.clear_all, size: 16),
+                          label: const Text("Clear All"),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.red,
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            final productList = <String>[];
+                            for (var element in _products) {
+                              productList.add(element);
+                            }
+                            _selectedProducts = productList.join("___");
+                            setState(() {});
+                          },
+                          icon: const Icon(Icons.select_all, size: 16),
+                          label: const Text("Select All"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).primaryColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Selected count indicator
+              if (_selectedProducts.isNotEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor.withOpacity(0.1),
+                    border: Border(
+                      top: BorderSide(color: Colors.grey[200]!),
+                      bottom: BorderSide(color: Colors.grey[200]!),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        size: 16,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        "${_selectedProducts.split('___').where((s) => s.isNotEmpty).length} products selected",
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+              // Category Tabs
+              TabBar(
+                controller: _categoriesTabController,
+                isScrollable: true,
+                labelColor: Theme.of(context).primaryColor,
+                unselectedLabelColor: Colors.grey[600],
+                indicatorColor: Theme.of(context).primaryColor,
+                tabs: _categories.map((category) => Tab(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Text(
+                      category,
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                )).toList(),
+              ),
+              
+              // Products Grid
+              SizedBox(
+                height: 300,
+                child: TabBarView(
+                  controller: _categoriesTabController,
+                  children: _categories.map((category) {
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      child: _products.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.inventory_outlined,
+                                    size: 48,
+                                    color: Colors.grey[400],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    "No products found in this category",
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : GridView.builder(
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                childAspectRatio: 4,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                              ),
+                              itemCount: _products.length,
+                              itemBuilder: (context, index) {
+                                final product = _products[index];
+                                final isSelected = _selectedProducts.contains(product);
+                                
+                                return GestureDetector(
+                                  onTap: () {
+                                    final productsList = _selectedProducts.split("___");
+                                    if (productsList.contains(product)) {
+                                      productsList.remove(product);
+                                    } else {
+                                      productsList.add(product);
+                                    }
+                                    _selectedProducts = productsList.join("___");
+                                    setState(() {});
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: isSelected 
+                                          ? Theme.of(context).primaryColor.withOpacity(0.1)
+                                          : Colors.white,
+                                      border: Border.all(
+                                        color: isSelected 
+                                            ? Theme.of(context).primaryColor
+                                            : Colors.grey[300]!,
+                                        width: isSelected ? 2 : 1,
+                                      ),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Checkbox(
+                                          value: isSelected,
+                                          onChanged: (val) {
+                                            final productsList = _selectedProducts.split("___");
+                                            if (productsList.contains(product)) {
+                                              productsList.remove(product);
+                                            } else {
+                                              productsList.add(product);
+                                            }
+                                            _selectedProducts = productsList.join("___");
+                                            setState(() {});
+                                          },
+                                          activeColor: Theme.of(context).primaryColor,
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            product,
+                                            style: TextStyle(
+                                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                                              color: isSelected 
+                                                  ? Theme.of(context).primaryColor
+                                                  : Colors.grey[800],
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('Edit Discount'),
-            FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.red
-              ),
+        title: const Text('Edit Discount'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.grey[800],
+        elevation: 1,
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
+            child: ElevatedButton.icon(
               onPressed: showDeleteConfirmationDialog,
-              child: const Text("Delete"),
-            )
-          ],
-        ),
+              icon: const Icon(Icons.delete_outline, size: 18),
+              label: const Text("Delete"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+              ),
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Center(
-          child: Form(
-            key: formKey,
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.55,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(0, 25, 0,0),
-                    child: Text("Enter the name of the discount: "),
-                  ),
-                  TextFormFieldWithLabel(
-                    label: "Title",
-                    controller: titleController,
-                    padding: const EdgeInsets.all(10),
-                    isPassword: false,
-                    isNumber: false,
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(0, 25, 0,0),
-                    child: Text("Select the operation of discount: "),
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: DropdownButton(
-                      isExpanded: true,
-                      value: _selectedOperation,
-                      items: discountOperations.map((e) {
-                        return DropdownMenuItem<String>(value: e, child: Text(e));
-                      }).toList(),
-                      onChanged: (String? newVal) {
-                        setState(() {
-                          _selectedOperation = newVal!;
-                        });
-                      },
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(0, 25, 0,0),
-                    child: Text("Select the type of discount: "),
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: DropdownButton(
-                      isExpanded: true,
-                      value: _selectedDiscountType,
-                      items: discountTypes.map((e) {
-                        return DropdownMenuItem<String>(value: e, child: Text(e));
-                      }).toList(),
-                      onChanged: (value) {
-                        _selectedDiscountType = value.toString();
-                        setState(() {});
-                      },
-                    ),
-                  ),
-                  _selectedDiscountType == "SPECIFIC" ? const Padding(
-                    padding: EdgeInsets.fromLTRB(0, 25, 0,0),
-                    child: Text("Products and Packages"),
-                  ) : Container(),
-                  _selectedDiscountType == "SPECIFIC" ? DefaultTabController(
-                      length: _categories.length,
-                      child: Column(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 800),
+            margin: const EdgeInsets.all(24),
+            child: Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header
+                      Row(
                         children: [
-                          TabBar(
-                              controller: _categoriesTabController,
-                              tabs: _categories.map((e) => Padding(
-                                padding: const EdgeInsets.symmetric(vertical:10),
-                                child: Text(e),
-                              )).toList()
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              Icons.edit_outlined,
+                              color: Theme.of(context).primaryColor,
+                              size: 24,
+                            ),
                           ),
-                          SizedBox(
-                            height: 100,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text("Select all that applies from the choices below"),
-                                Row(
-                                  children: [
-                                    TextButton(
-                                        onPressed: (){
-                                          _selectedProducts = "";
-                                          setState(() {});
-                                        },
-                                        child: const Text("Clear")
-                                    ),
-                                    FilledButton.tonal(
-                                        onPressed: (){
-                                          final productList = [];
-                                          for (var element in _products) {
-                                            productList.add(element);
-                                          }
-                                          _selectedProducts = productList.join("___");
-                                          setState(() {});
-                                        },
-                                        child: const Text("Select All")
-                                    ),
-                                  ],
-                                )
+                                Text(
+                                  "Edit Discount",
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                                Text(
+                                  "Update discount settings and configuration",
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 14,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                          SizedBox(
-                            height: 250,
-                            child: TabBarView(
-                                children: _categories.map((e) {
-                                  return GridView.count(
-                                    childAspectRatio: (1/.3),
-                                    crossAxisCount: 3,
-                                    children: _products.map((e) =>
-                                        Padding(
-                                          padding: const EdgeInsets.all(5),
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              final productsList = _selectedProducts.split("___");
-                                              if (productsList.contains(e)) {
-                                                productsList.remove(e);
-                                              } else {
-                                                productsList.add(e);
-                                              }
-                                              _selectedProducts = productsList.join("___");
-                                              setState(() {});
-                                            },
-                                            child: Container(
-                                                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                                                decoration: BoxDecoration(
-                                                    color: _selectedProducts.contains(e) ? Theme.of(context).colorScheme.secondaryContainer : Colors.transparent,
-                                                    border: Border.all(width: 0.5, color: _selectedProducts.contains(e) ? Theme.of(context).colorScheme.secondary : Colors.black26),
-                                                    borderRadius: BorderRadius.circular(50)
-                                                ),
-                                                child: Row(
-                                                  children: [
-                                                    Checkbox(value: _selectedProducts.contains(e), onChanged: (val) {}),
-                                                    Flexible(child: Text(e)),
-                                                  ],
-                                                )
-                                            ),
-                                          ),
-                                        )
-                                    ).toList(),
-                                  );
-                                }).toList()
-                            ),
-                          )
                         ],
-                      )
-                  ) : Container(),
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(0, 25, 0,0),
-                    child: Text("Enter the value of the discount: "),
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Basic Information
+                      _buildSectionHeader("Basic Information", icon: Icons.info_outline),
+                      
+                      _buildTextFormField(
+                        label: "Discount Title",
+                        controller: titleController,
+                        prefixIcon: Icons.title,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a discount title';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Discount Configuration
+                      _buildSectionHeader("Discount Configuration", icon: Icons.settings_outlined),
+                      
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildDropdownField(
+                              label: "Discount Type",
+                              value: _selectedDiscountType,
+                              items: discountTypes,
+                              onChanged: (value) {
+                                _selectedDiscountType = value.toString();
+                                setState(() {});
+                              },
+                              icon: Icons.category_outlined,
+                            ),
+                          ),
+                          const SizedBox(width: 24),
+                          Expanded(
+                            child: _buildDropdownField(
+                              label: "Operation",
+                              value: _selectedOperation,
+                              items: discountOperations,
+                              onChanged: (value) {
+                                _selectedOperation = value!;
+                                setState(() {});
+                              },
+                              icon: Icons.calculate_outlined,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Value Input
+                      _buildTextFormField(
+                        label: "Discount Value ${_selectedOperation == 'PERCENTAGE' ? '(%)' : '(₱)'}",
+                        controller: valueController,
+                        isNumber: true,
+                        prefixIcon: Icons.monetization_on_outlined,
+                        helperText: _selectedOperation == 'PERCENTAGE' 
+                            ? "Enter percentage value (1-100)"
+                            : "Enter fixed amount in pesos",
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a discount value';
+                          }
+                          final numValue = int.tryParse(value);
+                          if (numValue == null || numValue <= 0) {
+                            return 'Please enter a valid positive number';
+                          }
+                          if (_selectedOperation == 'PERCENTAGE' && numValue > 100) {
+                            return 'Percentage cannot exceed 100%';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      // Product Selection (conditional)
+                      _buildProductSelection(),
+
+                      const SizedBox(height: 48),
+
+                      // Action Buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          OutlinedButton.icon(
+                            onPressed: _isLoading ? null : navigateToPreviousScreen,
+                            icon: const Icon(Icons.cancel_outlined, size: 18),
+                            label: const Text("Cancel"),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          ElevatedButton.icon(
+                            onPressed: _isLoading ? null : updateDiscount,
+                            icon: _isLoading 
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                  )
+                                : const Icon(Icons.update, size: 18),
+                            label: Text(_isLoading ? "Updating..." : "Update Discount"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).primaryColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              elevation: 2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  TextFormFieldWithLabel(
-                    label: "Value",
-                    controller: valueController,
-                    padding: const EdgeInsets.all(10),
-                    isPassword: false,
-                    isNumber: true,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 25),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 20),
-                          child: TextButton(onPressed: navigateToPreviousScreen, child: const Text("Cancel")),
-                        ),
-                        FilledButton(onPressed: updateDiscount, child: const Text("Update"))
-                      ],
-                    ),
-                  )
-                ],
+                ),
               ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _categoriesTabController.dispose();
+    titleController.dispose();
+    valueController.dispose();
+    super.dispose();
   }
 }

@@ -1,6 +1,4 @@
-
 import 'package:flutter/material.dart';
-import 'package:mpos/components/header_one.dart';
 
 class DiscountScreenHeader extends StatefulWidget {
   const DiscountScreenHeader({
@@ -23,84 +21,248 @@ class DiscountScreenHeader extends StatefulWidget {
 }
 
 class _DiscountScreenHeaderState extends State<DiscountScreenHeader> {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
+  Widget _buildSearchAndActions(double maxWidth) {
+    return Row(
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(15, 15, 15, 5),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              const HeaderOne(
-                  padding: EdgeInsets.all(0),
-                  text: 'Discounts'
+        Expanded(
+          child: Container(
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: TextFormField(
+              controller: widget.searchController,
+              maxLines: 1,
+              minLines: 1,
+              textInputAction: TextInputAction.search,
+              onFieldSubmitted: (_) => widget.search(),
+              decoration: InputDecoration(
+                hintText: "Search discounts...",
+                prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.grey[50],
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).primaryColor,
+                    width: 2,
+                  ),
+                ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: SizedBox(
-                      width: 300,
-                      height: 40,
-                      child: TextFormField(
-                        maxLines: 1,
-                        minLines: 1,
-                        controller: widget.searchController,
-                        decoration: InputDecoration(
-                            labelText: "Search",
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 15),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(50)
-                            )
-                        ),
-                      ),
-                    ),
-                  ),
-                  FilledButton.tonalIcon(
-                    icon: const Icon(Icons.search),
-                    onPressed: widget.search,
-                    label: const Text('Search'),
-                  ),
-                  IconButton.filledTonal(
-                    icon: const Icon(Icons.refresh),
-                    onPressed: widget.refresh,
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: FilledButton.icon(
-                      icon: const Icon(Icons.delete),
-                      style: FilledButton.styleFrom(
-                        foregroundColor: Colors.red, backgroundColor: const Color.fromRGBO(255, 230, 230, 1),
-                      ),
-                      onPressed: widget.deleteAll,
-                      label: const Text('Delete All'),
-                    ),
-                  ),
-                  FilledButton.icon(
-                    icon: const Icon(Icons.add),
-                    onPressed: widget.addDiscount,
-                    label: const Text('Add Discount'),
-                  ),
-                ],
+        const SizedBox(width: 12),
+        SizedBox(
+          height: 48,
+          child: ElevatedButton.icon(
+            onPressed: widget.search,
+            icon: const Icon(Icons.search, size: 20),
+            label: const Text('Search'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-            ],
+              elevation: 2,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        SizedBox(
+          height: 48,
+          width: 48,
+          child: IconButton(
+            onPressed: widget.refresh,
+            icon: const Icon(Icons.refresh),
+            style: IconButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.grey[700],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 2,
+            ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        SizedBox(
+          height: 48,
+          child: OutlinedButton.icon(
+            onPressed: widget.deleteAll,
+            icon: const Icon(Icons.delete_outline, size: 20),
+            label: const Text('Delete All'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.red,
+              side: const BorderSide(color: Colors.red),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        SizedBox(
+          height: 48,
+          child: ElevatedButton.icon(
+            onPressed: widget.addDiscount,
+            icon: const Icon(Icons.add, size: 20),
+            label: const Text('Add Discount'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 2,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey[200]!,
+            width: 1,
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title and Search/Refresh Section
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth > 700) {
+                // Desktop/Tablet layout
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            Icons.discount_outlined,
+                            color: Theme.of(context).primaryColor,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          'Discounts',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[800],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    Expanded(
+                      flex: 2,
+                      child: _buildSearchAndActions(constraints.maxWidth),
+                    ),
+                  ],
+                );
+              } else {
+                // Mobile layout
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            Icons.discount_outlined,
+                            color: Theme.of(context).primaryColor,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          'Discounts',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[800],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _buildSearchAndActions(constraints.maxWidth),
+                  ],
+                );
+              }
+            },
+          ),
+          const SizedBox(height: 20),
+          // Action Buttons Section
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth > 700) {
+                // Desktop/Tablet layout
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Empty space to push buttons to the right
+                    const Spacer(),
+                    _buildActionButtons(),
+                  ],
+                );
+              } else {
+                // Mobile layout
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildActionButtons(),
+                  ],
+                );
+              }
+            },
+          ),
+        ],
+      ),
     );
   }
 }
