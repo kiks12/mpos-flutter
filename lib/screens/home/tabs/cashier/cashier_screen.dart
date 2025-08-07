@@ -1,9 +1,10 @@
+// Updated CashierScreen with optimized discount system
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:mpos/main.dart';
+import 'package:mpos/managers/discount_manager.dart';
 import 'package:mpos/models/account.dart';
 import 'package:mpos/models/discounts.dart';
 import 'package:mpos/models/inventory.dart';
@@ -24,25 +25,22 @@ class _CashierScreenState extends State<CashierScreen> {
   List<PackagedProduct> _packageList = [];
   List<String> _categoriesList = [];
   String _selectedCategory = "All";
-
   TextEditingController searchController = TextEditingController();
   TextEditingController quantityController = TextEditingController(text: '1');
-
   List<PackagedProduct> _cartPackageList = [];
   List<Product> _cartList = [];
-  int _total = 0;
-
-  List<Discount> _discountList = [];
-  List<Discount> _appliedDiscountList = [];
+  double _subtotal = 0.0;
+  
+  // Optimized discount management
+  final DiscountManager _discountManager = DiscountManager();
+  List<Discount> _availableDiscounts = [];
   String _selectedDiscount = "";
-  double _discount = 0.0;
-
+  
   Account? currentAccount;
 
   @override
   void initState() {
     super.initState();
-    // getCurrentAccount();
     refresh();
   }
 
@@ -55,12 +53,6 @@ class _CashierScreenState extends State<CashierScreen> {
     initializePackageStream("All");
   }
 
-  // void getCurrentAccount() {
-  //   setState(() {
-  //     currentAccount = Utils().getCurrentAccount(objectBox);
-  //   });
-  // }
-
   void initializeCategories() {
     _categoriesList = [];
     _categoriesList.add("All");
@@ -72,10 +64,10 @@ class _CashierScreenState extends State<CashierScreen> {
   }
 
   void initializeDiscounts() {
-    _discountList = [];
+    _availableDiscounts = [];
     final query = objectBox.discountBox.query().build();
-    query.find().forEach((element) { _discountList.add(element); });
-    if (_discountList.isNotEmpty) _selectedDiscount = _discountList[0].title;
+    query.find().forEach((element) { _availableDiscounts.add(element); });
+    if (_availableDiscounts.isNotEmpty) _selectedDiscount = _availableDiscounts[0].title;
     setState(() {});
   }
 
@@ -123,10 +115,8 @@ class _CashierScreenState extends State<CashierScreen> {
   void clearCart() {
     _cartList = [];
     _cartPackageList = [];
-    _appliedDiscountList = [];
-    _discount = 0;
-    _total = 0;
-
+    _discountManager.clearDiscounts();
+    _subtotal = 0.0;
     initializeProductStream("All");
     initializePackageStream("All");
     setState(() {});
@@ -137,10 +127,9 @@ class _CashierScreenState extends State<CashierScreen> {
       Fluttertoast.showToast(msg: "Cart is Empty, no need to void");
       return;
     }
-
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // user must tap button!
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Void Transaction'),
@@ -169,185 +158,407 @@ class _CashierScreenState extends State<CashierScreen> {
     );
   }
 
-  void calculateDiscount(Discount discount) {
-    if (discount.type == "TOTAL" && discount.operation == "FIXED") {
-      _discount += discount.value;
-      setState(() {});
+  // Optimized discount methods
+  void addDiscount(Discount discount) {
+    final success = _discountManager.addDiscount(discount);
+    if (success) {
+      _recalculateDiscounts();
+    } else {
+      Fluttertoast.showToast(msg: "${discount.title} is already applied");
     }
-    if (discount.type == "TOTAL" && discount.operation == "PERCENTAGE") {
-      _discount += _total * (discount.value / 100);
-    }
-    if (discount.type == "SPECIFIC" && discount.operation == "FIXED") {
-      for (var element in _cartPackageList) {
-        if (discount.products.contains(element.name)) _discount += discount.value;
-        for (var product in element.productsList) {
-          if (discount.products.contains(product.name)) _discount += discount.value * product.quantity;
-        }
-      }
-      for (var element in _cartList) {
-        if (discount.products.contains(element.name)) _discount += (discount.value * element.quantity);
-      }
-    }
-    if (discount.type == "SPECIFIC" && discount.operation == "PERCENTAGE") {
-      for (var element in _cartPackageList) {
-        if (discount.products.contains(element.name)) _discount += element.price * (discount.value / 100);
-        for (var product in element.productsList) {
-          if (discount.products.contains(product.name)) _discount += product.totalPrice * (discount.value / 100);
-        }
-      }
-      for (var element in _cartList) {
-        if (discount.products.contains(element.name)) _discount += element.totalPrice * (discount.value / 100);
-      }
-    }
-    setState(() {});
   }
 
-  void calculateDiscountSubtract(Discount discount) {
-    if (discount.type == "TOTAL" && discount.operation == "FIXED") {
-      _discount -= discount.value;
-      setState(() {});
+  void removeDiscount(String discountTitle) {
+    final success = _discountManager.removeDiscount(discountTitle);
+    if (success) {
+      _recalculateDiscounts();
     }
-    if (discount.type == "TOTAL" && discount.operation == "PERCENTAGE") {
-      _discount -= _total * (discount.value / 100);
-    }
-    if (discount.type == "SPECIFIC" && discount.operation == "FIXED") {
-      for (var element in _cartPackageList) {
-        if (discount.products.contains(element.name)) _discount -= discount.value;
-        for (var product in element.productsList) {
-          if (discount.products.contains(product.name)) _discount -= discount.value * product.quantity;
-        }
-      }
-      for (var element in _cartList) {
-        if (discount.products.contains(element.name)) _discount -= (discount.value * element.quantity);
-      }
-    }
-    if (discount.type == "SPECIFIC" && discount.operation == "PERCENTAGE") {
-      for (var element in _cartPackageList) {
-        if (discount.products.contains(element.name)) _discount -= element.price * (discount.value / 100);
-        for (var product in element.productsList) {
-          if (discount.products.contains(product.name)) _discount -= product.totalPrice * (discount.value / 100);
-        }
-      }
-      for (var element in _cartList) {
-        if (discount.products.contains(element.name)) _discount -= element.totalPrice * (discount.value / 100);
-      }
-    }
-    setState(() {});
   }
 
   void clearAppliedDiscounts() {
-    _appliedDiscountList = [];
-    _discount = 0;
+    _discountManager.clearDiscounts();
     setState(() {});
   }
 
+  void _recalculateDiscounts() {
+    final result = _discountManager.calculateDiscounts(
+      cartProducts: _cartList,
+      cartPackages: _cartPackageList,
+      subtotal: _subtotal,
+    );
+    
+    // Show errors if any
+    if (result.errors.isNotEmpty) {
+      for (final error in result.errors) {
+        Fluttertoast.showToast(msg: error);
+      }
+    }
+    
+    setState(() {});
+  }
+
+  // Enhanced discount dialog with better error handling
   Future<void> showDiscountsDialog() async {
     return showDialog<void>(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return StatefulBuilder(
-            builder: (context, setState) => AlertDialog(
-              title: Row(
-                children: [
-                  const Text("Apply Discounts"),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 55),
-                    child: Text("Total Discount: ${NumberFormat.currency(symbol: "₱").format(_discount)}"),
-                  )
-                ],
-              ),
-              content: SingleChildScrollView(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) => Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            insetPadding: const EdgeInsets.all(20),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 500, maxHeight: 600),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Colors.white, Colors.grey.shade50],
+                  ),
+                ),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: DropdownButton(
-                            isExpanded: true,
-                            value: _selectedDiscount,
-                            items: _discountList.map((e) {
-                              return DropdownMenuItem(
-                                  value: e.title,
-                                  child: Text(e.title)
-                              );
-                            }).toList(),
-                            onChanged: (val) {
-                              _selectedDiscount = val.toString();
-                              setState(() {});
-                            }
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left:15),
-                          child: FilledButton.tonal(onPressed: (){
-                            final selected = _discountList.firstWhere((element) => element.title == _selectedDiscount);
-                            _appliedDiscountList.add(selected);
-                            calculateDiscount(selected);
-                            setState(() {});
-                          }, child: const Text("Add")),
-                        )
-                      ],
-                    ),
-                    for (var discount in _appliedDiscountList) Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(50),
-                            border: Border.all(color: Colors.black26)
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(discount.title),
-                              TextButton(
-                                onPressed: (){
-                                  _appliedDiscountList = _appliedDiscountList.where((element) => element.title != discount.title).toList();
-                                  calculateDiscountSubtract(discount);
-                                  setState(() {});
-                                },
-                                child: const Text("Remove")
-                              )
-                            ],
-                          ),
+                    // Header
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withOpacity(0.05),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
                         ),
                       ),
-                    )
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).primaryColor.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  Icons.discount_outlined,
+                                  color: Theme.of(context).primaryColor,
+                                  size: 24,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Apply Discounts",
+                                      style: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey[800],
+                                      ),
+                                    ),
+                                    Text(
+                                      "Select and manage discount options",
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                icon: const Icon(Icons.close),
+                                style: IconButton.styleFrom(
+                                  backgroundColor: Colors.grey[100],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          // Total Discount Display
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade50,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.green.shade200),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.savings_outlined,
+                                  color: Colors.green.shade700,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 12),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Total Discount",
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.green.shade600,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      NumberFormat.currency(symbol: "₱").format(_discountManager.totalDiscount),
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green.shade700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Content
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Add Discount Section
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: DropdownButtonFormField<String>(
+                                    value: _selectedDiscount.isNotEmpty ? _selectedDiscount : null,
+                                    decoration: InputDecoration(
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      hintText: "Select a discount...",
+                                    ),
+                                    items: _availableDiscounts.map((discount) {
+                                      return DropdownMenuItem(
+                                        value: discount.title,
+                                        child: Text(discount.title),
+                                      );
+                                    }).toList(),
+                                    onChanged: (val) {
+                                      _selectedDiscount = val ?? "";
+                                      setDialogState(() {});
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                ElevatedButton.icon(
+                                  onPressed: _selectedDiscount.isNotEmpty
+                                      ? () {
+                                          final selected = _availableDiscounts.firstWhere(
+                                            (element) => element.title == _selectedDiscount,
+                                          );
+                                          addDiscount(selected);
+                                          setDialogState(() {});
+                                        }
+                                      : null,
+                                  icon: const Icon(Icons.add, size: 18),
+                                  label: const Text("Add"),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Theme.of(context).primaryColor,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 24),
+
+                            // Applied Discounts
+                            Text(
+                              "Applied Discounts (${_discountManager.appliedDiscounts.length})",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey[800],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+
+                            Flexible(
+                              child: _discountManager.appliedDiscounts.isEmpty
+                                  ? Container(
+                                      width: double.infinity,
+                                      padding: const EdgeInsets.all(32),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[50],
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(color: Colors.grey[200]!),
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            "No discounts applied",
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: _discountManager.appliedDiscounts.length,
+                                      itemBuilder: (context, index) {
+                                        final discount = _discountManager.appliedDiscounts[index];
+                                        final discountAmount = _discountManager.discountBreakdown[discount.title] ?? 0.0;
+                                        
+                                        return Padding(
+                                          padding: const EdgeInsets.only(bottom: 8),
+                                          child: Container(
+                                            padding: const EdgeInsets.all(16),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(12),
+                                              border: Border.all(
+                                                color: Theme.of(context).primaryColor.withOpacity(0.2),
+                                              ),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.local_offer,
+                                                  size: 16,
+                                                  color: Theme.of(context).primaryColor,
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        discount.title,
+                                                        style: const TextStyle(
+                                                          fontWeight: FontWeight.w500,
+                                                          fontSize: 15,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        NumberFormat.currency(symbol: "₱").format(discountAmount),
+                                                        style: TextStyle(
+                                                          color: Colors.green.shade600,
+                                                          fontSize: 12,
+                                                          fontWeight: FontWeight.w500,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                TextButton.icon(
+                                                  onPressed: () {
+                                                    removeDiscount(discount.title);
+                                                    setDialogState(() {});
+                                                  },
+                                                  icon: const Icon(Icons.remove_circle_outline, size: 16),
+                                                  label: const Text("Remove"),
+                                                  style: TextButton.styleFrom(
+                                                    foregroundColor: Colors.red,
+                                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Actions
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: _discountManager.appliedDiscounts.isNotEmpty
+                                  ? () {
+                                      clearAppliedDiscounts();
+                                      setDialogState(() {});
+                                    }
+                                  : null,
+                              icon: const Icon(Icons.clear_all, size: 18),
+                              label: const Text("Clear All"),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.red,
+                                side: BorderSide(color: Colors.red.shade300),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            flex: 2,
+                            child: ElevatedButton.icon(
+                              onPressed: () => Navigator.of(context).pop(),
+                              icon: const Icon(Icons.check, size: 18),
+                              label: const Text("Apply Discounts"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).primaryColor,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                elevation: 2,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
-              actions: [
-                FilledButton.tonal(
-                  child: const Text('Clear'),
-                  onPressed: () {
-                    clearAppliedDiscounts();
-                    setState((){});
-                  },
-                ),
-                FilledButton(
-                  child: const Text('Okay'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
             ),
-          );
-        }
+          ),
+        );
+      },
     );
   }
 
   void calculateSubTotal() {
-    _total = _cartList.fold(0, (previousValue, element) {
+    _subtotal = _cartList.fold(0.0, (previousValue, element) {
       return previousValue + element.totalPrice;
     });
-    _total += _cartPackageList.fold(0, (previousValue, element) => previousValue + element.price);
-    setState(() {});
+    _subtotal += _cartPackageList.fold(0.0, (previousValue, element) => previousValue + element.price);
+    
+    // Recalculate discounts when subtotal changes
+    _recalculateDiscounts();
   }
 
+  // Rest of your existing methods remain the same...
   void addPackageToCart(PackagedProduct package) {
     PackagedProduct newPackage = PackagedProduct(
       name: package.name,
@@ -357,9 +568,7 @@ class _CashierScreenState extends State<CashierScreen> {
       price: package.price,
       image: "",
     );
-
     newPackage.id = package.id;
-
     _cartPackageList.add(newPackage);
     setState(() {});
     calculateSubTotal();
@@ -379,36 +588,28 @@ class _CashierScreenState extends State<CashierScreen> {
 
   void addToCart(Product product) {
     final quantity = int.parse(quantityController.text);
-
     if (quantity == 0) {
       Fluttertoast.showToast(msg: "Invalid quantity of 0");
       return;
     }
-
     Product newProduct = Product(
       name: product.name,
       category: product.category,
       unitPrice: product.unitPrice,
       quantity: quantity,
-      totalPrice:
-          product.unitPrice * quantity,
+      totalPrice: product.unitPrice * quantity,
       image: "",
     );
-
     if (product.quantity == 0) return;
-
     product.quantity -= quantity;
     setState(() {});
-
     newProduct.id = product.id;
-
     try {
       int prodIdx = _cartList.indexOf(
           _cartList.firstWhere((element) => element.name == newProduct.name));
       _cartList[prodIdx].quantity += quantity;
       _cartList[prodIdx].totalPrice =
           _cartList[prodIdx].quantity * newProduct.unitPrice;
-
       calculateSubTotal();
       setState(() {});
     } on StateError {
@@ -479,13 +680,13 @@ class _CashierScreenState extends State<CashierScreen> {
                   removePackageFromCart: removePackageFromCart,
                   removeProductFromCart: removeProductFromCart,
                   showDiscountsDialog: showDiscountsDialog,
-                  discountList: _discountList,
+                  discountList: _availableDiscounts,
                   selectedDiscount: _selectedDiscount,
-                  appliedDiscountList: _appliedDiscountList,
+                  appliedDiscountList: _discountManager.appliedDiscounts,
                   cartList: _cartList,
                   cartPackageList: _cartPackageList,
-                  total: _total,
-                  discount: _discount,
+                  total: _subtotal.toInt(),
+                  discount: _discountManager.totalDiscount,
                   voidCart: showVoidCartConfirmationDialog,
                   currentAccount: currentAccount,
                   clearCart: clearCart,
@@ -498,4 +699,3 @@ class _CashierScreenState extends State<CashierScreen> {
     );
   }
 }
-
