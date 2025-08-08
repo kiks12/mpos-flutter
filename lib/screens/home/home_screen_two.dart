@@ -133,22 +133,16 @@ class _HomeScreenTwoState extends State<HomeScreenTwo> with SingleTickerProvider
                               ),
                             ],
                           ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.70, 
-                            child: Expanded(
-                              child: Center(
-                                child: GridView.builder(
-                                  shrinkWrap: true,
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 2, mainAxisSpacing: 2),
-                                  itemBuilder: (context, index) {
-                                    final data = homeScreenCardData;
-                                    final indexedData = data[index];
-                                    return HomeScreenCard(cardData: indexedData!);
-                                  },
-                                  itemCount: homeScreenCardData.length,
-                                ),
-                              )
-                            ),
+                          Expanded(
+                            child: GridView.builder(
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 1, mainAxisSpacing: 1),
+                              itemBuilder: (context, index) {
+                                final data = homeScreenCardData;
+                                final indexedData = data[index];
+                                return HomeScreenCard(cardData: indexedData);
+                              },
+                              itemCount: homeScreenCardData.length,
+                            )
                           ),
                         ]
                       ),
